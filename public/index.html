@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chef Caseiro — painel</title>
+<style>
+  :root {
+    --bg: #f5f6fb;
+    --surface: #ffffff;
+    --border: #e1e3f0;
+    --ink: #14163a;
+    --ink-soft: #4a4e78;
+    --ink-faint: #8286a8;
+    --accent: #0429BC;
+    --accent-soft: #1F53E5;
+    --accent-bg: #eef1ff;
+    --good: #0a8f5b;
+    --good-bg: #e6f6ee;
+    --warn: #b8720a;
+    --warn-bg: #fdf1de;
+    --bad: #c62f4a;
+    --bad-bg: #fbe8ec;
+    --radius: 10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1024; --surface: #171933; --border: #2b2e57;
+      --ink: #eceefc; --ink-soft: #b9bdd6; --ink-faint: #82869f;
+      --accent: #7c96ff; --accent-soft: #97aeff; --accent-bg: #1c2050;
+      --good: #4fd39a; --good-bg: #0f2b23;
+      --warn: #f0b74e; --warn-bg: #33270f;
+      --bad: #f2748e; --bad-bg: #391822;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.5 -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  header {
+    padding: 20px 28px; background: var(--surface); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+  header h1 { font-size: 19px; margin: 0; }
+  header .tag { color: var(--ink-faint); font-size: 13px; }
+  .config-bar {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    padding: 12px 28px; background: var(--accent-bg); border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .config-bar label { color: var(--ink-soft); display: flex; gap: 6px; align-items: center; }
+  select {
+    font: inherit; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--ink);
+  }
+  main {
+    max-width: 1080px; margin: 0 auto; padding: 24px 28px 80px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  }
+  .full { grid-column: 1 / -1; }
+  section.card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px 20px;
+  }
+  section.card h2 {
+    font-size: 14px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-faint);
+    margin: 0 0 14px;
+  }
+  .row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  input[type=text], input[type=number], textarea {
+    font: inherit; padding: 7px 10px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--ink); flex: 1; min-width: 90px;
+  }
+  textarea { width: 100%; min-height: 70px; resize: vertical; }
+  button {
+    font: inherit; padding: 7px 14px; border-radius: 6px; border: none;
+    background: var(--accent); color: #fff; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: var(--accent-soft); }
+  button:disabled { opacity: .55; cursor: default; }
+  button.ghost {
+    background: transparent; color: var(--ink-faint); border: 1px solid var(--border); font-weight: 400; padding: 4px 8px;
+  }
+  ul.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; }
+  ul.list li {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    padding: 8px 10px; background: var(--bg); border-radius: 6px; font-size: 13.5px;
+  }
+  .pill {
+    font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 999px; text-transform: uppercase; letter-spacing: .02em;
+  }
+  .pill.base { background: var(--warn-bg); color: var(--warn); }
+  .pill.ingrediente { background: var(--accent-bg); color: var(--accent-soft); }
+  .pill.preparado { background: var(--good-bg); color: var(--good); }
+  .empty { color: var(--ink-faint); font-size: 13px; padding: 8px 0; }
+  .suggestion {
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-top: 14px;
+    background: var(--bg);
+  }
+  .suggestion .meta { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--ink-faint); margin-bottom: 10px; }
+  .suggestion .meta code {
+    background: var(--accent-bg); color: var(--accent-soft); padding: 1px 6px; border-radius: 4px; font-size: 11.5px;
+  }
+  .suggestion .text { white-space: pre-wrap; font-size: 14px; }
+  .history-item { border-bottom: 1px solid var(--border); padding: 12px 0; }
+  .history-item:last-child { border-bottom: none; }
+  .history-item .prompt { color: var(--ink-faint); font-size: 12.5px; margin-bottom: 4px; }
+  .status-ok { color: var(--good); font-size: 12.5px; font-weight: 600; }
+  .status-pending { color: var(--warn); font-size: 12.5px; }
+  .err { color: var(--bad); font-size: 13px; margin-top: 8px; }
+  @media (max-width: 780px) { main { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Chef Caseiro</h1>
+    <div class="tag">produto ficticio de referencia — Evals, observabilidade e conformidade</div>
+  </div>
+</header>
+
+<div class="config-bar">
+  <strong style="color:var(--ink-soft)">Eixos ao vivo:</strong>
+  <label>Prompt
+    <select id="cfg-prompt">
+      <option value="v1">v1</option>
+      <option value="v2">v2</option>
+    </select>
+  </label>
+  <label>Modelo de geracao
+    <select id="cfg-model"></select>
+  </label>
+  <span id="cfg-status" style="color:var(--ink-faint)"></span>
+</div>
+
+<main>
+
+  <section class="card full">
+    <h2>Pedir sugestao</h2>
+    <textarea id="prompt-text" placeholder="ex: vou receber um casal de amigos hoje a noite, o que consigo cozinhar com o que tenho em casa?"></textarea>
+    <div class="row" style="margin-top:8px">
+      <button id="btn-sugerir">Pedir sugestao</button>
+      <span id="sugerir-status" style="color:var(--ink-faint); align-self:center;"></span>
+    </div>
+    <div id="suggestion-result"></div>
+  </section>
+
+  <section class="card">
+    <h2>Estoque</h2>
+    <div class="row">
+      <input type="text" id="estoque-name" placeholder="item" />
+      <input type="number" id="estoque-qty" placeholder="qtd" style="max-width:70px" />
+      <input type="text" id="estoque-unit" placeholder="unidade" style="max-width:90px" />
+      <select id="estoque-state">
+        <option value="base">base</option>
+        <option value="ingrediente">ingrediente</option>
+        <option value="preparado">preparado</option>
+      </select>
+      <button id="btn-add-estoque">+</button>
+    </div>
+    <ul class="list" id="estoque-list"></ul>
+  </section>
+
+  <section class="card">
+    <h2>Preferencias</h2>
+    <div class="row">
+      <input type="text" id="pref-text" placeholder="ex: sem lactose, nao gosta de coentro" />
+      <button id="btn-add-pref">+</button>
+    </div>
+    <ul class="list" id="pref-list"></ul>
+  </section>
+
+  <section class="card full">
+    <h2>Historico de sugestoes</h2>
+    <div id="history-list"><div class="empty">Carregando...</div></div>
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

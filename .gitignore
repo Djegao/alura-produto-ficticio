@@ -1,0 +1,4 @@
+node_modules/
+.env
+interactions.db
+server.log
