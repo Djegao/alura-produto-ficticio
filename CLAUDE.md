@@ -43,8 +43,19 @@ o exercício central da Aula 4.
   `households`, `preferences`, `pantry_items` (com `state` em
   `base/ingrediente/preparado`), `receipts`, `receipt_items`,
   `meal_requests`, `meal_suggestions`, `stock_consumptions`.
-- **`public/`** — painel único (vanilla JS, sem build step): estoque,
-  preferências, pedido de sugestão, histórico com confirmação de consumo.
+- **`public/`** — front vanilla JS, sem build step. UI é "objetos da cozinha":
+  geladeira (abre porta em 3D CSS, revela estoque), livro de receitas (capa
+  abre, revela pedido de sugestão + histórico), bloco de notas (revela
+  preferências). Cada objeto é um `.object-card` com um `.object-trigger`
+  (botão) que alterna `.open` — a animação real é CSS puro
+  (`transform-style: preserve-3d` + `rotateY`/`rotateX` no `.fridge-door` /
+  `.book-cover` / `.note-cover`, com `backface-visibility: hidden` pra não
+  espelhar o texto quando aberto). Painel revelado usa o truque
+  `grid-template-rows: 0fr → 1fr` pra animar altura desconhecida. Inspirado
+  na *linguagem de interação* do site de campanha da Kerrygold ("The Magical
+  Pantry") — objetos como portais de navegação — mas implementado do zero
+  (paleta, ilustração, código todos originais; nada copiado do site deles,
+  que é ativo de marca registrada).
 - **`instrumentation.js`** — setup do OpenTelemetry + `LangfuseSpanProcessor`.
   Precisa ser o primeiro `require` (já é, em `server.js`).
 - **`generate-slides.js`** / **`docs/rascunho-coordenacao.html`** — material

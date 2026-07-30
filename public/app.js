@@ -203,6 +203,45 @@ $('history-list').addEventListener('click', async (e) => {
   loadHistory();
 });
 
+// ---- Objetos da cozinha (geladeira / livro / bloco de notas) ----
+// Cada objeto e um portal: clicar abre a porta/capa e revela o painel
+// correspondente. So um objeto fica aberto por vez, como gavetas de verdade.
+
+function setupKitchenObject(cardId, triggerId, panelId) {
+  const card = $(cardId);
+  const trigger = $(triggerId);
+  const panel = $(panelId);
+
+  function open() {
+    document.querySelectorAll('.object-card.open').forEach((el) => {
+      if (el !== card) closeCard(el);
+    });
+    card.classList.add('open');
+    panel.classList.add('open');
+    trigger.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeCard(el) {
+    el.classList.remove('open');
+    const t = el.querySelector('.object-trigger');
+    if (t) t.setAttribute('aria-expanded', 'false');
+  }
+
+  function close() {
+    closeCard(card);
+    panel.classList.remove('open');
+  }
+
+  trigger.addEventListener('click', () => {
+    if (card.classList.contains('open')) close();
+    else open();
+  });
+}
+
+setupKitchenObject('card-fridge', 'trigger-fridge', 'panel-fridge');
+setupKitchenObject('card-book', 'trigger-book', 'panel-book');
+setupKitchenObject('card-note', 'trigger-note', 'panel-note');
+
 // ---- Boot ----
 
 Promise.all([loadConfig(), loadEstoque(), loadPreferencias(), loadHistory()]).catch((err) =>

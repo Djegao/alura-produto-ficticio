@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Chef Caseiro — painel</title>
+<title>Chef Caseiro — cozinha viva</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -47,27 +47,6 @@
       --sticker-shadow: rgba(0, 0, 0, .4);
     }
   }
-  :root[data-theme="dark"] {
-    --bg: #1b2116; --surface: #222a1b; --surface-alt: #2a3320; --border: #3c472e;
-    --ink: #f2ecd9; --ink-soft: #cec49f; --ink-faint: #948c6b;
-    --accent: #a9c78c; --accent-soft: #c3dba8; --accent-bg: #2c3722;
-    --gold: #e2c374; --gold-bg: #382f19;
-    --terracotta: #e59461; --terracotta-bg: #3a2718;
-    --good: #92c473; --good-bg: #253a1c;
-    --warn: #e2b354; --warn-bg: #3a2c12;
-    --bad: #e08a72; --bad-bg: #3a2018;
-    --sticker-shadow: rgba(0, 0, 0, .4);
-  }
-  :root[data-theme="light"] {
-    --bg: #f8f4e6; --surface: #fffcf5; --surface-alt: #f3e7d0; --border: #e4d5b3;
-    --ink: #2f2a18; --ink-soft: #6c6242; --ink-faint: #9c9270;
-    --accent: #495733; --accent-soft: #657a4b; --accent-bg: #ecefe0;
-    --gold: #b8934a; --gold-bg: #f6ecd6;
-    --terracotta: #c96f34; --terracotta-bg: #f7e6d6;
-    --good: #52713d; --good-bg: #e7efdd;
-    --warn: #a6790f; --warn-bg: #f7ecd4;
-    --bad: #a8432f; --bad-bg: #f6e2da;
-  }
   * { box-sizing: border-box; }
   body {
     margin: 0; background: var(--bg); color: var(--ink);
@@ -79,10 +58,9 @@
   header {
     position: relative; overflow: hidden;
     padding: 26px 28px 20px; background: var(--surface); border-bottom: 1px solid var(--border);
-    display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px;
   }
   header h1 {
-    font: 700 30px/1 var(--font-display); margin: 0; color: var(--accent);
+    font: 700 32px/1 var(--font-display); margin: 0; color: var(--accent);
     letter-spacing: -.01em; text-wrap: balance;
   }
   header .tag { color: var(--ink-faint); font-size: 13px; margin-top: 6px; }
@@ -99,33 +77,136 @@
     from { transform: translateY(0) rotate(-4deg); }
     to   { transform: translateY(10px) rotate(6deg); }
   }
-  @media (prefers-reduced-motion: reduce) { .ambient-leaf { animation: none; } }
-  .illustration-slot {
-    width: 88px; height: 88px; border-radius: 14px; border: 1.5px dashed var(--border);
-    display: flex; align-items: center; justify-content: center; text-align: center;
-    color: var(--ink-faint); font-size: 10.5px; line-height: 1.3; padding: 6px; flex-shrink: 0;
+  @media (prefers-reduced-motion: reduce) {
+    .ambient-leaf { animation: none; }
   }
   .divider { height: 6px; width: 100%; display: block; }
   .divider svg { display: block; width: 100%; height: 100%; }
+
   .config-bar {
     display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-    padding: 12px 28px; background: var(--accent-bg); border-bottom: 1px solid var(--border);
-    font-size: 13px;
+    padding: 10px 28px; background: var(--accent-bg); border-bottom: 1px solid var(--border);
+    font-size: 12.5px;
   }
   .config-bar label { color: var(--ink-soft); display: flex; gap: 6px; align-items: center; font-weight: 500; }
   select {
     font: inherit; padding: 5px 9px; border-radius: 7px; border: 1px solid var(--border);
     background: var(--surface); color: var(--ink);
   }
-  main {
-    max-width: 1080px; margin: 0 auto; padding: 28px 28px 80px;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  input:focus, textarea:focus, select:focus, button:focus-visible, .object-trigger:focus-visible {
+    outline: 2px solid var(--accent-soft); outline-offset: 2px;
   }
-  .full { grid-column: 1 / -1; }
+
+  /* ---------- A cozinha (hero de objetos interativos) ---------- */
+  .kitchen {
+    max-width: 1080px; margin: 0 auto; padding: 40px 28px 8px;
+    display: flex; align-items: flex-start; justify-content: center; gap: 56px; flex-wrap: wrap;
+  }
+  .object-trigger {
+    background: none; border: none; padding: 0; cursor: pointer; box-shadow: none;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    font: inherit; color: inherit;
+  }
+  .object-trigger:hover { background: none; box-shadow: none; transform: none; }
+  .object-label {
+    font: 600 13px/1 var(--font-body); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft);
+  }
+  .object-hint { font-size: 11px; color: var(--ink-faint); margin-top: -6px; }
+
+  /* geladeira */
+  .fridge-scene { width: 152px; height: 188px; perspective: 900px; }
+  .fridge-body {
+    position: relative; width: 100%; height: 100%; transform-style: preserve-3d;
+    border-radius: 16px; background: var(--surface-alt); border: 2.5px solid var(--ink);
+    box-shadow: -5px 6px 0 var(--sticker-shadow);
+  }
+  .fridge-interior { position: absolute; inset: 8px; border-radius: 10px; overflow: hidden; background: var(--bg); }
+  .fridge-shelf { position: absolute; left: 6px; right: 6px; height: 3px; background: var(--border); border-radius: 2px; }
+  .fridge-shelf.s1 { top: 34%; } .fridge-shelf.s2 { top: 64%; }
+  .fridge-dot { position: absolute; width: 14px; height: 14px; border-radius: 50%; }
+  .fridge-door {
+    position: absolute; inset: 0; border-radius: 16px;
+    background: linear-gradient(155deg, var(--accent-soft), var(--accent));
+    border: 2.5px solid var(--ink);
+    transform-origin: left center; transition: transform .55s cubic-bezier(.34, 1.4, .64, 1);
+    backface-visibility: hidden;
+  }
+  .fridge-door::after {
+    content: ""; position: absolute; right: 14px; top: 50%; width: 9px; height: 42px;
+    background: var(--gold); border-radius: 5px; transform: translateY(-50%);
+    box-shadow: -2px 2px 0 var(--sticker-shadow);
+  }
+  .object-card.open .fridge-door { transform: rotateY(-112deg); }
+  .object-card.open .fridge-scene { animation: wobble .5s ease; }
+
+  /* livro de receitas */
+  .book-scene { width: 158px; height: 188px; perspective: 1100px; }
+  .book-body { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
+  .book-back {
+    position: absolute; inset: 0; border-radius: 6px 12px 12px 6px; background: var(--surface);
+    border: 2.5px solid var(--ink); box-shadow: -5px 6px 0 var(--sticker-shadow);
+  }
+  .book-back::before {
+    content: ""; position: absolute; inset: 12px; border-radius: 4px;
+    background: repeating-linear-gradient(var(--bg), var(--bg) 3px, transparent 3px, transparent 9px);
+    opacity: .6;
+  }
+  .book-cover {
+    position: absolute; inset: 0; border-radius: 6px 12px 12px 6px;
+    background: linear-gradient(155deg, var(--terracotta), var(--gold));
+    border: 2.5px solid var(--ink);
+    transform-origin: left center; transition: transform .6s cubic-bezier(.34, 1.2, .64, 1);
+    backface-visibility: hidden;
+    display: flex; align-items: center; justify-content: center; padding: 14px;
+  }
+  .book-cover span {
+    font: 700 15px/1.2 var(--font-display); color: var(--surface); text-align: center; text-wrap: balance;
+  }
+  .object-card.open .book-cover { transform: rotateY(-165deg); }
+
+  /* bloco de notas (preferencias) */
+  .note-scene { width: 108px; height: 132px; perspective: 700px; margin-top: 28px; }
+  .note-body { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
+  .note-back {
+    position: absolute; inset: 0; border-radius: 8px; background: var(--surface);
+    border: 2.5px solid var(--ink); box-shadow: -4px 5px 0 var(--sticker-shadow);
+  }
+  .note-back::before {
+    content: ""; position: absolute; inset: 10px; border-radius: 3px;
+    background: repeating-linear-gradient(var(--bg), var(--bg) 2px, transparent 2px, transparent 8px);
+    opacity: .5;
+  }
+  .note-cover {
+    position: absolute; inset: 0; border-radius: 8px; background: var(--gold-bg);
+    border: 2.5px solid var(--ink); transform-origin: top center;
+    transition: transform .5s cubic-bezier(.34, 1.3, .64, 1);
+    backface-visibility: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .note-cover span { font: 700 12px/1.3 var(--font-display); color: var(--ink-soft); text-align: center; padding: 8px; }
+  .object-card.open .note-cover { transform: rotateX(-150deg); }
+
+  @keyframes wobble {
+    0%, 100% { transform: rotate(0); }
+    30% { transform: rotate(-1.5deg); }
+    60% { transform: rotate(1deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fridge-door, .book-cover, .note-cover { transition: none; }
+    .object-card.open .fridge-scene { animation: none; }
+  }
+
+  /* ---------- paineis revelados ---------- */
+  .panels { max-width: 1080px; margin: 0 auto; padding: 8px 28px 80px; display: flex; flex-direction: column; gap: 20px; }
+  .object-panel {
+    display: grid; grid-template-rows: 0fr; transition: grid-template-rows .4s ease;
+  }
+  .object-panel.open { grid-template-rows: 1fr; }
+  .object-panel__inner { overflow: hidden; }
   section.card {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
     padding: 20px 22px; box-shadow: -3px 3px 0 var(--sticker-shadow);
-    transition: box-shadow .15s ease, transform .15s ease;
+    margin-top: 4px;
   }
   section.card h2 {
     font: 600 13px/1 var(--font-body); text-transform: uppercase; letter-spacing: .07em; color: var(--gold);
@@ -135,9 +216,6 @@
   input[type=text], input[type=number], textarea {
     font: inherit; padding: 8px 11px; border-radius: 8px; border: 1px solid var(--border);
     background: var(--bg); color: var(--ink); flex: 1; min-width: 90px;
-  }
-  input:focus, textarea:focus, select:focus, button:focus-visible {
-    outline: 2px solid var(--accent-soft); outline-offset: 1px;
   }
   textarea { width: 100%; min-height: 70px; resize: vertical; font-family: var(--font-body); }
   button {
@@ -183,7 +261,6 @@
   .status-ok { color: var(--good); font-size: 12.5px; font-weight: 700; }
   .status-pending { color: var(--warn); font-size: 12.5px; }
   .err { color: var(--bad); font-size: 13px; margin-top: 8px; }
-  @media (max-width: 780px) { main { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -193,13 +270,8 @@
   <svg class="ambient-leaf l2 gold" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C13 2 15 7 8 16 1 7 3 2 8 0Z"/></svg>
   <svg class="ambient-leaf l3" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C13 2 15 7 8 16 1 7 3 2 8 0Z"/></svg>
   <svg class="ambient-leaf l4 gold" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C13 2 15 7 8 16 1 7 3 2 8 0Z"/></svg>
-  <div>
-    <h1>Chef Caseiro</h1>
-    <div class="tag">produto ficticio de referencia — Evals, observabilidade e conformidade</div>
-  </div>
-  <div class="illustration-slot" title="Reserva pra ilustracao propria (ex: unDraw, ou arte sua)">
-    sua ilustração aqui
-  </div>
+  <h1>Chef Caseiro</h1>
+  <div class="tag">produto ficticio de referencia — Evals, observabilidade e conformidade</div>
 </header>
 <div class="divider" aria-hidden="true">
   <svg viewBox="0 0 400 6" preserveAspectRatio="none">
@@ -222,49 +294,109 @@
   <span id="cfg-status" style="color:var(--ink-faint)"></span>
 </div>
 
-<main>
+<div class="kitchen">
 
-  <section class="card full">
-    <h2>Pedir sugestao</h2>
-    <textarea id="prompt-text" placeholder="ex: vou receber um casal de amigos hoje a noite, o que consigo cozinhar com o que tenho em casa?"></textarea>
-    <div class="row" style="margin-top:8px">
-      <button id="btn-sugerir">Pedir sugestao</button>
-      <span id="sugerir-status" style="color:var(--ink-faint); align-self:center;"></span>
+  <div class="object-card" id="card-fridge">
+    <button class="object-trigger" id="trigger-fridge" aria-expanded="false" aria-controls="panel-fridge">
+      <div class="fridge-scene">
+        <div class="fridge-body">
+          <div class="fridge-interior">
+            <div class="fridge-shelf s1"></div>
+            <div class="fridge-shelf s2"></div>
+            <div class="fridge-dot" style="left:14px; top:14px; background:var(--terracotta)"></div>
+            <div class="fridge-dot" style="left:44px; top:44%; background:var(--gold)"></div>
+            <div class="fridge-dot" style="left:70px; top:72%; background:var(--good)"></div>
+          </div>
+          <div class="fridge-door"></div>
+        </div>
+      </div>
+      <span class="object-label">Geladeira</span>
+      <span class="object-hint">estoque da casa</span>
+    </button>
+  </div>
+
+  <div class="object-card" id="card-book">
+    <button class="object-trigger" id="trigger-book" aria-expanded="false" aria-controls="panel-book">
+      <div class="book-scene">
+        <div class="book-body">
+          <div class="book-back"></div>
+          <div class="book-cover"><span>Livro de receitas</span></div>
+        </div>
+      </div>
+      <span class="object-label">Livro de receitas</span>
+      <span class="object-hint">pedir e revisitar sugestoes</span>
+    </button>
+  </div>
+
+  <div class="object-card" id="card-note">
+    <button class="object-trigger" id="trigger-note" aria-expanded="false" aria-controls="panel-note">
+      <div class="note-scene">
+        <div class="note-body">
+          <div class="note-back"></div>
+          <div class="note-cover"><span>notas da casa</span></div>
+        </div>
+      </div>
+      <span class="object-label">Preferencias</span>
+      <span class="object-hint">restricoes e gostos</span>
+    </button>
+  </div>
+
+</div>
+
+<div class="panels">
+
+  <div class="object-panel" id="panel-fridge">
+    <div class="object-panel__inner">
+      <section class="card">
+        <h2>Estoque</h2>
+        <div class="row">
+          <input type="text" id="estoque-name" placeholder="item" />
+          <input type="number" id="estoque-qty" placeholder="qtd" style="max-width:70px" />
+          <input type="text" id="estoque-unit" placeholder="unidade" style="max-width:90px" />
+          <select id="estoque-state">
+            <option value="base">base</option>
+            <option value="ingrediente">ingrediente</option>
+            <option value="preparado">preparado</option>
+          </select>
+          <button id="btn-add-estoque">+</button>
+        </div>
+        <ul class="list" id="estoque-list"></ul>
+      </section>
     </div>
-    <div id="suggestion-result"></div>
-  </section>
+  </div>
 
-  <section class="card">
-    <h2>Estoque</h2>
-    <div class="row">
-      <input type="text" id="estoque-name" placeholder="item" />
-      <input type="number" id="estoque-qty" placeholder="qtd" style="max-width:70px" />
-      <input type="text" id="estoque-unit" placeholder="unidade" style="max-width:90px" />
-      <select id="estoque-state">
-        <option value="base">base</option>
-        <option value="ingrediente">ingrediente</option>
-        <option value="preparado">preparado</option>
-      </select>
-      <button id="btn-add-estoque">+</button>
+  <div class="object-panel" id="panel-book">
+    <div class="object-panel__inner">
+      <section class="card">
+        <h2>Pedir sugestao</h2>
+        <textarea id="prompt-text" placeholder="ex: vou receber um casal de amigos hoje a noite, o que consigo cozinhar com o que tenho em casa?"></textarea>
+        <div class="row" style="margin-top:8px">
+          <button id="btn-sugerir">Pedir sugestao</button>
+          <span id="sugerir-status" style="color:var(--ink-faint); align-self:center;"></span>
+        </div>
+        <div id="suggestion-result"></div>
+      </section>
+      <section class="card">
+        <h2>Historico de sugestoes</h2>
+        <div id="history-list"><div class="empty">Carregando...</div></div>
+      </section>
     </div>
-    <ul class="list" id="estoque-list"></ul>
-  </section>
+  </div>
 
-  <section class="card">
-    <h2>Preferencias</h2>
-    <div class="row">
-      <input type="text" id="pref-text" placeholder="ex: sem lactose, nao gosta de coentro" />
-      <button id="btn-add-pref">+</button>
+  <div class="object-panel" id="panel-note">
+    <div class="object-panel__inner">
+      <section class="card">
+        <h2>Preferencias</h2>
+        <div class="row">
+          <input type="text" id="pref-text" placeholder="ex: sem lactose, nao gosta de coentro" />
+          <button id="btn-add-pref">+</button>
+        </div>
+        <ul class="list" id="pref-list"></ul>
+      </section>
     </div>
-    <ul class="list" id="pref-list"></ul>
-  </section>
+  </div>
 
-  <section class="card full">
-    <h2>Historico de sugestoes</h2>
-    <div id="history-list"><div class="empty">Carregando...</div></div>
-  </section>
-
-</main>
+</div>
 
 <script src="app.js"></script>
 </body>
