@@ -207,40 +207,33 @@ $('history-list').addEventListener('click', async (e) => {
 // Cada objeto e um portal: clicar abre a porta/capa e revela o painel
 // correspondente. So um objeto fica aberto por vez, como gavetas de verdade.
 
-function setupKitchenObject(cardId, triggerId, panelId) {
-  const card = $(cardId);
-  const trigger = $(triggerId);
-  const panel = $(panelId);
+const kitchenObjects = [
+  { card: $('card-fridge'), trigger: $('trigger-fridge'), panel: $('panel-fridge') },
+  { card: $('card-book'), trigger: $('trigger-book'), panel: $('panel-book') },
+  { card: $('card-note'), trigger: $('trigger-note'), panel: $('panel-note') },
+];
 
-  function open() {
-    document.querySelectorAll('.object-card.open').forEach((el) => {
-      if (el !== card) closeCard(el);
-    });
-    card.classList.add('open');
-    panel.classList.add('open');
-    trigger.setAttribute('aria-expanded', 'true');
-  }
-
-  function closeCard(el) {
-    el.classList.remove('open');
-    const t = el.querySelector('.object-trigger');
-    if (t) t.setAttribute('aria-expanded', 'false');
-  }
-
-  function close() {
-    closeCard(card);
-    panel.classList.remove('open');
-  }
-
-  trigger.addEventListener('click', () => {
-    if (card.classList.contains('open')) close();
-    else open();
-  });
+function closeKitchenObject(obj) {
+  obj.card.classList.remove('open');
+  obj.panel.classList.remove('open');
+  obj.trigger.setAttribute('aria-expanded', 'false');
 }
 
-setupKitchenObject('card-fridge', 'trigger-fridge', 'panel-fridge');
-setupKitchenObject('card-book', 'trigger-book', 'panel-book');
-setupKitchenObject('card-note', 'trigger-note', 'panel-note');
+function openKitchenObject(obj) {
+  kitchenObjects.forEach((other) => {
+    if (other !== obj) closeKitchenObject(other);
+  });
+  obj.card.classList.add('open');
+  obj.panel.classList.add('open');
+  obj.trigger.setAttribute('aria-expanded', 'true');
+}
+
+kitchenObjects.forEach((obj) => {
+  obj.trigger.addEventListener('click', () => {
+    if (obj.card.classList.contains('open')) closeKitchenObject(obj);
+    else openKitchenObject(obj);
+  });
+});
 
 // ---- Boot ----
 
