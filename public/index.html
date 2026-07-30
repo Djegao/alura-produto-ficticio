@@ -33,19 +33,13 @@
     --font-display: "Fraunces", Georgia, serif;
     --font-body: "Manrope", -apple-system, "Segoe UI", sans-serif;
     --sticker-shadow: rgba(80, 51, 20, .28);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1b2116; --surface: #222a1b; --surface-alt: #2a3320; --border: #3c472e;
-      --ink: #f2ecd9; --ink-soft: #cec49f; --ink-faint: #948c6b;
-      --accent: #a9c78c; --accent-soft: #c3dba8; --accent-bg: #2c3722;
-      --gold: #e2c374; --gold-bg: #382f19;
-      --terracotta: #e59461; --terracotta-bg: #3a2718;
-      --good: #92c473; --good-bg: #253a1c;
-      --warn: #e2b354; --warn-bg: #3a2c12;
-      --bad: #e08a72; --bad-bg: #3a2018;
-      --sticker-shadow: rgba(0, 0, 0, .4);
-    }
+    /* A "mesa de acao" (stage) e sempre verde-floresta, por escolha de design —
+       nao reage ao tema claro/escuro do sistema. O resto da pagina fica
+       sempre claro/quente, servindo de moldura pro card verde se destacar. */
+    --stage-bg: #3c4a29;
+    --stage-bg-soft: #46562f;
+    --stage-ink: #f4efd9;
+    --stage-ink-soft: #cdc6a3;
   }
   * { box-sizing: border-box; }
   body {
@@ -97,9 +91,17 @@
     outline: 2px solid var(--accent-soft); outline-offset: 2px;
   }
 
+  /* ---------- A mesa de acao (stage verde, flutua sobre a pagina clara) ---------- */
+  .stage-wrap { padding: 24px 20px 64px; }
+  .stage {
+    max-width: 1080px; margin: 0 auto; position: relative;
+    background: var(--stage-bg); border-radius: 28px; padding: 12px 28px 8px;
+    box-shadow: 0 26px 50px -22px rgba(20, 14, 4, .5), -6px 8px 0 var(--sticker-shadow);
+  }
+
   /* ---------- A cozinha (hero de objetos interativos) ---------- */
   .kitchen {
-    max-width: 1080px; margin: 0 auto; padding: 40px 28px 8px;
+    padding: 32px 0 8px;
     display: flex; align-items: flex-start; justify-content: center; gap: 56px; flex-wrap: wrap;
   }
   .object-trigger {
@@ -109,9 +111,9 @@
   }
   .object-trigger:hover { background: none; box-shadow: none; transform: none; }
   .object-label {
-    font: 600 13px/1 var(--font-body); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft);
+    font: 600 13px/1 var(--font-body); text-transform: uppercase; letter-spacing: .06em; color: var(--stage-ink);
   }
-  .object-hint { font-size: 11px; color: var(--ink-faint); margin-top: -6px; }
+  .object-hint { font-size: 11px; color: var(--stage-ink-soft); margin-top: -6px; }
 
   /* geladeira */
   .fridge-scene { width: 152px; height: 188px; perspective: 900px; }
@@ -197,7 +199,7 @@
   }
 
   /* ---------- paineis revelados ---------- */
-  .panels { max-width: 1080px; margin: 0 auto; padding: 8px 28px 80px; display: flex; flex-direction: column; gap: 20px; }
+  .panels { padding: 8px 0 28px; display: flex; flex-direction: column; gap: 20px; }
   .object-panel {
     display: grid; grid-template-rows: 0fr; transition: grid-template-rows .4s ease;
   }
@@ -293,6 +295,9 @@
   </label>
   <span id="cfg-status" style="color:var(--ink-faint)"></span>
 </div>
+
+<div class="stage-wrap">
+<div class="stage">
 
 <div class="kitchen">
 
@@ -396,6 +401,9 @@
     </div>
   </div>
 
+</div>
+
+</div>
 </div>
 
 <script src="app.js"></script>
