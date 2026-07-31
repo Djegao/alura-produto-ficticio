@@ -115,31 +115,21 @@
   }
   .object-hint { font-size: 11px; color: var(--stage-ink-soft); margin-top: -6px; }
 
-  /* geladeira */
-  .fridge-scene { width: 152px; height: 188px; perspective: 900px; }
-  .fridge-body {
-    position: relative; width: 100%; height: 100%; transform-style: preserve-3d;
-    border-radius: 16px; background: var(--surface-alt); border: 2.5px solid var(--ink);
-    box-shadow: -5px 6px 0 var(--sticker-shadow);
+  /* geladeira (ilustracao propria, feita pelo usuario) */
+  .fridge-real {
+    position: relative; width: 196px; height: 108px; margin-bottom: 4px;
+    filter: drop-shadow(-5px 7px 0 var(--sticker-shadow));
+    transition: transform .2s ease;
   }
-  .fridge-interior { position: absolute; inset: 8px; border-radius: 10px; overflow: hidden; background: var(--bg); }
-  .fridge-shelf { position: absolute; left: 6px; right: 6px; height: 3px; background: var(--border); border-radius: 2px; }
-  .fridge-shelf.s1 { top: 34%; } .fridge-shelf.s2 { top: 64%; }
-  .fridge-dot { position: absolute; width: 14px; height: 14px; border-radius: 50%; }
-  .fridge-door {
-    position: absolute; inset: 0; border-radius: 16px;
-    background: linear-gradient(155deg, var(--accent-soft), var(--accent));
-    border: 2.5px solid var(--ink);
-    transform-origin: left center; transition: transform .55s cubic-bezier(.34, 1.4, .64, 1);
-    backface-visibility: hidden;
+  .object-trigger:hover .fridge-real { transform: translateY(-2px) scale(1.02); }
+  .fridge-img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+    transition: opacity .4s ease;
   }
-  .fridge-door::after {
-    content: ""; position: absolute; right: 14px; top: 50%; width: 9px; height: 42px;
-    background: var(--gold); border-radius: 5px; transform: translateY(-50%);
-    box-shadow: -2px 2px 0 var(--sticker-shadow);
-  }
-  .object-card.open .fridge-door { transform: rotateY(-112deg); }
-  .object-card.open .fridge-scene { animation: wobble .5s ease; }
+  .fridge-img--open { opacity: 0; }
+  .object-card.open .fridge-img--closed { opacity: 0; }
+  .object-card.open .fridge-img--open { opacity: 1; }
+  .object-card.open .fridge-real { animation: wobble .5s ease; }
 
   /* livro de receitas */
   .book-scene { width: 158px; height: 188px; perspective: 1100px; }
@@ -194,8 +184,8 @@
     60% { transform: rotate(1deg); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .fridge-door, .book-cover, .note-cover { transition: none; }
-    .object-card.open .fridge-scene { animation: none; }
+    .fridge-img, .book-cover, .note-cover { transition: none; }
+    .object-card.open .fridge-real { animation: none; }
   }
 
   /* ---------- paineis revelados ---------- */
@@ -312,17 +302,9 @@
 
   <div class="object-card" id="card-fridge">
     <button class="object-trigger" id="trigger-fridge" aria-expanded="false" aria-controls="panel-fridge">
-      <div class="fridge-scene">
-        <div class="fridge-body">
-          <div class="fridge-interior">
-            <div class="fridge-shelf s1"></div>
-            <div class="fridge-shelf s2"></div>
-            <div class="fridge-dot" style="left:14px; top:14px; background:var(--terracotta)"></div>
-            <div class="fridge-dot" style="left:44px; top:44%; background:var(--gold)"></div>
-            <div class="fridge-dot" style="left:70px; top:72%; background:var(--good)"></div>
-          </div>
-          <div class="fridge-door"></div>
-        </div>
+      <div class="fridge-real">
+        <img class="fridge-img fridge-img--closed" src="img/fridge-closed.png" alt="" />
+        <img class="fridge-img fridge-img--open" src="img/fridge-open.png" alt="" />
       </div>
       <span class="object-label">Geladeira</span>
       <span class="object-hint">estoque da casa</span>
