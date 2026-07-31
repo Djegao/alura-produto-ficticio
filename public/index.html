@@ -131,30 +131,21 @@
   .object-card.open .fridge-img--open { opacity: 1; }
   .object-card.open .fridge-real { animation: wobble .5s ease; }
 
-  /* livro de receitas */
-  .book-scene { width: 158px; height: 188px; perspective: 1100px; }
-  .book-body { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
-  .book-back {
-    position: absolute; inset: 0; border-radius: 6px 12px 12px 6px; background: var(--surface);
-    border: 2.5px solid var(--ink); box-shadow: -5px 6px 0 var(--sticker-shadow);
+  /* livro de receitas (ilustracao propria, feita pelo usuario) */
+  .book-real {
+    position: relative; width: 196px; height: 108px; margin-bottom: 4px;
+    filter: drop-shadow(-5px 7px 0 var(--sticker-shadow));
+    transition: transform .2s ease;
   }
-  .book-back::before {
-    content: ""; position: absolute; inset: 12px; border-radius: 4px;
-    background: repeating-linear-gradient(var(--bg), var(--bg) 3px, transparent 3px, transparent 9px);
-    opacity: .6;
+  .object-trigger:hover .book-real { transform: translateY(-2px) scale(1.02); }
+  .book-img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+    transition: opacity .4s ease;
   }
-  .book-cover {
-    position: absolute; inset: 0; border-radius: 6px 12px 12px 6px;
-    background: linear-gradient(155deg, var(--terracotta), var(--gold));
-    border: 2.5px solid var(--ink);
-    transform-origin: left center; transition: transform .6s cubic-bezier(.34, 1.2, .64, 1);
-    backface-visibility: hidden;
-    display: flex; align-items: center; justify-content: center; padding: 14px;
-  }
-  .book-cover span {
-    font: 700 15px/1.2 var(--font-display); color: var(--surface); text-align: center; text-wrap: balance;
-  }
-  .object-card.open .book-cover { transform: rotateY(-165deg); }
+  .book-img--open { opacity: 0; }
+  .object-card.open .book-img--closed { opacity: 0; }
+  .object-card.open .book-img--open { opacity: 1; }
+  .object-card.open .book-real { animation: wobble .5s ease; }
 
   /* bloco de notas (preferencias) */
   .note-scene { width: 108px; height: 132px; perspective: 700px; margin-top: 28px; }
@@ -184,8 +175,8 @@
     60% { transform: rotate(1deg); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .fridge-img, .book-cover, .note-cover { transition: none; }
-    .object-card.open .fridge-real { animation: none; }
+    .fridge-img, .book-img, .note-cover { transition: none; }
+    .object-card.open .fridge-real, .object-card.open .book-real { animation: none; }
   }
 
   /* ---------- paineis revelados ---------- */
@@ -313,11 +304,9 @@
 
   <div class="object-card" id="card-book">
     <button class="object-trigger" id="trigger-book" aria-expanded="false" aria-controls="panel-book">
-      <div class="book-scene">
-        <div class="book-body">
-          <div class="book-back"></div>
-          <div class="book-cover"><span>Livro de receitas</span></div>
-        </div>
+      <div class="book-real">
+        <img class="book-img book-img--closed" src="img/book-closed.png" alt="" />
+        <img class="book-img book-img--open" src="img/book-open.png" alt="" />
       </div>
       <span class="object-label">Livro de receitas</span>
       <span class="object-hint">pedir e revisitar sugestoes</span>
