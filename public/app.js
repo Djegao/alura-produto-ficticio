@@ -201,7 +201,36 @@ $('history-list').addEventListener('click', async (e) => {
   if (!id) return;
   await api(`/api/sugestoes/${id}/confirmar`, { method: 'POST' });
   loadHistory();
+  loadConsumos();
+  loadEstoque(); // quantidades podem ter mudado — o consumo decrementa de verdade
 });
+
+// ---- Log de consumo (dentro da geladeira) ----
+
+async function loadConsumos() {
+  const items = await api('/api/consumos');
+  const box = $('consumos-list');
+  if (!items.length) {
+    box.innerHTML = '<div class="empty">Nenhum consumo confirmado ainda.</div>';
+    return;
+  }
+  const total = items.length;
+  box.innerHTML = items
+    .map((c, idx) => {
+      const numero = total - idx;
+      const chips = (c.items_consumed || [])
+        .map((it) => `<span class="consumo-chip">${escapeHtml(it.name)} — ${it.quantity} ${escapeHtml(it.unit || '')}</span>`)
+        .join('');
+      const promptText = c.meal_suggestions?.meal_requests?.prompt_text || '';
+      return `
+      <div class="consumo-item">
+        <div class="receita">Receita #${numero} — "${escapeHtml(promptText)}"</div>
+        <div class="itens">${chips || '<span class="empty">sem itens detalhados</span>'}</div>
+        <div class="quando">${new Date(c.confirmed_at).toLocaleString('pt-BR')}</div>
+      </div>`;
+    })
+    .join('');
+}
 
 // ---- Objetos da cozinha (geladeira / livro / bloco de notas) ----
 // Cada objeto e um portal: clicar abre a porta/capa e revela o painel
@@ -237,6 +266,6 @@ kitchenObjects.forEach((obj) => {
 
 // ---- Boot ----
 
-Promise.all([loadConfig(), loadEstoque(), loadPreferencias(), loadHistory()]).catch((err) =>
+Promise.all([loadConfig(), loadEstoque(), loadPreferencias(), loadHistory(), loadConsumos()]).catch((err) =>
   console.error('Erro ao carregar painel:', err)
 );

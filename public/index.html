@@ -263,6 +263,15 @@
   .status-ok { color: var(--good); font-size: 12.5px; font-weight: 700; }
   .status-pending { color: var(--warn); font-size: 12.5px; }
   .err { color: var(--bad); font-size: 13px; margin-top: 8px; }
+  .consumo-item { border-bottom: 1px solid var(--border); padding: 10px 0; font-size: 13.5px; }
+  .consumo-item:last-child { border-bottom: none; }
+  .consumo-item .receita { color: var(--ink-faint); font-size: 12px; font-style: italic; margin-bottom: 5px; }
+  .consumo-item .itens { display: flex; flex-wrap: wrap; gap: 6px; }
+  .consumo-chip {
+    font-size: 12px; padding: 3px 9px; border-radius: 999px; background: var(--gold-bg); color: var(--gold);
+    font-weight: 600;
+  }
+  .consumo-item .quando { color: var(--ink-faint); font-size: 11px; margin-top: 5px; }
 </style>
 </head>
 <body>
@@ -366,6 +375,10 @@
           <button id="btn-add-estoque">+</button>
         </div>
         <ul class="list" id="estoque-list"></ul>
+      </section>
+      <section class="card">
+        <h2>Consumo registrado</h2>
+        <div id="consumos-list"><div class="empty">Carregando...</div></div>
       </section>
     </div>
   </div>

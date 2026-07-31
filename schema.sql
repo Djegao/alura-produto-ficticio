@@ -74,7 +74,7 @@ create table meal_suggestions (
   id uuid primary key default gen_random_uuid(),
   meal_request_id uuid not null references meal_requests(id) on delete cascade,
   suggestion_text text not null,
-  items_used jsonb not null default '[]', -- [{pantry_item_id, quantity}, ...]
+  items_used jsonb not null default '[]', -- [{item_id, quantidade}, ...] — reportado pelo Claude via a tool registrar_itens_usados
   model_used text,
   prompt_version text,
   trace_id text,
@@ -86,8 +86,18 @@ create table meal_suggestions (
 create table stock_consumptions (
   id uuid primary key default gen_random_uuid(),
   meal_suggestion_id uuid not null references meal_suggestions(id) on delete cascade,
-  confirmed_at timestamptz not null default now()
+  confirmed_at timestamptz not null default now(),
+  items_consumed jsonb not null default '[]' -- [{name, quantity, unit}, ...] — retrato tirado na hora da confirmacao, nao depende do item ainda existir no estoque depois
 );
 
 -- Um domicilio padrao para o prototipo funcionar sem tela de "criar conta"
 insert into households (name) values ('Casa de teste — curso Alura');
+
+-- ---------------------------------------------------------------------
+-- Migracoes (rodadas manualmente no SQL Editor, apos o schema inicial)
+-- ---------------------------------------------------------------------
+
+-- 2026-07-31: log de consumo real dentro da geladeira — guarda o retrato
+-- (nome/quantidade/unidade) de cada item consumido na confirmacao.
+-- alter table stock_consumptions
+--   add column items_consumed jsonb not null default '[]';

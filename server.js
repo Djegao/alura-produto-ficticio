@@ -141,6 +141,7 @@ app.post('/api/sugestao', async (req, res) => {
         model_used: model,
         prompt_version: promptVersion,
         trace_id: result.traceId,
+        items_used: result.itemsUsed,
       })
       .select()
       .single();
@@ -164,11 +165,56 @@ app.get('/api/sugestoes', async (req, res) => {
 });
 
 app.post('/api/sugestoes/:id/confirmar', async (req, res) => {
+  const { data: suggestion, error: sErr } = await supabase
+    .from('meal_suggestions')
+    .select('items_used')
+    .eq('id', req.params.id)
+    .single();
+  if (sErr) return res.status(500).json({ error: sErr.message });
+
+  const itemsUsed = Array.isArray(suggestion.items_used) ? suggestion.items_used : [];
+  const itemsConsumed = [];
+
+  // Decrementa o estoque de verdade, so agora — nao na sugestao, so na
+  // confirmacao ("fiz essa receita"). Guarda um retrato (nome/qtd/unidade)
+  // no proprio registro de consumo, pra o log nao depender do item ainda
+  // existir no estoque depois.
+  for (const { item_id, quantidade } of itemsUsed) {
+    const { data: item, error: iErr } = await supabase
+      .from('pantry_items')
+      .select('name, unit, quantity')
+      .eq('id', item_id)
+      .single();
+    if (iErr || !item) continue; // item pode ter sido removido do estoque — ignora
+
+    const used = Number(quantidade) || 0;
+    const newQty = Math.max(0, Number(item.quantity) - used);
+    await supabase
+      .from('pantry_items')
+      .update({ quantity: newQty, updated_at: new Date().toISOString() })
+      .eq('id', item_id);
+
+    itemsConsumed.push({ name: item.name, quantity: used, unit: item.unit });
+  }
+
   const { data, error } = await supabase
     .from('stock_consumptions')
-    .insert({ meal_suggestion_id: req.params.id })
+    .insert({ meal_suggestion_id: req.params.id, items_consumed: itemsConsumed })
     .select()
     .single();
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+// ---- Log de consumo (exibido dentro da geladeira) ----
+
+app.get('/api/consumos', async (req, res) => {
+  const householdId = await getHouseholdId();
+  const { data, error } = await supabase
+    .from('stock_consumptions')
+    .select('*, meal_suggestions!inner(suggestion_text, meal_requests!inner(household_id, prompt_text))')
+    .eq('meal_suggestions.meal_requests.household_id', householdId)
+    .order('confirmed_at', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
 });

@@ -26,6 +26,8 @@ async function sugerirReceita({ promptText, model, promptVersion }) {
   let messages = [{ role: 'user', content: promptText }];
   let finalText = '';
   let toolCallCount = 0;
+  let itemsUsed = [];
+  let consultouEstoque = false;
 
   try {
     for (let i = 0; i < MAX_ITERATIONS; i++) {
@@ -54,16 +56,23 @@ async function sugerirReceita({ promptText, model, promptVersion }) {
 
       messages.push({ role: 'assistant', content: response.content });
 
-      if (response.stop_reason !== 'tool_use') {
-        const textBlock = response.content.find((b) => b.type === 'text');
-        finalText = textBlock ? textBlock.text : '';
-        break;
-      }
+      // O texto da receita pode vir numa mesma resposta que tambem chama uma
+      // tool (ex: explica a receita E chama registrar_itens_usados no mesmo
+      // turno) — captura sempre que houver texto, nao so na resposta final.
+      const textBlock = response.content.find((b) => b.type === 'text');
+      if (textBlock && textBlock.text) finalText = textBlock.text;
+
+      if (response.stop_reason !== 'tool_use') break;
 
       const toolResults = [];
       for (const block of response.content) {
         if (block.type !== 'tool_use') continue;
         toolCallCount++;
+
+        if (block.name === 'registrar_itens_usados' && Array.isArray(block.input.itens)) {
+          itemsUsed = block.input.itens;
+        }
+        if (block.name === 'consultar_estoque') consultouEstoque = true;
 
         const toolSpan = agent.startObservation(
           block.name,
@@ -90,8 +99,64 @@ async function sugerirReceita({ promptText, model, promptVersion }) {
       messages.push({ role: 'user', content: toolResults });
     }
 
-    agent.update({ output: finalText, metadata: { toolCallCount } });
-    return { text: finalText, traceId, toolCallCount };
+    // O prompt (v2) PEDE pro Claude chamar registrar_itens_usados, mas pedir
+    // em linguagem natural nao e garantia — na pratica ele as vezes escreve a
+    // receita com quantidades e simplesmente nao chama a tool. Se isso
+    // aconteceu (consultou estoque mas nao registrou), forca uma chamada
+    // extra com tool_choice — isso e' garantia estrutural da API, nao mais um
+    // pedido no prompt.
+    if (itemsUsed.length === 0 && consultouEstoque) {
+      messages.push({
+        role: 'user',
+        content:
+          'Com base na receita que voce acabou de sugerir e no estoque que voce consultou, registre agora os itens e as quantidades que a receita usa.',
+      });
+
+      const forceGen = agent.startObservation(
+        'forcar-registro-consumo',
+        { input: messages, model, metadata: { motivo: 'tool_choice forcado — prompt sozinho nao garantiu a chamada' } },
+        { asType: 'generation' }
+      );
+
+      const forceResponse = await anthropic.messages.create({
+        model,
+        max_tokens: 512,
+        system: systemPrompt,
+        tools: toolDefinitions,
+        tool_choice: { type: 'tool', name: 'registrar_itens_usados' },
+        messages,
+      });
+
+      forceGen.update({
+        output: forceResponse.content,
+        usageDetails: {
+          input: forceResponse.usage.input_tokens,
+          output: forceResponse.usage.output_tokens,
+        },
+      });
+      forceGen.end();
+
+      const forcedBlock = forceResponse.content.find(
+        (b) => b.type === 'tool_use' && b.name === 'registrar_itens_usados'
+      );
+
+      if (forcedBlock && Array.isArray(forcedBlock.input.itens)) {
+        itemsUsed = forcedBlock.input.itens;
+        toolCallCount++;
+
+        const toolSpan = agent.startObservation(
+          'registrar_itens_usados',
+          { input: forcedBlock.input, metadata: { forced: true } },
+          { asType: 'tool' }
+        );
+        const output = await runTool('registrar_itens_usados', forcedBlock.input);
+        toolSpan.update({ output });
+        toolSpan.end();
+      }
+    }
+
+    agent.update({ output: finalText, metadata: { toolCallCount, itemsUsedCount: itemsUsed.length } });
+    return { text: finalText, traceId, toolCallCount, itemsUsed };
   } catch (err) {
     agent.update({ level: 'ERROR', statusMessage: err.message });
     throw err;

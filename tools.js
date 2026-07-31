@@ -40,6 +40,28 @@ const toolDefinitions = [
       properties: {},
     },
   },
+  {
+    name: 'registrar_itens_usados',
+    description:
+      'Registra quais itens do estoque a receita sugerida efetivamente usa, e em que quantidade. Use o "id" de cada item exatamente como veio de consultar_estoque. So chame isso depois de decidir a receita — nao chame se nao consultou o estoque.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        itens: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              item_id: { type: 'string', description: 'id do item, retornado por consultar_estoque' },
+              quantidade: { type: 'number', description: 'quantidade usada, na mesma unidade do item' },
+            },
+            required: ['item_id', 'quantidade'],
+          },
+        },
+      },
+      required: ['itens'],
+    },
+  },
 ];
 
 async function consultar_estoque({ estado } = {}) {
@@ -61,9 +83,17 @@ async function consultar_preferencias() {
   return data.map((p) => p.description);
 }
 
+async function registrar_itens_usados({ itens } = {}) {
+  // Nao grava nada aqui — o agent.js captura o input desta chamada diretamente
+  // (e' o dado estruturado que vira meal_suggestions.items_used). So confirma
+  // pro Claude que o registro foi recebido, pra fechar o ciclo de tool_result.
+  return { ok: true, itens_recebidos: Array.isArray(itens) ? itens.length : 0 };
+}
+
 async function runTool(name, input) {
   if (name === 'consultar_estoque') return consultar_estoque(input);
   if (name === 'consultar_preferencias') return consultar_preferencias(input);
+  if (name === 'registrar_itens_usados') return registrar_itens_usados(input);
   throw new Error(`Ferramenta desconhecida: ${name}`);
 }
 
