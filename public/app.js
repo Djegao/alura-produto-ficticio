@@ -34,25 +34,35 @@ $('cfg-prompt').addEventListener('change', saveConfig);
 $('cfg-model').addEventListener('change', saveConfig);
 
 // ---- Estoque ----
+// Agrupado por "storage" (geladeira/despensa) — cada grupo e' uma grade de
+// cards que quebra linha sozinha, sem precisar de scroll horizontal.
 
 const STATE_LABEL = { base: 'base', ingrediente: 'ingrediente', preparado: 'preparado' };
 
-async function loadEstoque() {
-  const items = await api('/api/estoque');
-  const list = $('estoque-list');
+function renderEstoqueGroup(containerId, countId, items) {
+  const container = $(containerId);
+  $(countId).textContent = items.length ? `(${items.length})` : '';
   if (!items.length) {
-    list.innerHTML = '<div class="empty">Nenhum item ainda.</div>';
+    container.innerHTML = '<div class="empty">Nada por aqui ainda.</div>';
     return;
   }
-  list.innerHTML = items
+  container.innerHTML = items
     .map(
       (it) => `
-    <li>
-      <span><strong>${it.name}</strong> — ${it.quantity} ${it.unit} <span class="pill ${it.state}">${STATE_LABEL[it.state]}</span></span>
-      <button class="ghost" data-del-estoque="${it.id}">remover</button>
-    </li>`
+    <div class="item-card">
+      <strong>${escapeHtml(it.name)}</strong>
+      <span class="qty">${it.quantity} ${escapeHtml(it.unit)}</span>
+      <span class="pill ${it.state}">${STATE_LABEL[it.state]}</span>
+      <button class="item-card__remove" data-del-estoque="${it.id}" title="remover" aria-label="remover ${escapeHtml(it.name)}">×</button>
+    </div>`
     )
     .join('');
+}
+
+async function loadEstoque() {
+  const items = await api('/api/estoque');
+  renderEstoqueGroup('estoque-perecivel', 'count-perecivel', items.filter((i) => i.storage === 'perecivel'));
+  renderEstoqueGroup('estoque-seco', 'count-seco', items.filter((i) => i.storage !== 'perecivel'));
 }
 
 $('btn-add-estoque').addEventListener('click', async () => {
@@ -65,6 +75,7 @@ $('btn-add-estoque').addEventListener('click', async () => {
       quantity: Number($('estoque-qty').value) || 0,
       unit: $('estoque-unit').value.trim() || 'unidade',
       state: $('estoque-state').value,
+      storage: $('estoque-storage').value,
     }),
   });
   $('estoque-name').value = '';
@@ -73,11 +84,39 @@ $('btn-add-estoque').addEventListener('click', async () => {
   loadEstoque();
 });
 
-$('estoque-list').addEventListener('click', async (e) => {
+async function handleRemoveEstoque(e) {
   const id = e.target.dataset.delEstoque;
   if (!id) return;
   await api(`/api/estoque/${id}`, { method: 'DELETE' });
   loadEstoque();
+}
+$('estoque-perecivel').addEventListener('click', handleRemoveEstoque);
+$('estoque-seco').addEventListener('click', handleRemoveEstoque);
+
+// ---- Importar nota fiscal (texto/markdown) ----
+
+$('btn-importar-nota').addEventListener('click', async () => {
+  const fileInput = $('nota-file');
+  const file = fileInput.files[0];
+  const status = $('nota-status');
+  if (!file) {
+    status.textContent = 'Escolha um arquivo primeiro.';
+    return;
+  }
+
+  status.textContent = 'Lendo e extraindo itens...';
+  try {
+    const content = await file.text();
+    const result = await api('/api/notas-fiscais', {
+      method: 'POST',
+      body: JSON.stringify({ filename: file.name, content }),
+    });
+    status.textContent = `${result.itemsAdded.length} itens adicionados ao estoque (trace: ${result.traceId}).`;
+    fileInput.value = '';
+    loadEstoque();
+  } catch (err) {
+    status.textContent = `Erro: ${err.message}`;
+  }
 });
 
 // ---- Preferencias ----

@@ -14,48 +14,64 @@ Supabase, com cada chamada instrumentada no Langfuse.
 
 **Por que existe**: a aula precisava de um caso prático pra ensinar Langfuse
 e diagnóstico de causa-raiz (prompt vs dados vs modelo). Por isso o produto
-tem **três eixos trocáveis ao vivo**, direto na barra de configuração do
-painel:
+tem **eixos trocáveis ao vivo**, direto na barra de configuração do painel:
 - versão do prompt (v1 solto / v2 obriga tool use)
 - modelo de geração (`claude-sonnet-5` / `claude-haiku-4-5` / `claude-opus-5`)
-- (planejado, não implementado ainda) modelo de visão pra ingestão de nota fiscal
+- (planejado, não implementado ainda) modelo de visão pra ingestão de nota fiscal por imagem
 
 Trocar os eixos ao vivo, comparar o resultado e olhar o trace no Langfuse é
 o exercício central da Aula 4.
 
+**Especificação completa**: ver `SDD.md` na raiz do repo — documento de spec
+retroativo que registra requisitos, arquitetura e (principalmente) os
+achados empíricos incorporados como restrições de design. Leia antes de
+alterar qualquer coisa relacionada aos eixos, ao loop agêntico ou à
+categorização de estoque.
+
 ## Arquitetura
 
 - **`server.js`** — Express. Rotas REST puras (`/api/estoque`,
-  `/api/preferencias`, `/api/sugestao`, `/api/sugestoes`, `/api/config`).
-  Protegido por Basic Auth (`APP_USER`/`APP_PASSWORD`) quando essas env vars
-  existem — sem elas, roda aberto (ok só em localhost).
+  `/api/preferencias`, `/api/sugestao`, `/api/sugestoes`, `/api/consumos`,
+  `/api/notas-fiscais`, `/api/config`). Protegido por Basic Auth
+  (`APP_USER`/`APP_PASSWORD`) quando essas env vars existem — sem elas, roda
+  aberto (ok só em localhost).
 - **`agent.js`** — o loop agêntico. Cada chamada ao Claude e cada tool call
   vira uma observação própria no Langfuse, aninhada num span `agent`
-  (`startObservation`/`asType`). Isso é o que permite ver a árvore de decisão
-  inteira no dashboard.
-- **`tools.js`** — as duas ferramentas que o Claude pode chamar
-  (`consultar_estoque`, `consultar_preferencias`), lendo do Supabase de
-  verdade — nunca dado pré-buscado pelo backend.
+  (`startObservation`/`asType`). Depois do loop, se o estoque foi consultado
+  mas nenhum consumo foi registrado, força uma chamada extra com
+  `tool_choice` — não confia mais em pedido de prompt sozinho (ver SDD §11.3).
+- **`nota-fiscal.js`** — ingestão de nota fiscal em texto/markdown: extrai
+  itens de comida (ignora limpeza/higiene), normaliza quantidade e categoriza
+  `state`+`storage` via Claude com `tool_choice` forçado. Sem tela de revisão
+  ainda — vai direto pro estoque.
+- **`tools.js`** — três ferramentas que o Claude pode chamar durante o loop
+  (`consultar_estoque`, `consultar_preferencias`, `registrar_itens_usados`),
+  lendo/confirmando contra o Supabase de verdade — nunca dado pré-buscado
+  pelo backend.
 - **`prompts.js`** — v1 (solto, não obriga tool use) e v2 (obriga consultar
-  estoque/preferências antes de responder). Ver "Achados" abaixo.
+  estoque/preferências e registrar consumo). Ver "Achados" abaixo.
 - **`schema.sql`** — schema Postgres completo (rodar manualmente no SQL
   Editor do Supabase se for recriar o backend do zero). 8 tabelas:
   `households`, `preferences`, `pantry_items` (com `state` em
-  `base/ingrediente/preparado`), `receipts`, `receipt_items`,
-  `meal_requests`, `meal_suggestions`, `stock_consumptions`.
-- **`public/`** — front vanilla JS, sem build step. UI é "objetos da cozinha":
-  geladeira (abre porta em 3D CSS, revela estoque), livro de receitas (capa
-  abre, revela pedido de sugestão + histórico), bloco de notas (revela
-  preferências). Cada objeto é um `.object-card` com um `.object-trigger`
-  (botão) que alterna `.open` — a animação real é CSS puro
-  (`transform-style: preserve-3d` + `rotateY`/`rotateX` no `.fridge-door` /
-  `.book-cover` / `.note-cover`, com `backface-visibility: hidden` pra não
-  espelhar o texto quando aberto). Painel revelado usa o truque
-  `grid-template-rows: 0fr → 1fr` pra animar altura desconhecida. Inspirado
-  na *linguagem de interação* do site de campanha da Kerrygold ("The Magical
-  Pantry") — objetos como portais de navegação — mas implementado do zero
-  (paleta, ilustração, código todos originais; nada copiado do site deles,
-  que é ativo de marca registrada).
+  `base/ingrediente/preparado` E `storage` em `seco/perecivel` — dois eixos
+  ortogonais), `receipts`, `receipt_items`, `meal_requests`,
+  `meal_suggestions` (com `items_used`), `stock_consumptions` (com
+  `items_consumed`, retrato tirado na confirmação). Migrações rodadas
+  manualmente após o schema inicial documentadas no fim do arquivo.
+- **`public/`** — front vanilla JS, sem build step. UI é "objetos da
+  cozinha": geladeira e livro de receitas, cada um com ilustração real
+  (gerada pelo próprio instrutor, licença própria — não é mais CSS
+  desenhado à mão) trocando entre estado fechado/aberto via crossfade de
+  opacidade. Preferências **não** é mais um terceiro objeto — virou um botão
+  de configuração ("⚙ Preferências da casa") ao lado dos eixos ao vivo,
+  porque não havia caso de uso real pra separar fisicamente (decisão
+  revertida, ver SDD §9.5). O estoque dentro da geladeira é sempre
+  segmentado em duas grades (Geladeira/Despensa por `storage`), nunca lista
+  única — evita o scroll horizontal que a primeira versão tinha. Painel
+  revelado usa o truque `grid-template-rows: 0fr → 1fr` pra animar altura
+  desconhecida. Paleta/tipografia inspiradas na *linguagem de interação* do
+  site de campanha da Kerrygold ("The Magical Pantry") — objetos como
+  portais de navegação — mas implementação e ilustrações originais.
 - **`instrumentation.js`** — setup do OpenTelemetry + `LangfuseSpanProcessor`.
   Precisa ser o primeiro `require` (já é, em `server.js`).
 - **`generate-slides.js`** / **`docs/rascunho-coordenacao.html`** — material
@@ -112,26 +128,30 @@ As env vars já estão configuradas no Railway (não precisa reenviar) — só
 
 ## Achados reais preservados como conteúdo de aula
 
-Dois achados de debugging que o instrutor decidiu manter como conteúdo real
-da Aula 4 (evitar "corrigir" sem perguntar antes — combinado explicitamente):
+Achados de debugging que o instrutor decidiu manter como conteúdo real
+das Aulas 3/4 (evitar "corrigir" sem perguntar antes — combinado
+explicitamente). Detalhados com evidência completa em `SDD.md` §11:
 
-1. **Bug previsto que não reproduziu**: a expectativa era que o prompt v1
-   (solto, não obriga tool use) levaria o Claude a responder "de cabeça" sem
-   consultar estoque/preferências. Em teste real com Claude Sonnet 5, tanto
-   v1 quanto v2 chamaram as ferramentas normalmente (2x cada). Fica como
-   exemplo de que nem toda hipótese de causa-raiz se confirma — parte do
-   ensino de diagnóstico é a etapa de descartar hipóteses.
-2. **Lag de ingestão do Langfuse Cloud**: um trace exportado com sucesso
-   (log "Export succeeded") ainda assim retorna 404 na API pública por cerca
-   de **45 segundos** depois do envio. Confirmado via diagnóstico OTel e
-   polling. Não é bug da instrumentação — é o tempo de processamento real do
-   Langfuse Cloud antes do trace ficar consultável.
+1. **Bug previsto que não reproduziu**: v1 (solto) e v2 chamaram as
+   ferramentas igualmente em teste real — nem toda hipótese de causa-raiz se
+   confirma.
+2. **Lag de ingestão do Langfuse Cloud**: ~45s entre "export succeeded" e o
+   trace ficar consultável via API pública.
+3. **Prompt não é garantia estrutural**: v2 *pedia* pra chamar
+   `registrar_itens_usados`, mas o Claude nem sempre obedecia. Corrigido com
+   `tool_choice` forçado — virou o padrão do projeto pra qualquer saída
+   estruturada crítica (reaplicado em `nota-fiscal.js`).
+4. **Truncamento por `max_tokens`**: resposta cortada no meio de uma
+   palavra; confirmado no Langfuse que `output tokens == max_tokens`
+   configurado (1024). Achado preservado, correção ainda **não aplicada**.
 
 ## O que falta (próximas camadas)
 
-- Ingestão de nota fiscal via Claude Vision (upload → extração → tela de
-  revisão em `receipt_items` antes de virar `pantry_items`) — é o terceiro
-  eixo trocável (fable-5/haiku-4-5 pra visão) que ainda não foi construído.
+- Ingestão de nota fiscal por **imagem** (Claude Vision) — hoje só ingere
+  texto/markdown. É o terceiro eixo trocável (fable-5/haiku-4-5 pra visão)
+  que ainda não foi construído.
+- Tela de revisão de nota fiscal — `receipt_items.confirmed` já existe no
+  schema, mas hoje é gravado direto como `true`, sem revisão humana.
 - Pipeline de evals da Aula 2: Claude-as-judge avaliando interações logadas e
   escrevendo Score de volta no Langfuse via `trace_id`/`meal_suggestions.trace_id`
   — dependência dura pra ter dado real de "qualidade ao longo do tempo" na

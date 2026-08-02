@@ -240,6 +240,44 @@
   .pill.ingrediente { background: var(--gold-bg); color: var(--gold); }
   .pill.preparado { background: var(--good-bg); color: var(--good); }
   .empty { color: var(--ink-faint); font-size: 13px; padding: 8px 0; }
+
+  /* estoque: grade de cards agrupada por geladeira/despensa — sem scroll horizontal */
+  .estoque-group { margin-top: 18px; }
+  .estoque-group__title {
+    display: flex; align-items: center; gap: 8px; font: 600 12.5px/1 var(--font-body);
+    text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); margin: 0 0 10px;
+    padding-left: 11px; border-left: 3px solid var(--border);
+  }
+  .estoque-group__title.storage-perecivel { border-left-color: var(--terracotta); }
+  .estoque-group__title.storage-seco { border-left-color: var(--gold); }
+  .estoque-group__title .count { color: var(--ink-faint); font-weight: 500; text-transform: none; letter-spacing: 0; }
+  .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 8px; }
+  .item-card {
+    position: relative; background: var(--surface-alt); border-radius: 10px; padding: 10px 30px 10px 12px;
+    transition: box-shadow .12s ease, transform .12s ease;
+  }
+  .item-card:hover { box-shadow: -2px 2px 0 var(--sticker-shadow); transform: translate(1px, -1px); }
+  .item-card strong { display: block; font-size: 13.5px; margin-bottom: 3px; text-transform: capitalize; }
+  .item-card .qty { color: var(--ink-faint); font-size: 12px; }
+  .item-card .pill { margin-left: 6px; }
+  .item-card__remove {
+    position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; padding: 0;
+    display: flex; align-items: center; justify-content: center; border-radius: 50%;
+    background: transparent; color: var(--ink-faint); box-shadow: none; font-size: 14px; line-height: 1;
+  }
+  .item-card__remove:hover { background: var(--bad-bg); color: var(--bad); box-shadow: none; transform: none; }
+  .import-nota {
+    margin-top: 20px; padding-top: 16px; border-top: 1px dashed var(--border);
+  }
+  .import-nota summary {
+    cursor: pointer; font: 600 13px/1 var(--font-body); color: var(--accent-soft); list-style: none;
+  }
+  .import-nota summary::-webkit-details-marker { display: none; }
+  .import-nota summary::before { content: "＋ "; }
+  .import-nota[open] summary::before { content: "－ "; }
+  .import-nota input[type=file] {
+    font-size: 12.5px; flex: 1; padding: 6px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  }
   .suggestion {
     border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-top: 16px;
     background: var(--surface-alt);
@@ -341,16 +379,39 @@
         <h2>Estoque</h2>
         <div class="row">
           <input type="text" id="estoque-name" placeholder="item" />
-          <input type="number" id="estoque-qty" placeholder="qtd" style="max-width:70px" />
-          <input type="text" id="estoque-unit" placeholder="unidade" style="max-width:90px" />
+          <input type="number" id="estoque-qty" placeholder="qtd" style="max-width:80px" />
+          <input type="text" id="estoque-unit" placeholder="unidade" style="max-width:100px" />
+        </div>
+        <div class="row">
           <select id="estoque-state">
             <option value="base">base</option>
             <option value="ingrediente">ingrediente</option>
             <option value="preparado">preparado</option>
           </select>
-          <button id="btn-add-estoque">+</button>
+          <select id="estoque-storage">
+            <option value="perecivel">geladeira (perecível)</option>
+            <option value="seco">despensa (seco)</option>
+          </select>
+          <button id="btn-add-estoque">Adicionar</button>
         </div>
-        <ul class="list" id="estoque-list"></ul>
+
+        <div class="estoque-group">
+          <h3 class="estoque-group__title storage-perecivel">Geladeira <span class="count" id="count-perecivel"></span></h3>
+          <div class="item-grid" id="estoque-perecivel"></div>
+        </div>
+        <div class="estoque-group">
+          <h3 class="estoque-group__title storage-seco">Despensa <span class="count" id="count-seco"></span></h3>
+          <div class="item-grid" id="estoque-seco"></div>
+        </div>
+
+        <details class="import-nota">
+          <summary>Importar nota fiscal (.md/.txt)</summary>
+          <div class="row" style="margin-top:10px">
+            <input type="file" id="nota-file" accept=".md,.txt,text/markdown,text/plain" />
+            <button id="btn-importar-nota">Importar</button>
+          </div>
+          <div id="nota-status" class="empty"></div>
+        </details>
       </section>
       <section class="card">
         <h2>Consumo registrado</h2>

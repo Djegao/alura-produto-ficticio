@@ -5,6 +5,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { supabase, getHouseholdId } = require('./tools');
 const { sugerirReceita } = require('./agent');
+const { ingerirNotaFiscal } = require('./nota-fiscal');
 
 const app = express();
 
@@ -64,12 +65,20 @@ app.get('/api/estoque', async (req, res) => {
 });
 
 app.post('/api/estoque', async (req, res) => {
-  const { name, quantity, unit, state } = req.body;
+  const { name, quantity, unit, state, storage } = req.body;
   if (!name || !state) return res.status(400).json({ error: 'name e state sao obrigatorios' });
   const householdId = await getHouseholdId();
   const { data, error } = await supabase
     .from('pantry_items')
-    .insert({ household_id: householdId, name, quantity: quantity || 0, unit: unit || 'unidade', state, source: 'manual' })
+    .insert({
+      household_id: householdId,
+      name,
+      quantity: quantity || 0,
+      unit: unit || 'unidade',
+      state,
+      storage: storage === 'perecivel' ? 'perecivel' : 'seco',
+      source: 'manual',
+    })
     .select()
     .single();
   if (error) return res.status(500).json({ error: error.message });
@@ -80,6 +89,64 @@ app.delete('/api/estoque/:id', async (req, res) => {
   const { error } = await supabase.from('pantry_items').delete().eq('id', req.params.id);
   if (error) return res.status(500).json({ error: error.message });
   res.json({ ok: true });
+});
+
+// ---- Ingestao de nota fiscal (texto/markdown por enquanto) ----
+
+app.post('/api/notas-fiscais', async (req, res) => {
+  const { filename, content } = req.body;
+  if (!content) return res.status(400).json({ error: 'content e obrigatorio' });
+
+  const householdId = await getHouseholdId();
+  const { model } = currentConfig;
+
+  try {
+    const result = await ingerirNotaFiscal({ filename, content, model });
+
+    const { data: receipt, error: receiptError } = await supabase
+      .from('receipts')
+      .insert({
+        household_id: householdId,
+        image_path: `texto:${filename || 'nota.md'}`,
+        status: 'confirmado',
+        model_used: model,
+        trace_id: result.traceId,
+      })
+      .select()
+      .single();
+    if (receiptError) return res.status(500).json({ error: receiptError.message });
+
+    const itemsAdded = [];
+    for (const item of result.itens) {
+      const { data, error } = await supabase
+        .from('pantry_items')
+        .insert({
+          household_id: householdId,
+          name: item.name,
+          quantity: item.quantity,
+          unit: item.unit,
+          state: item.state,
+          storage: item.storage,
+          source: 'nota_fiscal',
+        })
+        .select()
+        .single();
+      if (!error) itemsAdded.push(data);
+
+      await supabase.from('receipt_items').insert({
+        receipt_id: receipt.id,
+        name: item.name,
+        quantity: item.quantity,
+        unit: item.unit,
+        state_guess: item.state,
+        confirmed: true,
+      });
+    }
+
+    res.json({ receipt, itemsAdded, traceId: result.traceId });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ---- Preferencias ----

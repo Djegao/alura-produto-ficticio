@@ -30,6 +30,10 @@ create table pantry_items (
   quantity numeric not null default 0,
   unit text not null default 'unidade',
   state text not null check (state in ('base', 'ingrediente', 'preparado')),
+  -- "storage" e' o eixo de ONDE o item mora fisicamente — ortogonal ao "state"
+  -- (que e' sobre o quao transformado o alimento esta). Arroz e base+seco;
+  -- maca e base+perecivel. Um item pode mudar de estado sem mudar de storage.
+  storage text not null default 'seco' check (storage in ('seco', 'perecivel')),
   source text, -- 'nota_fiscal', 'manual', etc.
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -101,3 +105,8 @@ insert into households (name) values ('Casa de teste — curso Alura');
 -- (nome/quantidade/unidade) de cada item consumido na confirmacao.
 -- alter table stock_consumptions
 --   add column items_consumed jsonb not null default '[]';
+
+-- 2026-07-31: categorizacao seco/perecivel — separa a lista do estoque em
+-- despensa (seco) e geladeira (perecivel), pra UI virar visual de verdade.
+-- alter table pantry_items
+--   add column storage text not null default 'seco' check (storage in ('seco', 'perecivel'));
