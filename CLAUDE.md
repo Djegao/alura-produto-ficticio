@@ -58,16 +58,23 @@ categorização de estoque.
   `meal_suggestions` (com `items_used`), `stock_consumptions` (com
   `items_consumed`, retrato tirado na confirmação). Migrações rodadas
   manualmente após o schema inicial documentadas no fim do arquivo.
-- **`public/`** — front vanilla JS, sem build step. UI é "objetos da
-  cozinha": geladeira e livro de receitas, cada um com ilustração real
-  (gerada pelo próprio instrutor, licença própria — não é mais CSS
-  desenhado à mão) trocando entre estado fechado/aberto via crossfade de
-  opacidade. Preferências **não** é mais um terceiro objeto — virou um botão
-  de configuração ("⚙ Preferências da casa") ao lado dos eixos ao vivo,
-  porque não havia caso de uso real pra separar fisicamente (decisão
-  revertida, ver SDD §9.5). O estoque dentro da geladeira é sempre
-  segmentado em duas grades (Geladeira/Despensa por `storage`), nunca lista
-  única — evita o scroll horizontal que a primeira versão tinha. Painel
+- **`public/`** — front vanilla JS, sem build step. **Reescrito em 2026-08-02
+  pra "Musa Balance" (fase 4)**: o hero deixou de ser os "objetos da
+  cozinha" e virou um **Kanban mobile-first** (scroll horizontal) com 5
+  estágios ativos — Plano Semanal / Pré-preparo / Preparo / Porcionamento /
+  Consumo — lido de `GET /api/kanban` e escrito por `POST /api/kanban/acao`
+  (branquear/porcionar/consumir) + pelos canais do bot, de propósito nos
+  dois sentidos (ver `unified-meandering-newell.md` sobre por que a
+  divergência entre os dois caminhos de escrita é intencional, não bug a
+  esconder). Despensa (estoque assentado, geladeira/ilustração real do
+  instrutor) virou **função separada, fora do Kanban** — só itens não
+  `preparado`, grade densa Geladeira/Despensa por `storage`. "Livro de
+  receitas" (UI do v1/v2) foi **retirado da interface** por decisão
+  explícita — `agent.js:sugerirReceita`, `prompts.js` v1/v2 e as rotas
+  `/api/sugestao`/`/api/sugestoes` continuam intactas, só sem botão no
+  painel; demonstrar via Postman/curl na Aula 4. Preferências e Atividade
+  recente (ex-"Pensamentos") continuam como botão de configuração, não
+  objeto físico (SDD §9.5). Painel
   revelado usa o truque `grid-template-rows: 0fr → 1fr` pra animar altura
   desconhecida. Paleta/tipografia inspiradas na *linguagem de interação* do
   site de campanha da Kerrygold ("The Magical Pantry") — objetos como
@@ -97,12 +104,19 @@ deterministas novas e `max_tokens` maior — o teto de 1024 do loop original
 ganhou `mediatorToolDefinitions`, um array **separado** de `toolDefinitions`
 pra não vazar as tools novas pro agente v1/v2 antigo.
 
-Tabelas novas (migração **já rodada** no Supabase em 2026-08-02, registrada
-como histórico no fim do `schema.sql`): `actors` (Diego=chef, Esposa=musa já
-semeados), `weekly_budgets`, `meal_reports`, `trade_off_decisions`,
-`pensamentos` (log cru exibido no painel "💭 Pensamentos da semana", só
-leitura por enquanto), e `pantry_items.blanched_at` /
-`households.telegram_chat_id`. RLS deixado desligado de propósito — só o
+Tabelas novas, construídas em 4 fases ao longo de 2026-08-02 (histórico
+completo no fim do `schema.sql`, cada bloco com a data): `actors`
+(Diego=chef, Esposa=musa, semeados), `weekly_budgets`, `meal_reports`,
+`trade_off_decisions` (+ `porcionado_em`, fase 4), `pensamentos` (log cru,
+`tipo` em `relato_refeicao/desejo/aquisicao/desperdicio`, + `budget_categoria`/
+`status`/`fonte_refeicao`/`dias_desde_preparo`), `actor_daily_targets`
+(calorias+macros por ator, uso futuro com nutricionista), e em
+`pantry_items`: `blanched_at`, `portions_total`/`portions_remaining`
+(porcionamento), `prepared_at` (base pra validade de prato pronto —
+**aprendida por relato de desperdício, não configurada globalmente**, cada
+prato decai no próprio ritmo). Em `households`:
+`dias_validade_pos_branqueamento` (D-N editável, substituiu constante fixa
+em código) e `telegram_chat_id`. RLS deixado desligado de propósito — só o
 `SUPABASE_SERVICE_ROLE_KEY` (só usado em `tools.js`, nunca no browser) toca
 essas tabelas, então o aviso do linter do Supabase não se aplica aqui.
 
@@ -110,24 +124,34 @@ Rotas novas em `server.js`: `/api/atores`, `/api/relatos`,
 `/api/orcamento-semanal`, `/api/mediacao`, `/api/mediacoes`,
 `/api/pensamentos`, `/api/telegram/webhook` (autenticado por
 `TELEGRAM_WEBHOOK_SECRET`, não pelo Basic Auth geral — o Telegram não manda
-credenciais).
+credenciais), `/api/kanban` (agregação dos 5 estágios ativos) +
+`/api/kanban/acao` (branquear/porcionar/consumir — `porcionar` é sempre
+manual de propósito, só quem cozinhou sabe o rendimento real), e
+`/api/config-quantitativo` (+ `/validade`, `/metas` — o repositório
+editável por trás da gaveta de Configurações).
 
 **Pendências externas (não é código, é ação manual)** — atualizado
-2026-08-02: migração rodada, atores semeados, bot criado e webhook
-registrado (200 via POST JSON no Postman). Falta:
-1. Confirmar Group Privacy = off no BotFather (bot precisa ler texto livre
-   no grupo, não só comandos).
-2. Rodar `/eusou_chef` e `/eusou_musa` no grupo (cada ator no seu celular)
-   pra ligar `telegram_user_id`.
-3. Semear o cenário real já vivido (compras da semana, lasanha, itens
-   branqueados com `blanched_at` real) — dado de verdade, não simulação.
-4. Configurar `TELEGRAM_BOT_TOKEN`/`TELEGRAM_WEBHOOK_SECRET` também no
-   Railway (produção), não só local — sem isso o webhook de produção não
-   valida o secret_token.
+2026-08-02: bot criado, webhook registrado e validando, os dois atores já
+identificados no grupo (`/eusou_chef`/`/eusou_musa`), Group Privacy
+confirmado off, env vars do Telegram já no Railway. Falta:
+1. **Rodar a migração pendente das fases 3+4** no SQL Editor do Supabase
+   (bloco `PENDENTE` no fim do `schema.sql` — `prepared_at`,
+   `fonte_refeicao`, `tipo=desperdicio`, `dias_desde_preparo`,
+   `trade_off_decisions.porcionado_em`). Sem isso o `/api/kanban` responde
+   erro (de propósito — nunca cai em silêncio, ver achado de teste abaixo).
+2. Semear o cenário real da lasanha como `pantry_item` `preparado` —
+   pendente só do número real de porções (não inventado).
+
+**Achado de teste (2026-08-02, Playwright local)**: a primeira versão do
+`GET /api/kanban` mascarava erro de coluna ausente com um fallback `|| []`
+— parecia "coluna vazia", não erro. Corrigido pra propagar toda falha de
+query (`semaSilencio` em `server.js`) — nenhuma consulta do endpoint cai em
+silêncio mais.
 
 Adiado de propósito, não esquecido: cards (swipe + geração de imagem por
-IA), LTM/aprendizado de "match de sucesso", RLS/multi-tenancy — ver
-`unified-meandering-newell.md` pro raciocínio completo de cada adiamento.
+IA), LTM/aprendizado de "match de sucesso" (a validade de prato pronto é o
+primeiro passo concreto disso, ainda sem consumidor), RLS/multi-tenancy —
+ver `unified-meandering-newell.md` pro raciocínio completo de cada adiamento.
 
 ## Rodando localmente
 
