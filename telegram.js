@@ -34,6 +34,21 @@ async function perguntarIdentidade(chatId) {
   });
 }
 
+const BUDGET_LABEL = { tr_diego: 'TR Diego', tr_esposa: 'TR Esposa', credito_familia: 'Crédito Família' };
+
+// So pergunta quando o Agente de Ingestao nao capturou a categoria do texto
+// (ninguem disse "paguei com..."). callback_data carrega categoria+id do
+// pensamento pendente — curto o suficiente pro limite de 64 bytes do Telegram.
+async function perguntarOrcamento(chatId, pensamentoId) {
+  await enviarMensagem(chatId, 'De qual orçamento saiu essa compra?', {
+    inline_keyboard: [
+      [{ text: 'TR Diego', callback_data: `bg:tr_diego:${pensamentoId}` }],
+      [{ text: 'TR Esposa', callback_data: `bg:tr_esposa:${pensamentoId}` }],
+      [{ text: 'Crédito Família', callback_data: `bg:credito_familia:${pensamentoId}` }],
+    ],
+  });
+}
+
 // Fecha o "carregando..." do botao no app do Telegram. Sem isso o botao
 // fica com o spinner girando ate expirar sozinho.
 async function responderCallback(callbackQueryId, text) {
@@ -54,7 +69,7 @@ async function responderCallback(callbackQueryId, text) {
 // A API de reacao do Telegram so aceita um conjunto FIXO de emojis (nao e'
 // emoji livre como em texto) — 👍 e 🤔 estao confirmados nesse conjunto.
 // Nao usamos 📝/💭 aqui por isso (💭 continua vivo no icone do painel web).
-const EMOJI_POR_TIPO = { relato_refeicao: '👍', desejo: '🤔' };
+const EMOJI_POR_TIPO = { relato_refeicao: '👍', desejo: '🤔', aquisicao: '👍' };
 
 async function reagir(chatId, messageId, emoji) {
   if (!process.env.TELEGRAM_BOT_TOKEN) return;
@@ -102,6 +117,17 @@ async function processarUpdate(update, { model }) {
   // update diferente de mensagem de texto, tratado a parte.
   if (update.callback_query) {
     const cq = update.callback_query;
+
+    if (cq.data.startsWith('bg:')) {
+      const [, categoria, pensamentoId] = cq.data.split(':');
+      const { error } = await supabase
+        .from('pensamentos')
+        .update({ budget_categoria: categoria, status: 'completo' })
+        .eq('id', pensamentoId);
+      await responderCallback(cq.id, error ? 'Não consegui salvar, tenta de novo.' : `Marcado: ${BUDGET_LABEL[categoria]}`);
+      return;
+    }
+
     const role = cq.data === 'eusou_chef' ? 'chef' : cq.data === 'eusou_musa' ? 'musa' : null;
     if (!role) return;
 
@@ -148,16 +174,6 @@ async function processarUpdate(update, { model }) {
   try {
     const { intencao, traceId } = await ingerirRelato({ texto, dataReferencia: hoje, model, canal: 'telegram' });
 
-    await supabase.from('pensamentos').insert({
-      actor_id: actor.id,
-      tipo: intencao.tipo,
-      descricao: intencao.descricao,
-      data: intencao.data || null,
-      calorias: intencao.calorias ?? null,
-      custo: intencao.custo ?? null,
-      trace_id: traceId,
-    });
-
     if (intencao.tipo === 'relato_refeicao') {
       await runTool('registrar_relato_refeicao', {
         ator: actor.role,
@@ -167,11 +183,66 @@ async function processarUpdate(update, { model }) {
         calorias: intencao.calorias,
         custo: intencao.custo,
       });
-    }
+      await supabase.from('pensamentos').insert({
+        actor_id: actor.id,
+        tipo: intencao.tipo,
+        descricao: intencao.descricao,
+        data: intencao.data || null,
+        calorias: intencao.calorias ?? null,
+        custo: intencao.custo ?? null,
+        budget_categoria: intencao.budget_categoria || null,
+        trace_id: traceId,
+      });
+      await reagir(chatId, message.message_id, EMOJI_POR_TIPO.relato_refeicao);
+    } else if (intencao.tipo === 'aquisicao') {
+      // Estagio i->ii do pipeline: a aquisicao ja estoca o item (fisicamente
+      // ja esta na casa), independente de quem/qual carteira pagou — isso e'
+      // resolvido em paralelo, sem travar o estoque nessa bookkeeping.
+      if (intencao.item_nome && intencao.item_state && intencao.item_storage) {
+        const householdId = await getHouseholdId();
+        await supabase.from('pantry_items').insert({
+          household_id: householdId,
+          name: intencao.item_nome,
+          quantity: intencao.item_quantidade || 0,
+          unit: intencao.item_unidade || 'unidade',
+          state: intencao.item_state,
+          storage: intencao.item_storage,
+          source: 'telegram',
+        });
+      }
 
-    await reagir(chatId, message.message_id, EMOJI_POR_TIPO[intencao.tipo] || '👍');
+      const temCategoria = !!intencao.budget_categoria;
+      const { data: pensamento } = await supabase
+        .from('pensamentos')
+        .insert({
+          actor_id: actor.id,
+          tipo: 'aquisicao',
+          descricao: intencao.descricao,
+          data: intencao.data || hoje,
+          custo: intencao.custo ?? null,
+          budget_categoria: intencao.budget_categoria || null,
+          status: temCategoria ? 'completo' : 'aguardando_categoria',
+          trace_id: traceId,
+        })
+        .select()
+        .single();
+
+      await reagir(chatId, message.message_id, EMOJI_POR_TIPO.aquisicao);
+      if (!temCategoria && pensamento) await perguntarOrcamento(chatId, pensamento.id);
+    } else {
+      await supabase.from('pensamentos').insert({
+        actor_id: actor.id,
+        tipo: intencao.tipo,
+        descricao: intencao.descricao,
+        data: intencao.data || null,
+        calorias: intencao.calorias ?? null,
+        custo: intencao.custo ?? null,
+        trace_id: traceId,
+      });
+      await reagir(chatId, message.message_id, EMOJI_POR_TIPO.desejo);
+    }
   } catch (err) {
-    console.error('Erro capturando relato/desejo via Telegram:', err.message);
+    console.error('Erro capturando relato/desejo/aquisicao via Telegram:', err.message);
     await enviarMensagem(chatId, '⚠️ Não consegui registrar essa — tenta de novo em instantes.');
   }
 }

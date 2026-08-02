@@ -8,7 +8,12 @@ create extension if not exists pgcrypto;
 create table households (
   id uuid primary key default gen_random_uuid(),
   name text not null default 'Minha casa',
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  -- v3 "Musa Balance": telegram_chat_id do grupo (aprendido sozinho, ver
+  -- telegram.js) e dias de validade pos-branqueamento (regra D-6 hoje,
+  -- editavel em vez de constante fixa em codigo).
+  telegram_chat_id bigint,
+  dias_validade_pos_branqueamento numeric not null default 6
 );
 
 -- Preferencias persistentes do domicilio — atomicas: uma preferencia por linha
@@ -40,6 +45,11 @@ create table pantry_items (
   -- tabelada de "fresco". Calculado em codigo (consultar_validade_estoque),
   -- nunca inferido pelo Claude — null significa que o item nunca foi branqueado.
   blanched_at timestamptz,
+  -- v3 "Musa Balance": porcionamento (estagio v do pipeline). So faz sentido
+  -- pra state='preparado' — quantas porcoes o prato rendeu e quantas restam.
+  -- null enquanto o item nao foi porcionado ainda.
+  portions_total numeric,
+  portions_remaining numeric,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -140,7 +150,27 @@ create table meal_reports (
   source text not null check (source in ('manual', 'telegram', 'reminder')),
   calories numeric,
   cost numeric,
+  -- de qual "carteira" saiu o gasto — nao entra na conta do orcamento real
+  -- da casa quando e' TR (vale-refeicao), so quando e' credito_familia.
+  budget_categoria text check (budget_categoria in ('tr_diego', 'tr_esposa', 'credito_familia')),
   created_at timestamptz not null default now()
+);
+
+-- Metas diarias por ator — repositorio de configuracao editavel, nao log.
+-- calorie_cap_daily substitui a nocao de teto semanal generico por algo por
+-- pessoa/dia. Macros ficam nulos ate a nutricionista entrar em cena de
+-- verdade (caso de uso futuro, registrado explicitamente — nao inventar
+-- recomendacao de macro sem orientacao profissional real).
+create table actor_daily_targets (
+  id uuid primary key default gen_random_uuid(),
+  actor_id uuid not null references actors(id) on delete cascade,
+  calorie_cap_daily numeric,
+  protein_g numeric,
+  carbs_g numeric,
+  fat_g numeric,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (actor_id)
 );
 
 -- Decisao do Agente Mediador: ele nao decide sozinho, expoe a proposta e o
@@ -154,6 +184,26 @@ create table trade_off_decisions (
   proposta jsonb not null,
   escolhida_por uuid references actors(id),
   escolha jsonb,
+  created_at timestamptz not null default now()
+);
+
+-- Log cru de tudo que o Agente de Ingestao classificou — relato de refeicao,
+-- desejo OU aquisicao (compra), sem distincao de importancia. E' a
+-- materia-prima do icone "balao de pensamento" da UI e do estagio "Adquirir"
+-- do Kanban. Uma aquisicao pode nascer sem budget_categoria (status
+-- 'aguardando_categoria') ate o bot perguntar e a pessoa responder pelo
+-- botao no Telegram — so entao vira 'completo'.
+create table pensamentos (
+  id uuid primary key default gen_random_uuid(),
+  actor_id uuid not null references actors(id) on delete cascade,
+  tipo text not null check (tipo in ('relato_refeicao', 'desejo', 'aquisicao')),
+  descricao text not null,
+  data date,
+  calorias numeric,
+  custo numeric,
+  budget_categoria text check (budget_categoria in ('tr_diego', 'tr_esposa', 'credito_familia')),
+  status text not null default 'completo' check (status in ('completo', 'aguardando_categoria')),
+  trace_id text,
   created_at timestamptz not null default now()
 );
 
@@ -234,3 +284,41 @@ insert into households (name) values ('Casa de teste — curso Alura');
 --   select id, 'Diego', 'chef' from households limit 1;
 -- insert into actors (household_id, name, role)
 --   select id, 'Esposa', 'musa' from households limit 1;
+
+-- ---------------------------------------------------------------------
+-- PENDENTE — ainda NAO rodado no Supabase. Rodar manualmente no SQL Editor,
+-- depois comentar este bloco como historico igual aos de cima.
+-- ---------------------------------------------------------------------
+
+-- 2026-08-02: "Musa Balance" fase 2 — porcionamento, config editavel
+-- (validade, metas diarias/macro por ator), e atribuicao de orcamento
+-- (TR Diego / TR Esposa / Credito Familia) em compras e relatos.
+
+alter table pantry_items
+  add column if not exists portions_total numeric,
+  add column if not exists portions_remaining numeric;
+
+alter table households
+  add column if not exists dias_validade_pos_branqueamento numeric not null default 6;
+
+alter table meal_reports
+  add column if not exists budget_categoria text check (budget_categoria in ('tr_diego', 'tr_esposa', 'credito_familia'));
+
+create table if not exists actor_daily_targets (
+  id uuid primary key default gen_random_uuid(),
+  actor_id uuid not null references actors(id) on delete cascade,
+  calorie_cap_daily numeric,
+  protein_g numeric,
+  carbs_g numeric,
+  fat_g numeric,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (actor_id)
+);
+
+alter table pensamentos
+  add column if not exists budget_categoria text check (budget_categoria in ('tr_diego', 'tr_esposa', 'credito_familia')),
+  add column if not exists status text not null default 'completo' check (status in ('completo', 'aguardando_categoria'));
+
+alter table pensamentos drop constraint if exists pensamentos_tipo_check;
+alter table pensamentos add constraint pensamentos_tipo_check check (tipo in ('relato_refeicao', 'desejo', 'aquisicao'));
