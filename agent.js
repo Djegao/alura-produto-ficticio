@@ -6,7 +6,7 @@
 
 const Anthropic = require('@anthropic-ai/sdk');
 const { startObservation } = require('@langfuse/tracing');
-const { toolDefinitions, runTool } = require('./tools');
+const { toolDefinitions, mediatorToolDefinitions, runTool } = require('./tools');
 const { PROMPTS } = require('./prompts');
 
 const anthropic = new Anthropic(); // le ANTHROPIC_API_KEY do ambiente
@@ -165,4 +165,155 @@ async function sugerirReceita({ promptText, model, promptVersion }) {
   }
 }
 
-module.exports = { sugerirReceita };
+// v3 "Musa Balance": o Agente Mediador. Mesmo esqueleto de loop + tool_choice
+// forcado do sugerirReceita acima (convencao do projeto, SDD §11.3) — mas com
+// as tools deterministicas novas e max_tokens maior nesta chamada (o teto de
+// 1024 do loop original fica como estava de proposito: achado §11.4
+// preservado como conteudo de aula, nao "corrigido" sem perguntar antes).
+async function mediarCardapio({ promptText, model }) {
+  const systemPrompt = PROMPTS.mediador;
+
+  const agent = startObservation(
+    'mediar-cardapio',
+    { input: { promptText, model } },
+    { asType: 'agent' }
+  );
+  const traceId = agent.traceId;
+
+  let messages = [{ role: 'user', content: promptText }];
+  let finalText = '';
+  let toolCallCount = 0;
+  let proposta = null;
+  let escolha = null;
+
+  try {
+    for (let i = 0; i < MAX_ITERATIONS; i++) {
+      const generation = agent.startObservation(
+        'chamada-claude',
+        { input: messages, model },
+        { asType: 'generation' }
+      );
+
+      const response = await anthropic.messages.create({
+        model,
+        max_tokens: 2048,
+        system: systemPrompt,
+        tools: mediatorToolDefinitions,
+        messages,
+      });
+
+      generation.update({
+        output: response.content,
+        usageDetails: {
+          input: response.usage.input_tokens,
+          output: response.usage.output_tokens,
+        },
+      });
+      generation.end();
+
+      messages.push({ role: 'assistant', content: response.content });
+
+      const textBlock = response.content.find((b) => b.type === 'text');
+      if (textBlock && textBlock.text) finalText = textBlock.text;
+
+      if (response.stop_reason !== 'tool_use') break;
+
+      const toolResults = [];
+      for (const block of response.content) {
+        if (block.type !== 'tool_use') continue;
+        toolCallCount++;
+
+        if (block.name === 'registrar_decisao_cardapio') {
+          if (block.input.proposta) proposta = block.input.proposta;
+          if (block.input.escolha) escolha = block.input.escolha;
+        }
+
+        const toolSpan = agent.startObservation(
+          block.name,
+          { input: block.input },
+          { asType: 'tool' }
+        );
+
+        let output;
+        try {
+          output = await runTool(block.name, block.input);
+          toolSpan.update({ output });
+        } catch (e) {
+          output = { error: e.message };
+          toolSpan.update({ output, level: 'ERROR' });
+        }
+        toolSpan.end();
+
+        toolResults.push({
+          type: 'tool_result',
+          tool_use_id: block.id,
+          content: JSON.stringify(output),
+        });
+      }
+      messages.push({ role: 'user', content: toolResults });
+    }
+
+    // Pedir em linguagem natural nao e garantia (SDD §11.3) — se o mediador
+    // nao registrou proposta nenhuma, forca a chamada fora do fluxo natural.
+    if (!proposta) {
+      messages.push({
+        role: 'user',
+        content:
+          'Com base no que voce consultou (estoque, validade, preferencias, orcamento), registre agora a proposta de trade-off para a semana.',
+      });
+
+      const forceGen = agent.startObservation(
+        'forcar-registro-decisao',
+        { input: messages, model, metadata: { motivo: 'tool_choice forcado — prompt sozinho nao garantiu a chamada' } },
+        { asType: 'generation' }
+      );
+
+      const forceResponse = await anthropic.messages.create({
+        model,
+        max_tokens: 1024,
+        system: systemPrompt,
+        tools: mediatorToolDefinitions,
+        tool_choice: { type: 'tool', name: 'registrar_decisao_cardapio' },
+        messages,
+      });
+
+      forceGen.update({
+        output: forceResponse.content,
+        usageDetails: {
+          input: forceResponse.usage.input_tokens,
+          output: forceResponse.usage.output_tokens,
+        },
+      });
+      forceGen.end();
+
+      const forcedBlock = forceResponse.content.find(
+        (b) => b.type === 'tool_use' && b.name === 'registrar_decisao_cardapio'
+      );
+
+      if (forcedBlock) {
+        if (forcedBlock.input.proposta) proposta = forcedBlock.input.proposta;
+        if (forcedBlock.input.escolha) escolha = forcedBlock.input.escolha;
+        toolCallCount++;
+
+        const toolSpan = agent.startObservation(
+          'registrar_decisao_cardapio',
+          { input: forcedBlock.input, metadata: { forced: true } },
+          { asType: 'tool' }
+        );
+        const output = await runTool('registrar_decisao_cardapio', forcedBlock.input);
+        toolSpan.update({ output });
+        toolSpan.end();
+      }
+    }
+
+    agent.update({ output: finalText, metadata: { toolCallCount, temProposta: !!proposta } });
+    return { text: finalText, traceId, toolCallCount, proposta, escolha };
+  } catch (err) {
+    agent.update({ level: 'ERROR', statusMessage: err.message });
+    throw err;
+  } finally {
+    agent.end();
+  }
+}
+
+module.exports = { sugerirReceita, mediarCardapio };

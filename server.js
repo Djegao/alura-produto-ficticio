@@ -3,15 +3,22 @@ require('./instrumentation'); // precisa ser o primeiro require do arquivo
 const express = require('express');
 const path = require('path');
 const crypto = require('crypto');
-const { supabase, getHouseholdId } = require('./tools');
-const { sugerirReceita } = require('./agent');
+const { supabase, getHouseholdId, getWeekStart, getActorByRole, runTool } = require('./tools');
+const { sugerirReceita, mediarCardapio } = require('./agent');
 const { ingerirNotaFiscal } = require('./nota-fiscal');
+const { ingerirRelato } = require('./relato-ingestao');
+const { processarUpdate } = require('./telegram');
+const { iniciarLembretes } = require('./lembrete');
 
 const app = express();
 
 // Protege a app inteira com senha simples — ela roda com chaves reais e pagas
 // (Anthropic/Supabase/Langfuse), entao nao pode ficar aberta ao publico sem gate.
 function basicAuth(req, res, next) {
+  // O Telegram nao manda Basic Auth — esse endpoint se protege sozinho via
+  // secret_token (checado dentro da propria rota), nao pelo gate geral.
+  if (req.path === '/api/telegram/webhook') return next();
+
   const { APP_USER, APP_PASSWORD } = process.env;
   if (!APP_USER || !APP_PASSWORD) return next(); // sem credenciais configuradas = sem gate (uso local)
 
@@ -286,7 +293,177 @@ app.get('/api/consumos', async (req, res) => {
   res.json(data);
 });
 
+// ---- v3 "Musa Balance": atores, relatos, orcamento semanal e mediacao ----
+
+app.get('/api/atores', async (req, res) => {
+  const householdId = await getHouseholdId();
+  const { data, error } = await supabase
+    .from('actors')
+    .select('*')
+    .eq('household_id', householdId);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+// Recebe texto livre de qualquer ator (o form web manda "ator" explicito; o
+// Telegram, quando existir, resolve via telegram_user_id antes de chamar
+// esta mesma logica). Classifica com o Agente de Ingestao e so persiste
+// relato de refeicao diretamente — "desejo" e devolvido pro front decidir
+// se abre uma mediacao, nunca gravado como se fosse fato.
+app.post('/api/relatos', async (req, res) => {
+  const { texto, ator } = req.body;
+  if (!texto || !ator) return res.status(400).json({ error: 'texto e ator sao obrigatorios' });
+
+  const { model } = currentConfig;
+  const hoje = new Date().toISOString().slice(0, 10);
+
+  try {
+    const { intencao, traceId } = await ingerirRelato({ texto, dataReferencia: hoje, model, canal: 'manual' });
+    const actor = await getActorByRole(ator);
+
+    // Todo pensamento classificado entra no log (painel "balao de pensamento"),
+    // relato de refeicao OU desejo — sem distincao de importancia aqui.
+    await supabase.from('pensamentos').insert({
+      actor_id: actor.id,
+      tipo: intencao.tipo,
+      descricao: intencao.descricao,
+      data: intencao.data || null,
+      calorias: intencao.calorias ?? null,
+      custo: intencao.custo ?? null,
+      trace_id: traceId,
+    });
+
+    if (intencao.tipo === 'relato_refeicao') {
+      const resultado = await runTool('registrar_relato_refeicao', {
+        ator,
+        data: intencao.data || hoje,
+        descricao: intencao.descricao,
+        fonte: 'manual',
+        calorias: intencao.calorias,
+        custo: intencao.custo,
+      });
+      return res.json({ intencao, traceId, registrado: resultado });
+    }
+
+    res.json({ intencao, traceId, registrado: null });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Painel "balao de pensamento" — so leitura por enquanto (SDD/UI decisao
+// 2026-08-02): mostra o que foi capturado, sem form de entrada no web ainda.
+app.get('/api/pensamentos', async (req, res) => {
+  const householdId = await getHouseholdId();
+  const { data: actors, error: actorsError } = await supabase
+    .from('actors')
+    .select('id, name, role')
+    .eq('household_id', householdId);
+  if (actorsError) return res.status(500).json({ error: actorsError.message });
+  const actorIds = actors.map((a) => a.id);
+
+  if (actorIds.length === 0) return res.json([]);
+
+  const { data, error } = await supabase
+    .from('pensamentos')
+    .select('*')
+    .in('actor_id', actorIds)
+    .order('created_at', { ascending: false });
+  if (error) return res.status(500).json({ error: error.message });
+
+  const actorById = Object.fromEntries(actors.map((a) => [a.id, a]));
+  res.json(data.map((p) => ({ ...p, actor: actorById[p.actor_id] || null })));
+});
+
+app.get('/api/orcamento-semanal', async (req, res) => {
+  try {
+    const saldo = await runTool('consultar_orcamento_semanal', {});
+    res.json(saldo);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/orcamento-semanal', async (req, res) => {
+  const { calorie_cap, financial_cap } = req.body;
+  const householdId = await getHouseholdId();
+  const weekStart = getWeekStart();
+  const { data, error } = await supabase
+    .from('weekly_budgets')
+    .upsert(
+      { household_id: householdId, week_start: weekStart, calorie_cap, financial_cap },
+      { onConflict: 'household_id,week_start' }
+    )
+    .select()
+    .single();
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+// O nucleo agentico da v3: o Agente Mediador NAO decide sozinho — expoe a
+// proposta e o trade-off, e so grava "escolha" se o proprio Claude ja
+// capturou uma na conversa. A decisao final continua sendo do casal.
+app.post('/api/mediacao', async (req, res) => {
+  const { promptText } = req.body;
+  if (!promptText) return res.status(400).json({ error: 'promptText e obrigatorio' });
+
+  const householdId = await getHouseholdId();
+  const { model } = currentConfig;
+
+  try {
+    const result = await mediarCardapio({ promptText, model });
+
+    const { data: decisao, error } = await supabase
+      .from('trade_off_decisions')
+      .insert({
+        household_id: householdId,
+        week_start: getWeekStart(),
+        proposta: result.proposta || {},
+        escolha: result.escolha || null,
+      })
+      .select()
+      .single();
+    if (error) return res.status(500).json({ error: error.message });
+
+    res.json({ ...decisao, text: result.text, traceId: result.traceId, toolCallCount: result.toolCallCount });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/mediacoes', async (req, res) => {
+  const householdId = await getHouseholdId();
+  const { data, error } = await supabase
+    .from('trade_off_decisions')
+    .select('*')
+    .eq('household_id', householdId)
+    .order('created_at', { ascending: false });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+// Webhook do Telegram — validado por secret_token (header proprio do
+// Telegram), nao pelo Basic Auth geral da app (ver bypass em basicAuth acima).
+app.post('/api/telegram/webhook', async (req, res) => {
+  const secretEsperado = process.env.TELEGRAM_WEBHOOK_SECRET;
+  if (secretEsperado) {
+    const recebido = req.headers['x-telegram-bot-api-secret-token'];
+    if (recebido !== secretEsperado) return res.sendStatus(401);
+  }
+
+  // Responde 200 imediatamente — o Telegram reenvia o update se demorar ou
+  // se receber erro. O processamento real acontece depois, fora do request.
+  res.sendStatus(200);
+
+  try {
+    await processarUpdate(req.body, { model: currentConfig.model });
+  } catch (err) {
+    console.error('Erro processando update do Telegram:', err.message);
+  }
+});
+
 const PORT = process.env.PORT || 3300;
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
+  iniciarLembretes();
 });

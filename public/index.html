@@ -302,6 +302,14 @@
     font-weight: 600;
   }
   .consumo-item .quando { color: var(--ink-faint); font-size: 11px; margin-top: 5px; }
+
+  /* pensamentos: log de relatos/desejos capturados, painel so-leitura */
+  .pensamento-item { border-bottom: 1px solid var(--border); padding: 10px 0; font-size: 13.5px; }
+  .pensamento-item:last-child { border-bottom: none; }
+  .pensamento-item .quem { font-weight: 700; color: var(--ink-soft); margin-right: 6px; }
+  .pill.relato_refeicao { background: var(--good-bg); color: var(--good); }
+  .pill.desejo { background: var(--terracotta-bg); color: var(--terracotta); }
+  .pensamento-item .quando { color: var(--ink-faint); font-size: 11px; margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -338,6 +346,11 @@
   <div class="object-card" id="card-note">
     <button class="settings-link" id="trigger-note" aria-expanded="false" aria-controls="panel-note">
       ⚙ Preferências da casa
+    </button>
+  </div>
+  <div class="object-card" id="card-pensamentos">
+    <button class="settings-link" id="trigger-pensamentos" aria-expanded="false" aria-controls="panel-pensamentos">
+      💭 Pensamentos da semana
     </button>
   </div>
 </div>
@@ -447,6 +460,18 @@
           <button id="btn-add-pref">+</button>
         </div>
         <ul class="list" id="pref-list"></ul>
+      </section>
+    </div>
+  </div>
+
+  <div class="object-panel" id="panel-pensamentos">
+    <div class="object-panel__inner">
+      <section class="card">
+        <h2>Pensamentos da semana</h2>
+        <div class="empty" style="margin-bottom:12px">
+          Relatos e desejos capturados pelo casal (hoje, via texto — Telegram entra depois), se reunindo pra virar uma decisao concreta. So leitura por enquanto.
+        </div>
+        <div id="pensamentos-list"><div class="empty">Carregando...</div></div>
       </section>
     </div>
   </div>

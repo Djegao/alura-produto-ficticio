@@ -35,6 +35,11 @@ create table pantry_items (
   -- maca e base+perecivel. Um item pode mudar de estado sem mudar de storage.
   storage text not null default 'seco' check (storage in ('seco', 'perecivel')),
   source text, -- 'nota_fiscal', 'manual', etc.
+  -- v3 "Musa Balance": quando um vegetal e' branqueado, a depreciacao passa a
+  -- seguir a regra D-6 (6 dias a partir deste timestamp) em vez da curva
+  -- tabelada de "fresco". Calculado em codigo (consultar_validade_estoque),
+  -- nunca inferido pelo Claude — null significa que o item nunca foi branqueado.
+  blanched_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -94,6 +99,64 @@ create table stock_consumptions (
   items_consumed jsonb not null default '[]' -- [{name, quantity, unit}, ...] — retrato tirado na hora da confirmacao, nao depende do item ainda existir no estoque depois
 );
 
+-- ---------------------------------------------------------------------
+-- v3 "Musa Balance": atores em competicao pelo mesmo recurso (a decisao do
+-- que cozinhar), no lugar da casa como bloco unico e indiferenciado.
+-- ---------------------------------------------------------------------
+
+-- Cada pessoa que participa da decisao. Multi-canal: web e Telegram
+-- resolvem pra mesma identidade via telegram_user_id (null ate o ator
+-- mandar a primeira mensagem no bot).
+create table actors (
+  id uuid primary key default gen_random_uuid(),
+  household_id uuid not null references households(id) on delete cascade,
+  name text not null,
+  role text not null check (role in ('chef', 'musa')),
+  telegram_user_id bigint unique,
+  created_at timestamptz not null default now()
+);
+
+-- Teto semanal calorico/financeiro. E' contra isso que
+-- consultar_orcamento_semanal soma o gasto real de meal_reports — sempre em
+-- codigo, nunca calculado pelo Claude (regra de ouro do v3-musa-balance.md).
+create table weekly_budgets (
+  id uuid primary key default gen_random_uuid(),
+  household_id uuid not null references households(id) on delete cascade,
+  week_start date not null,
+  calorie_cap numeric,
+  financial_cap numeric,
+  created_at timestamptz not null default now(),
+  unique (household_id, week_start)
+);
+
+-- Relato de refeicao de um ator — materia-prima do orcamento semanal e do
+-- lembrete de dado ausente. "source" registra o canal de origem; nunca e'
+-- inferido quando ausente, so cobrado via lembrete proativo (camada 5).
+create table meal_reports (
+  id uuid primary key default gen_random_uuid(),
+  actor_id uuid not null references actors(id) on delete cascade,
+  date date not null,
+  description text not null,
+  source text not null check (source in ('manual', 'telegram', 'reminder')),
+  calories numeric,
+  cost numeric,
+  created_at timestamptz not null default now()
+);
+
+-- Decisao do Agente Mediador: ele nao decide sozinho, expoe a proposta e o
+-- trade-off e registra quem escolheu o que. "proposta" e "escolha" sao
+-- retratos (jsonb) tomados na hora — no mesmo espirito de
+-- stock_consumptions.items_consumed, nao sao referencia viva a outra tabela.
+create table trade_off_decisions (
+  id uuid primary key default gen_random_uuid(),
+  household_id uuid not null references households(id) on delete cascade,
+  week_start date not null,
+  proposta jsonb not null,
+  escolhida_por uuid references actors(id),
+  escolha jsonb,
+  created_at timestamptz not null default now()
+);
+
 -- Um domicilio padrao para o prototipo funcionar sem tela de "criar conta"
 insert into households (name) values ('Casa de teste — curso Alura');
 
@@ -110,3 +173,64 @@ insert into households (name) values ('Casa de teste — curso Alura');
 -- despensa (seco) e geladeira (perecivel), pra UI virar visual de verdade.
 -- alter table pantry_items
 --   add column storage text not null default 'seco' check (storage in ('seco', 'perecivel'));
+
+-- 2026-08-02: v3 "Musa Balance" — atores, orcamento semanal, relatos de
+-- refeicao e decisoes de trade-off. pantry_items ganha blanched_at pra
+-- decaimento D-6 em codigo. RODADO no Supabase (RLS deixado desligado de
+-- proposito — so o service role key toca essas tabelas, nunca anon/authenticated,
+-- ver CLAUDE.md/plano v3 sobre RLS ter sido adiado).
+-- alter table pantry_items
+--   add column if not exists blanched_at timestamptz;
+-- alter table households
+--   add column if not exists telegram_chat_id bigint;
+-- create table actors (
+--   id uuid primary key default gen_random_uuid(),
+--   household_id uuid not null references households(id) on delete cascade,
+--   name text not null,
+--   role text not null check (role in ('chef', 'musa')),
+--   telegram_user_id bigint unique,
+--   created_at timestamptz not null default now()
+-- );
+-- create table weekly_budgets (
+--   id uuid primary key default gen_random_uuid(),
+--   household_id uuid not null references households(id) on delete cascade,
+--   week_start date not null,
+--   calorie_cap numeric,
+--   financial_cap numeric,
+--   created_at timestamptz not null default now(),
+--   unique (household_id, week_start)
+-- );
+-- create table meal_reports (
+--   id uuid primary key default gen_random_uuid(),
+--   actor_id uuid not null references actors(id) on delete cascade,
+--   date date not null,
+--   description text not null,
+--   source text not null check (source in ('manual', 'telegram', 'reminder')),
+--   calories numeric,
+--   cost numeric,
+--   created_at timestamptz not null default now()
+-- );
+-- create table trade_off_decisions (
+--   id uuid primary key default gen_random_uuid(),
+--   household_id uuid not null references households(id) on delete cascade,
+--   week_start date not null,
+--   proposta jsonb not null,
+--   escolhida_por uuid references actors(id),
+--   escolha jsonb,
+--   created_at timestamptz not null default now()
+-- );
+-- create table pensamentos (
+--   id uuid primary key default gen_random_uuid(),
+--   actor_id uuid not null references actors(id) on delete cascade,
+--   tipo text not null check (tipo in ('relato_refeicao', 'desejo')),
+--   descricao text not null,
+--   data date,
+--   calorias numeric,
+--   custo numeric,
+--   trace_id text,
+--   created_at timestamptz not null default now()
+-- );
+-- insert into actors (household_id, name, role)
+--   select id, 'Diego', 'chef' from households limit 1;
+-- insert into actors (household_id, name, role)
+--   select id, 'Esposa', 'musa' from households limit 1;

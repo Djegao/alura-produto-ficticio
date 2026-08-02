@@ -271,6 +271,30 @@ async function loadConsumos() {
     .join('');
 }
 
+// ---- Pensamentos da semana (log so-leitura de relatos/desejos) ----
+
+const TIPO_LABEL = { relato_refeicao: 'relato', desejo: 'desejo' };
+
+async function loadPensamentos() {
+  const items = await api('/api/pensamentos');
+  const box = $('pensamentos-list');
+  if (!items.length) {
+    box.innerHTML = '<div class="empty">Nenhum pensamento capturado ainda.</div>';
+    return;
+  }
+  box.innerHTML = items
+    .map(
+      (p) => `
+    <div class="pensamento-item">
+      <span class="quem">${escapeHtml(p.actor?.name || '?')}</span>
+      <span class="pill ${p.tipo}">${TIPO_LABEL[p.tipo] || p.tipo}</span>
+      <div>${escapeHtml(p.descricao)}</div>
+      <div class="quando">${new Date(p.created_at).toLocaleString('pt-BR')}</div>
+    </div>`
+    )
+    .join('');
+}
+
 // ---- Objetos da cozinha (geladeira / livro / bloco de notas) ----
 // Cada objeto e um portal: clicar abre a porta/capa e revela o painel
 // correspondente. So um objeto fica aberto por vez, como gavetas de verdade.
@@ -279,6 +303,7 @@ const kitchenObjects = [
   { card: $('card-fridge'), trigger: $('trigger-fridge'), panel: $('panel-fridge') },
   { card: $('card-book'), trigger: $('trigger-book'), panel: $('panel-book') },
   { card: $('card-note'), trigger: $('trigger-note'), panel: $('panel-note') },
+  { card: $('card-pensamentos'), trigger: $('trigger-pensamentos'), panel: $('panel-pensamentos') },
 ];
 
 function closeKitchenObject(obj) {
@@ -305,6 +330,11 @@ kitchenObjects.forEach((obj) => {
 
 // ---- Boot ----
 
-Promise.all([loadConfig(), loadEstoque(), loadPreferencias(), loadHistory(), loadConsumos()]).catch((err) =>
-  console.error('Erro ao carregar painel:', err)
-);
+Promise.all([
+  loadConfig(),
+  loadEstoque(),
+  loadPreferencias(),
+  loadHistory(),
+  loadConsumos(),
+  loadPensamentos(),
+]).catch((err) => console.error('Erro ao carregar painel:', err));

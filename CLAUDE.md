@@ -77,6 +77,58 @@ categorização de estoque.
 - **`generate-slides.js`** / **`docs/rascunho-coordenacao.html`** — material
   de apresentação pra coordenação da Alura, não faz parte do produto.
 
+## v3 "Musa Balance" — pivot multi-ator (em construção)
+
+A partir de 2026-08-02 o produto pivotou de "gestor de estoque com chat" pra
+um mediador entre dois atores reais da casa (Diego/chef, esposa/musa) com
+objetivos parcialmente conflitantes — ver `v3-musa-balance.md` pra spec e o
+plano salvo em `unified-meandering-newell.md` (`.claude/plans/`) pra
+arquitetura completa. **v1/v2 do Chef Ops original continuam existindo sem
+alteração** — são um agente separado, não substituído, pra manter a
+comparação de aula intacta.
+
+Arquivos novos: `relato-ingestao.js` (agente de ingestão, classifica texto em
+relato de refeição vs. desejo), `telegram.js` (canal Telegram, roda em
+paralelo ao web), `lembrete.js` (job horário que cobra relato ausente —
+pergunta, nunca infere). `agent.js` ganhou `mediarCardapio` (mesmo padrão de
+loop + `tool_choice` forçado do `sugerirReceita`, mas com tools
+deterministas novas e `max_tokens` maior — o teto de 1024 do loop original
+**não foi tocado de propósito**, é o achado §11.4 preservado). `tools.js`
+ganhou `mediatorToolDefinitions`, um array **separado** de `toolDefinitions`
+pra não vazar as tools novas pro agente v1/v2 antigo.
+
+Tabelas novas (migração **já rodada** no Supabase em 2026-08-02, registrada
+como histórico no fim do `schema.sql`): `actors` (Diego=chef, Esposa=musa já
+semeados), `weekly_budgets`, `meal_reports`, `trade_off_decisions`,
+`pensamentos` (log cru exibido no painel "💭 Pensamentos da semana", só
+leitura por enquanto), e `pantry_items.blanched_at` /
+`households.telegram_chat_id`. RLS deixado desligado de propósito — só o
+`SUPABASE_SERVICE_ROLE_KEY` (só usado em `tools.js`, nunca no browser) toca
+essas tabelas, então o aviso do linter do Supabase não se aplica aqui.
+
+Rotas novas em `server.js`: `/api/atores`, `/api/relatos`,
+`/api/orcamento-semanal`, `/api/mediacao`, `/api/mediacoes`,
+`/api/pensamentos`, `/api/telegram/webhook` (autenticado por
+`TELEGRAM_WEBHOOK_SECRET`, não pelo Basic Auth geral — o Telegram não manda
+credenciais).
+
+**Pendências externas (não é código, é ação manual)** — atualizado
+2026-08-02: migração rodada, atores semeados, bot criado e webhook
+registrado (200 via POST JSON no Postman). Falta:
+1. Confirmar Group Privacy = off no BotFather (bot precisa ler texto livre
+   no grupo, não só comandos).
+2. Rodar `/eusou_chef` e `/eusou_musa` no grupo (cada ator no seu celular)
+   pra ligar `telegram_user_id`.
+3. Semear o cenário real já vivido (compras da semana, lasanha, itens
+   branqueados com `blanched_at` real) — dado de verdade, não simulação.
+4. Configurar `TELEGRAM_BOT_TOKEN`/`TELEGRAM_WEBHOOK_SECRET` também no
+   Railway (produção), não só local — sem isso o webhook de produção não
+   valida o secret_token.
+
+Adiado de propósito, não esquecido: cards (swipe + geração de imagem por
+IA), LTM/aprendizado de "match de sucesso", RLS/multi-tenancy — ver
+`unified-meandering-newell.md` pro raciocínio completo de cada adiamento.
+
 ## Rodando localmente
 
 ```
