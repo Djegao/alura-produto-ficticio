@@ -45,6 +45,32 @@ async function responderCallback(callbackQueryId, text) {
   });
 }
 
+// Decisao 2026-08-02: captura passiva bem-sucedida (relato/desejo) fica
+// QUIETA — so uma reacao na propria mensagem, sem entrar como linha nova na
+// conversa do casal. O bot nao deve parecer um estranho comentando cada
+// interacao. Erro continua BARULHENTO de proposito (mensagem de verdade) —
+// nunca falhar em silencio e' convencao do projeto (SDD/CLAUDE.md).
+//
+// A API de reacao do Telegram so aceita um conjunto FIXO de emojis (nao e'
+// emoji livre como em texto) — 👍 e 🤔 estao confirmados nesse conjunto.
+// Nao usamos 📝/💭 aqui por isso (💭 continua vivo no icone do painel web).
+const EMOJI_POR_TIPO = { relato_refeicao: '👍', desejo: '🤔' };
+
+async function reagir(chatId, messageId, emoji) {
+  if (!process.env.TELEGRAM_BOT_TOKEN) return;
+  const res = await fetch(`${TELEGRAM_API}/setMessageReaction`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, message_id: messageId, reaction: [{ type: 'emoji', emoji }] }),
+  });
+  if (!res.ok) {
+    // Degrada com um aviso no log, nao quebra o fluxo — se o emoji escolhido
+    // um dia sair da lista permitida do Telegram, prefiro logar do que
+    // derrubar a captura do relato por causa da reacao.
+    console.warn('Reacao do Telegram falhou:', await res.text());
+  }
+}
+
 async function getActorByTelegramId(telegramUserId) {
   const { data, error } = await supabase
     .from('actors')
@@ -118,30 +144,35 @@ async function processarUpdate(update, { model }) {
   }
 
   const hoje = new Date().toISOString().slice(0, 10);
-  const { intencao, traceId } = await ingerirRelato({ texto, dataReferencia: hoje, model, canal: 'telegram' });
 
-  await supabase.from('pensamentos').insert({
-    actor_id: actor.id,
-    tipo: intencao.tipo,
-    descricao: intencao.descricao,
-    data: intencao.data || null,
-    calorias: intencao.calorias ?? null,
-    custo: intencao.custo ?? null,
-    trace_id: traceId,
-  });
+  try {
+    const { intencao, traceId } = await ingerirRelato({ texto, dataReferencia: hoje, model, canal: 'telegram' });
 
-  if (intencao.tipo === 'relato_refeicao') {
-    await runTool('registrar_relato_refeicao', {
-      ator: actor.role,
-      data: intencao.data || hoje,
+    await supabase.from('pensamentos').insert({
+      actor_id: actor.id,
+      tipo: intencao.tipo,
       descricao: intencao.descricao,
-      fonte: 'telegram',
-      calorias: intencao.calorias,
-      custo: intencao.custo,
+      data: intencao.data || null,
+      calorias: intencao.calorias ?? null,
+      custo: intencao.custo ?? null,
+      trace_id: traceId,
     });
-    await enviarMensagem(chatId, `📝 Relato registrado: ${intencao.descricao}`);
-  } else {
-    await enviarMensagem(chatId, `💭 Anotado como desejo pra semana: ${intencao.descricao}`);
+
+    if (intencao.tipo === 'relato_refeicao') {
+      await runTool('registrar_relato_refeicao', {
+        ator: actor.role,
+        data: intencao.data || hoje,
+        descricao: intencao.descricao,
+        fonte: 'telegram',
+        calorias: intencao.calorias,
+        custo: intencao.custo,
+      });
+    }
+
+    await reagir(chatId, message.message_id, EMOJI_POR_TIPO[intencao.tipo] || '👍');
+  } catch (err) {
+    console.error('Erro capturando relato/desejo via Telegram:', err.message);
+    await enviarMensagem(chatId, '⚠️ Não consegui registrar essa — tenta de novo em instantes.');
   }
 }
 
