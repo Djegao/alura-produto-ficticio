@@ -2,16 +2,18 @@
 // 2026-08-02 — nao substitui, so soma). Texto primeiro; audio fica pra
 // depois (exige transcricao, formato OGG do Telegram precisa conversao).
 //
-// Onboarding minimo: a primeira mensagem de um telegram_user_id desconhecido
-// recebe um pedido de identificacao (/eusou_chef ou /eusou_musa). Depois
-// disso o bot resolve o ator sozinho a partir do id, sem perguntar de novo.
+// Onboarding: a primeira mensagem de um telegram_user_id desconhecido faz o
+// PROPRIO bot perguntar quem e, com botoes (inline keyboard) — nao exige
+// decorar comando nenhum. Quem tocar no botao manda um "callback_query" pro
+// webhook (tipo de update diferente de mensagem de texto), tratado abaixo.
+// /eusou_chef e /eusou_musa continuam funcionando tambem, como atalho.
 
 const { supabase, getHouseholdId, getActorByRole, runTool } = require('./tools');
 const { ingerirRelato } = require('./relato-ingestao');
 
 const TELEGRAM_API = 'https://api.telegram.org/bot' + process.env.TELEGRAM_BOT_TOKEN;
 
-async function enviarMensagem(chatId, text) {
+async function enviarMensagem(chatId, text, replyMarkup) {
   if (!process.env.TELEGRAM_BOT_TOKEN) {
     console.warn('TELEGRAM_BOT_TOKEN nao configurado — mensagem nao enviada:', text);
     return;
@@ -19,7 +21,27 @@ async function enviarMensagem(chatId, text) {
   await fetch(`${TELEGRAM_API}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: chatId, text }),
+    body: JSON.stringify({ chat_id: chatId, text, reply_markup: replyMarkup }),
+  });
+}
+
+async function perguntarIdentidade(chatId) {
+  await enviarMensagem(chatId, 'Oi! Ainda nao sei quem e voce por aqui. Quem esta falando?', {
+    inline_keyboard: [
+      [{ text: 'Diego (chef)', callback_data: 'eusou_chef' }],
+      [{ text: 'Esposa (musa)', callback_data: 'eusou_musa' }],
+    ],
+  });
+}
+
+// Fecha o "carregando..." do botao no app do Telegram. Sem isso o botao
+// fica com o spinner girando ate expirar sozinho.
+async function responderCallback(callbackQueryId, text) {
+  if (!process.env.TELEGRAM_BOT_TOKEN) return;
+  await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ callback_query_id: callbackQueryId, text }),
   });
 }
 
@@ -50,6 +72,19 @@ async function identificarAtor(telegramUserId, role) {
 // logica de negocio fica aqui, no mesmo espirito de nota-fiscal.js/tools.js
 // (nada de logica de canal misturada nas rotas Express).
 async function processarUpdate(update, { model }) {
+  // Toque num botao do teclado inline (resposta a perguntarIdentidade) —
+  // update diferente de mensagem de texto, tratado a parte.
+  if (update.callback_query) {
+    const cq = update.callback_query;
+    const role = cq.data === 'eusou_chef' ? 'chef' : cq.data === 'eusou_musa' ? 'musa' : null;
+    if (!role) return;
+
+    const actor = await identificarAtor(cq.from.id, role);
+    await responderCallback(cq.id, `Prontinho, ${actor.name}!`);
+    await enviarMensagem(cq.message.chat.id, `Prontinho — voce e ${actor.name} (${role}) a partir de agora.`);
+    return;
+  }
+
   const message = update.message;
   if (!message || !message.text) return; // foto/audio: fora do escopo desta fase
 
@@ -78,10 +113,7 @@ async function processarUpdate(update, { model }) {
 
   const actor = await getActorByTelegramId(telegramUserId);
   if (!actor) {
-    await enviarMensagem(
-      chatId,
-      'Ainda nao sei quem e voce. Responda /eusou_chef ou /eusou_musa antes de mandar relatos ou desejos.'
-    );
+    await perguntarIdentidade(chatId);
     return;
   }
 
@@ -113,4 +145,4 @@ async function processarUpdate(update, { model }) {
   }
 }
 
-module.exports = { processarUpdate, enviarMensagem, getActorByTelegramId };
+module.exports = { processarUpdate, enviarMensagem, perguntarIdentidade, getActorByTelegramId };
