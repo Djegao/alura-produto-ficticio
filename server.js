@@ -60,12 +60,16 @@ app.post('/api/config', (req, res) => {
 
 // ---- Estoque (pantry_items) ----
 
+// So a despensa "assentada" — itens preparados vivem no Kanban
+// (Porcionamento/Consumo), nao aqui (decisao 2026-08-02, ver plano de
+// redesenho: Despensa e' funcao fora do fluxo ativo).
 app.get('/api/estoque', async (req, res) => {
   const householdId = await getHouseholdId();
   const { data, error } = await supabase
     .from('pantry_items')
     .select('*')
     .eq('household_id', householdId)
+    .neq('state', 'preparado')
     .order('created_at', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
@@ -440,6 +444,220 @@ app.get('/api/mediacoes', async (req, res) => {
     .order('created_at', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
+});
+
+// ---- Configuracoes quantitativas (repositorio editavel) ----
+
+app.get('/api/config-quantitativo', async (req, res) => {
+  const householdId = await getHouseholdId();
+  const [householdRes, actorsRes, targetsRes] = await Promise.all([
+    supabase.from('households').select('dias_validade_pos_branqueamento').eq('id', householdId).single(),
+    supabase.from('actors').select('id, name, role').eq('household_id', householdId),
+    supabase.from('actor_daily_targets').select('*'),
+  ]);
+  if (householdRes.error) return res.status(500).json({ error: householdRes.error.message });
+  if (actorsRes.error) return res.status(500).json({ error: actorsRes.error.message });
+  if (targetsRes.error) return res.status(500).json({ error: targetsRes.error.message });
+
+  const household = householdRes.data;
+  const actors = actorsRes.data;
+  const targets = targetsRes.data;
+  const targetByActor = Object.fromEntries((targets || []).map((t) => [t.actor_id, t]));
+  res.json({
+    diasValidadePosBranqueamento: household?.dias_validade_pos_branqueamento ?? 6,
+    atores: (actors || []).map((a) => ({
+      id: a.id,
+      nome: a.name,
+      role: a.role,
+      calorieCapDaily: targetByActor[a.id]?.calorie_cap_daily ?? null,
+      proteinG: targetByActor[a.id]?.protein_g ?? null,
+      carbsG: targetByActor[a.id]?.carbs_g ?? null,
+      fatG: targetByActor[a.id]?.fat_g ?? null,
+    })),
+    budgetCategorias: ['tr_diego', 'tr_esposa', 'credito_familia'],
+  });
+});
+
+app.post('/api/config-quantitativo/validade', async (req, res) => {
+  const { dias } = req.body;
+  const householdId = await getHouseholdId();
+  const { data, error } = await supabase
+    .from('households')
+    .update({ dias_validade_pos_branqueamento: dias })
+    .eq('id', householdId)
+    .select()
+    .single();
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+app.post('/api/config-quantitativo/metas', async (req, res) => {
+  const { actor_id, calorie_cap_daily, protein_g, carbs_g, fat_g } = req.body;
+  if (!actor_id) return res.status(400).json({ error: 'actor_id e obrigatorio' });
+  const { data, error } = await supabase
+    .from('actor_daily_targets')
+    .upsert(
+      { actor_id, calorie_cap_daily, protein_g, carbs_g, fat_g, updated_at: new Date().toISOString() },
+      { onConflict: 'actor_id' }
+    )
+    .select()
+    .single();
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+// ---- Kanban "Musa Balance": 3 estagios ativos + Porcionamento/Consumo -----
+// Despensa NAO entra aqui — e' funcao separada (GET /api/estoque, decisao
+// 2026-08-02). O Kanban so mostra trabalho em andamento, por definicao
+// pequeno: Plano Semanal (desejo + proposta aberta), Pre-preparo
+// (branqueado), Preparo (decisao confirmada, ainda nao porcionada),
+// Porcionamento (lote intocado) e Consumo (lote em uso).
+
+app.get('/api/kanban', async (req, res) => {
+  const householdId = await getHouseholdId();
+
+  // Nunca engolir erro de query em silencio (nem que seja pra cair num "[]"
+  // que parece vazio de verdade) — cada consulta propaga o proprio erro em
+  // vez de mascarar com fallback, senao um problema real de schema vira uma
+  // coluna vazia sem explicacao nenhuma.
+  const semSilencio = (promise) =>
+    promise.then(({ data, error }) => {
+      if (error) throw new Error(error.message);
+      return data;
+    });
+
+  try {
+    const [validadeEstoque, decisoes, pensamentosRecentes, preparados] = await Promise.all([
+      runTool('consultar_validade_estoque', {}),
+      semSilencio(
+        supabase
+          .from('trade_off_decisions')
+          .select('*')
+          .eq('household_id', householdId)
+          .is('porcionado_em', null)
+          .order('created_at', { ascending: false })
+      ),
+      semSilencio(
+        supabase
+          .from('pensamentos')
+          .select('*, actors!inner(name, role, household_id)')
+          .eq('actors.household_id', householdId)
+          .eq('tipo', 'desejo')
+          .gte('created_at', new Date(Date.now() - 14 * 86400000).toISOString())
+          .order('created_at', { ascending: false })
+      ),
+      semSilencio(
+        supabase
+          .from('pantry_items')
+          .select('*')
+          .eq('household_id', householdId)
+          .eq('state', 'preparado')
+          .gt('portions_remaining', 0)
+      ),
+    ]);
+
+    const planoSemanal = [
+      ...pensamentosRecentes.map((p) => ({
+        kind: 'desejo',
+        id: p.id,
+        descricao: p.descricao,
+        atorNome: p.actors?.name,
+        criadoEm: p.created_at,
+      })),
+      ...decisoes
+        .filter((d) => !d.escolha)
+        .map((d) => ({ kind: 'proposta_aberta', id: d.id, proposta: d.proposta, criadoEm: d.created_at })),
+    ];
+
+    const preparo = decisoes
+      .filter((d) => !!d.escolha)
+      .map((d) => ({ kind: 'decisao_confirmada', id: d.id, proposta: d.proposta, escolha: d.escolha, criadoEm: d.created_at }));
+
+    const prePreparo = validadeEstoque.filter((item) => item.blanched_at);
+
+    const porcionamento = preparados.filter((p) => p.portions_remaining === p.portions_total);
+    const consumo = preparados.filter((p) => p.portions_remaining < p.portions_total);
+
+    res.json({ planoSemanal, prePreparo, preparo, porcionamento, consumo });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/kanban/acao', async (req, res) => {
+  const { acao } = req.body;
+  const householdId = await getHouseholdId();
+
+  try {
+    if (acao === 'branquear') {
+      const { item_id } = req.body;
+      const { data, error } = await supabase
+        .from('pantry_items')
+        .update({ blanched_at: new Date().toISOString() })
+        .eq('id', item_id)
+        .select()
+        .single();
+      if (error) throw new Error(error.message);
+      return res.json(data);
+    }
+
+    if (acao === 'porcionar') {
+      // So um humano que cozinhou de verdade sabe o rendimento — por isso
+      // essa acao e' sempre manual, nunca automatizada pelo Mediador.
+      const { trade_off_decision_id, nome, porcoes, unidade } = req.body;
+      if (!nome || !porcoes) return res.status(400).json({ error: 'nome e porcoes sao obrigatorios' });
+
+      const { data: item, error: itemError } = await supabase
+        .from('pantry_items')
+        .insert({
+          household_id: householdId,
+          name: nome,
+          quantity: porcoes,
+          unit: unidade || 'porção',
+          state: 'preparado',
+          storage: 'perecivel',
+          source: 'kanban',
+          prepared_at: new Date().toISOString(),
+          portions_total: porcoes,
+          portions_remaining: porcoes,
+        })
+        .select()
+        .single();
+      if (itemError) throw new Error(itemError.message);
+
+      if (trade_off_decision_id) {
+        await supabase
+          .from('trade_off_decisions')
+          .update({ porcionado_em: new Date().toISOString() })
+          .eq('id', trade_off_decision_id);
+      }
+      return res.json(item);
+    }
+
+    if (acao === 'consumir') {
+      const { pantry_item_id, quantidade } = req.body;
+      const { data: item, error: fetchError } = await supabase
+        .from('pantry_items')
+        .select('portions_remaining')
+        .eq('id', pantry_item_id)
+        .single();
+      if (fetchError) throw new Error(fetchError.message);
+
+      const novoRestante = Math.max(0, Number(item.portions_remaining) - (Number(quantidade) || 1));
+      const { data, error } = await supabase
+        .from('pantry_items')
+        .update({ portions_remaining: novoRestante, updated_at: new Date().toISOString() })
+        .eq('id', pantry_item_id)
+        .select()
+        .single();
+      if (error) throw new Error(error.message);
+      return res.json(data);
+    }
+
+    res.status(400).json({ error: `acao desconhecida: ${acao}` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Webhook do Telegram — validado por secret_token (header proprio do

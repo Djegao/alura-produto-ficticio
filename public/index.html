@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Chef Caseiro — cozinha viva</title>
+<title>Musa Balance — cozinha viva</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -33,13 +33,12 @@
     --font-display: "Fraunces", Georgia, serif;
     --font-body: "Manrope", -apple-system, "Segoe UI", sans-serif;
     --sticker-shadow: rgba(80, 51, 20, .28);
-    /* A "mesa de acao" (stage) e sempre verde-floresta, por escolha de design —
-       nao reage ao tema claro/escuro do sistema. O resto da pagina fica
-       sempre claro/quente, servindo de moldura pro card verde se destacar. */
     --stage-bg: #3c4a29;
     --stage-bg-soft: #46562f;
     --stage-ink: #f4efd9;
     --stage-ink-soft: #cdc6a3;
+    --bot-glow: #6b8f4e;
+    --manual-glow: #c96f34;
   }
   * { box-sizing: border-box; }
   body {
@@ -51,44 +50,19 @@
   }
   header {
     position: relative; overflow: hidden;
-    padding: 26px 28px 20px; background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 22px 24px 16px; background: var(--surface); border-bottom: 1px solid var(--border);
   }
   header h1 {
-    font: 700 32px/1 var(--font-display); margin: 0; color: var(--accent);
+    font: 700 30px/1 var(--font-display); margin: 0; color: var(--accent);
     letter-spacing: -.01em; text-wrap: balance;
   }
   header .tag { color: var(--ink-faint); font-size: 13px; margin-top: 6px; }
-  .ambient-leaf {
-    position: absolute; pointer-events: none; color: var(--accent-soft); opacity: .35;
-    animation: drift 6s ease-in-out infinite alternate;
-  }
-  .ambient-leaf.gold { color: var(--gold); }
-  .ambient-leaf.l1 { top: 10px;  right: 18%; width: 22px; animation-duration: 5s; animation-delay: 0s; }
-  .ambient-leaf.l2 { top: 55px;  right: 10%; width: 16px; animation-duration: 7s; animation-delay: 1.2s; }
-  .ambient-leaf.l3 { top: 5px;   right: 4%;  width: 28px; animation-duration: 6s; animation-delay: .5s; }
-  .ambient-leaf.l4 { top: 68px;  right: 22%; width: 14px; animation-duration: 8s; animation-delay: 2s; }
-  /* atmosfera dentro do palco — mais particulas, cor clara pra contrastar com o verde */
-  .stage .ambient-leaf { color: var(--stage-ink-soft); opacity: .3; }
-  .stage .ambient-leaf.gold { color: var(--gold); opacity: .45; }
-  .stage .ambient-leaf.s1 { top: 6%;  left: 6%;  width: 20px; animation-duration: 7s; animation-delay: 0s; }
-  .stage .ambient-leaf.s2 { top: 14%; left: 92%; width: 26px; animation-duration: 8.5s; animation-delay: 1s; }
-  .stage .ambient-leaf.s3 { top: 82%; left: 10%; width: 16px; animation-duration: 6.5s; animation-delay: 2.4s; }
-  .stage .ambient-leaf.s4 { top: 88%; left: 88%; width: 22px; animation-duration: 9s; animation-delay: .8s; }
-  .stage .ambient-leaf.s5 { top: 46%; left: 2%;  width: 14px; animation-duration: 7.5s; animation-delay: 3s; }
-  .stage .ambient-leaf.s6 { top: 40%; left: 96%; width: 18px; animation-duration: 6s; animation-delay: 1.6s; }
-  @keyframes drift {
-    from { transform: translateY(0) rotate(-4deg); }
-    to   { transform: translateY(10px) rotate(6deg); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .ambient-leaf { animation: none; }
-  }
   .divider { height: 6px; width: 100%; display: block; }
   .divider svg { display: block; width: 100%; height: 100%; }
 
   .config-bar {
     display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: space-between;
-    padding: 10px 28px; background: var(--accent-bg); border-bottom: 1px solid var(--border);
+    padding: 10px 24px; background: var(--accent-bg); border-bottom: 1px solid var(--border);
     font-size: 12.5px;
   }
   .config-bar .axes { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
@@ -97,6 +71,22 @@
     font: inherit; padding: 5px 9px; border-radius: 7px; border: 1px solid var(--border);
     background: var(--surface); color: var(--ink);
   }
+  .actors { display: flex; gap: 8px; }
+  .actor-chip {
+    display: flex; align-items: center; gap: 6px;
+    font: 700 12.5px/1 var(--font-body); padding: 7px 12px 7px 7px;
+    border-radius: 999px; border: 1px solid var(--border); background: var(--surface);
+    color: var(--ink-soft); cursor: pointer;
+    transition: box-shadow .12s ease, transform .12s ease, background .12s ease;
+  }
+  .actor-chip:hover { box-shadow: -2px 2px 0 var(--sticker-shadow); transform: translate(1px, -1px); }
+  .actor-chip.active { background: var(--accent-bg); color: var(--accent); border-color: var(--accent-soft); }
+  .actor-avatar {
+    width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font: 800 10px/1 var(--font-body); color: var(--surface); flex-shrink: 0;
+  }
+  .actor-avatar.chef { background: var(--accent); }
+  .actor-avatar.musa { background: var(--terracotta); }
   .settings-link {
     font: 600 12.5px/1 var(--font-body); padding: 6px 13px; border-radius: 999px;
     background: var(--surface); color: var(--accent); border: 1px solid var(--border);
@@ -108,280 +98,256 @@
     outline: 2px solid var(--accent-soft); outline-offset: 2px;
   }
 
-  /* ---------- A mesa de acao (stage verde, flutua sobre a pagina clara) ---------- */
-  .stage-wrap { padding: 32px 20px 72px; }
-  .stage {
-    max-width: 1160px; margin: 0 auto; position: relative; overflow: hidden;
-    background:
-      radial-gradient(circle, color-mix(in srgb, var(--stage-ink) 5%, transparent) 1.5px, transparent 1.5px)
-        0 0 / 26px 26px,
-      var(--stage-bg);
-    border-radius: 32px; padding: 16px 28px 12px;
-    box-shadow: 0 32px 60px -22px rgba(20, 14, 4, .55), -6px 8px 0 var(--sticker-shadow);
+  .legend {
+    display: flex; gap: 14px; align-items: center; padding: 8px 24px; background: var(--stage-bg);
+    color: var(--stage-ink-soft); font-size: 11.5px; flex-wrap: wrap;
   }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .legend .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .legend .dot.bot { background: var(--bot-glow); }
+  .legend .dot.manual { background: var(--manual-glow); }
 
-  /* ---------- A cozinha (hero de objetos interativos) ---------- */
-  .kitchen {
-    padding: 56px 0 32px;
-    display: flex; align-items: flex-start; justify-content: center; gap: 100px; flex-wrap: wrap;
+  /* ---------- Kanban (hero) ---------- */
+  .board-wrap { padding: 16px 0 4px; background: var(--bg); }
+  .board {
+    display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory;
+    padding: 4px 16px 14px; -webkit-overflow-scrolling: touch;
+  }
+  .board::-webkit-scrollbar { height: 8px; }
+  .board::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+  .column {
+    scroll-snap-align: start; flex: 0 0 85vw; max-width: 320px; min-width: 240px;
+    display: flex; flex-direction: column;
+  }
+  .column-head { padding: 10px 4px 8px; border-bottom: 2px solid var(--accent); margin-bottom: 8px; position: relative; }
+  .column-head .stage-no { font: 700 10.5px/1 var(--font-body); color: var(--gold); text-transform: uppercase; letter-spacing: .08em; }
+  .column-head h2 { font: 700 18px/1.15 var(--font-display); margin: 4px 0 3px; color: var(--ink); }
+  .column-head .desc { font-size: 11px; color: var(--ink-faint); }
+  .column-head .count {
+    position: absolute; top: 8px; right: 4px; font: 800 12px/1 var(--font-body);
+    background: var(--surface-alt); color: var(--ink-soft); padding: 4px 9px; border-radius: 999px;
+  }
+  .column-body { display: flex; flex-direction: column; gap: 9px; min-height: 90px; padding: 4px 2px 30px; border-radius: 10px; transition: background .15s ease; }
+  .column-body.drag-over { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  .dots { display: flex; justify-content: center; gap: 7px; padding: 2px 0 14px; }
+  .dots .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: background .2s ease, transform .2s ease; }
+  .dots .dot.active { background: var(--accent); transform: scale(1.3); }
+
+  .kcard {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 11px 12px; box-shadow: -3px 3px 0 var(--sticker-shadow);
+    transition: box-shadow .12s ease, transform .12s ease, border-color .3s ease;
     position: relative;
   }
-  .object-trigger {
-    background: none; border: none; padding: 0; cursor: pointer; box-shadow: none;
-    display: flex; flex-direction: column; align-items: center; gap: 18px;
-    font: inherit; color: inherit; position: relative;
-  }
-  .object-trigger:hover { background: none; box-shadow: none; transform: none; }
-  .object-trigger::before {
-    content: ""; position: absolute; top: 50%; left: 50%; width: 260px; height: 260px;
-    transform: translate(-50%, -54%); border-radius: 50%; z-index: 0;
-    background: radial-gradient(circle, color-mix(in srgb, var(--gold) 30%, transparent), transparent 68%);
-    filter: blur(6px); opacity: .55; transition: opacity .25s ease, transform .25s ease;
-  }
-  .object-trigger:hover::before { opacity: .85; transform: translate(-50%, -54%) scale(1.08); }
-  .object-label {
-    font: 700 17px/1 var(--font-display); letter-spacing: .01em; color: var(--stage-ink); position: relative; z-index: 1;
-  }
-  .object-hint {
-    font-size: 12px; color: var(--stage-ink-soft); margin-top: -12px; position: relative; z-index: 1;
-    text-transform: uppercase; letter-spacing: .06em;
-  }
+  .kcard.draggable { cursor: grab; touch-action: none; user-select: none; }
+  .kcard.draggable:active { cursor: grabbing; }
+  .kcard.dragging { opacity: .35; }
+  .kcard.lifted { position: fixed; z-index: 50; pointer-events: none; box-shadow: -6px 10px 0 var(--sticker-shadow); transform: scale(1.03) rotate(-1.2deg); width: var(--lift-w); }
+  .kcard .eyebrow { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; font-size: 10.5px; color: var(--ink-faint); }
+  .kcard h3 { font: 700 14px/1.3 var(--font-body); margin: 0 0 5px; color: var(--ink); }
+  .kcard .meta-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+  .kcard .actions { display: flex; gap: 6px; margin-top: 9px; flex-wrap: wrap; }
+  .kcard .actions button { font-size: 11.5px; padding: 6px 10px; }
+  .pill { font: 700 10px/1 var(--font-body); padding: 4px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .02em; display: inline-flex; align-items: center; gap: 4px; }
+  .pill.good { background: var(--good-bg); color: var(--good); }
+  .pill.warn { background: var(--warn-bg); color: var(--warn); }
+  .pill.bad { background: var(--bad-bg); color: var(--bad); }
+  .pill.gold { background: var(--gold-bg); color: var(--gold); }
+  .pill.terracotta { background: var(--terracotta-bg); color: var(--terracotta); }
+  .pill.neutral { background: var(--surface-alt); color: var(--ink-soft); }
+  .checklist { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; font-size: 12.5px; }
+  .checklist .ok { color: var(--good); } .checklist .falta { color: var(--bad); font-weight: 700; }
+  .portion-bar { margin-top: 8px; height: 7px; border-radius: 999px; background: var(--surface-alt); overflow: hidden; display: flex; }
+  .portion-bar span { background: var(--accent); height: 100%; }
+  .portion-label { font: 700 11px/1 var(--font-body); color: var(--ink-soft); margin-top: 5px; font-variant-numeric: tabular-nums; }
+  .kcard.glow-manual { animation: glowManual 2.4s ease-out 1; border-color: var(--manual-glow); }
+  @keyframes glowManual { 0% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--manual-glow) 55%, transparent), -3px 3px 0 var(--sticker-shadow); } 100% { box-shadow: -3px 3px 0 var(--sticker-shadow); } }
+  @media (prefers-reduced-motion: reduce) { .kcard { animation: none !important; transition: none !important; } }
+  .empty-slot { border: 1.5px dashed var(--border); border-radius: var(--radius); padding: 14px; text-align: center; color: var(--ink-faint); font-size: 12px; }
 
-  /* geladeira (ilustracao propria, feita pelo usuario) */
-  .fridge-real {
-    position: relative; z-index: 1; width: 320px; height: 176px; margin-bottom: 4px;
-    filter: drop-shadow(-5px 7px 0 var(--sticker-shadow));
-    transition: transform .2s ease;
+  /* ---------- A mesa de acao (Despensa) ---------- */
+  .stage-wrap { padding: 8px 20px 72px; }
+  .stage { max-width: 1160px; margin: 0 auto; position: relative; overflow: hidden;
+    background: radial-gradient(circle, color-mix(in srgb, var(--stage-ink) 5%, transparent) 1.5px, transparent 1.5px) 0 0 / 26px 26px, var(--stage-bg);
+    border-radius: 32px; padding: 16px 28px 12px; box-shadow: 0 32px 60px -22px rgba(20, 14, 4, .55), -6px 8px 0 var(--sticker-shadow);
   }
+  .kitchen { padding: 40px 0 24px; display: flex; align-items: flex-start; justify-content: center; position: relative; }
+  .object-trigger { background: none; border: none; padding: 0; cursor: pointer; box-shadow: none; display: flex; flex-direction: column; align-items: center; gap: 16px; font: inherit; color: inherit; position: relative; }
+  .object-trigger:hover { background: none; box-shadow: none; transform: none; }
+  .object-trigger::before { content: ""; position: absolute; top: 50%; left: 50%; width: 260px; height: 260px; transform: translate(-50%, -54%); border-radius: 50%; z-index: 0; background: radial-gradient(circle, color-mix(in srgb, var(--gold) 30%, transparent), transparent 68%); filter: blur(6px); opacity: .55; transition: opacity .25s ease, transform .25s ease; }
+  .object-trigger:hover::before { opacity: .85; transform: translate(-50%, -54%) scale(1.08); }
+  .object-label { font: 700 17px/1 var(--font-display); letter-spacing: .01em; color: var(--stage-ink); position: relative; z-index: 1; }
+  .object-hint { font-size: 12px; color: var(--stage-ink-soft); margin-top: -10px; position: relative; z-index: 1; text-transform: uppercase; letter-spacing: .06em; }
+  .fridge-real { position: relative; z-index: 1; width: 320px; height: 176px; margin-bottom: 4px; filter: drop-shadow(-5px 7px 0 var(--sticker-shadow)); transition: transform .2s ease; }
   .object-trigger:hover .fridge-real { transform: translateY(-2px) scale(1.02); }
-  .fridge-img {
-    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
-    transition: opacity .4s ease;
-  }
+  .fridge-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transition: opacity .4s ease; }
   .fridge-img--open { opacity: 0; }
   .object-card.open .fridge-img--closed { opacity: 0; }
   .object-card.open .fridge-img--open { opacity: 1; }
   .object-card.open .fridge-real { animation: wobble .5s ease; }
+  @keyframes wobble { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-1.5deg); } 60% { transform: rotate(1deg); } }
+  @media (prefers-reduced-motion: reduce) { .fridge-img { transition: none; } .object-card.open .fridge-real { animation: none; } .object-trigger::before { transition: none; } }
 
-  /* livro de receitas (ilustracao propria, feita pelo usuario) */
-  .book-real {
-    position: relative; z-index: 1; width: 320px; height: 176px; margin-bottom: 4px;
-    filter: drop-shadow(-5px 7px 0 var(--sticker-shadow));
-    transition: transform .2s ease;
-  }
-  .object-trigger:hover .book-real { transform: translateY(-2px) scale(1.02); }
-  .book-img {
-    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
-    transition: opacity .4s ease;
-  }
-  .book-img--open { opacity: 0; }
-  .object-card.open .book-img--closed { opacity: 0; }
-  .object-card.open .book-img--open { opacity: 1; }
-  .object-card.open .book-real { animation: wobble .5s ease; }
-
-  @keyframes wobble {
-    0%, 100% { transform: rotate(0); }
-    30% { transform: rotate(-1.5deg); }
-    60% { transform: rotate(1deg); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .fridge-img, .book-img { transition: none; }
-    .object-card.open .fridge-real, .object-card.open .book-real { animation: none; }
-    .object-trigger::before { transition: none; }
-  }
-
-  /* ---------- paineis revelados ---------- */
   .panels { padding: 8px 0 28px; display: flex; flex-direction: column; gap: 20px; }
-  .object-panel {
-    display: grid; grid-template-rows: 0fr; transition: grid-template-rows .4s ease;
-  }
+  .object-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .4s ease; }
   .object-panel.open { grid-template-rows: 1fr; }
   .object-panel__inner { overflow: hidden; }
-  section.card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 20px 22px; box-shadow: -3px 3px 0 var(--sticker-shadow);
-    margin-top: 4px;
-  }
-  section.card h2 {
-    font: 600 13px/1 var(--font-body); text-transform: uppercase; letter-spacing: .07em; color: var(--gold);
-    margin: 0 0 16px;
-  }
+  section.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; box-shadow: -3px 3px 0 var(--sticker-shadow); margin-top: 4px; }
+  section.card h2 { font: 600 13px/1 var(--font-body); text-transform: uppercase; letter-spacing: .07em; color: var(--gold); margin: 0 0 16px; }
   .row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-  input[type=text], input[type=number], textarea {
-    font: inherit; padding: 8px 11px; border-radius: 8px; border: 1px solid var(--border);
-    background: var(--bg); color: var(--ink); flex: 1; min-width: 90px;
-  }
+  input[type=text], input[type=number], textarea { font: inherit; padding: 8px 11px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--ink); flex: 1; min-width: 90px; }
   textarea { width: 100%; min-height: 70px; resize: vertical; font-family: var(--font-body); }
-  button {
-    font: 600 14px/1 var(--font-body); padding: 9px 16px; border-radius: 8px; border: none;
-    background: var(--accent); color: var(--surface); cursor: pointer;
-    box-shadow: -2px 2px 0 var(--sticker-shadow);
-    transition: box-shadow .12s ease, transform .12s ease, background .12s ease;
-  }
+  button { font: 600 14px/1 var(--font-body); padding: 9px 16px; border-radius: 8px; border: none; background: var(--accent); color: var(--surface); cursor: pointer; box-shadow: -2px 2px 0 var(--sticker-shadow); transition: box-shadow .12s ease, transform .12s ease, background .12s ease; }
   button:hover { background: var(--accent-soft); box-shadow: -4px 4px 0 var(--sticker-shadow); transform: translate(1px, -1px); }
   button:active { box-shadow: -1px 1px 0 var(--sticker-shadow); transform: translate(0, 0); }
   button:disabled { opacity: .55; cursor: default; box-shadow: -2px 2px 0 var(--sticker-shadow); transform: none; }
-  button.ghost {
-    background: transparent; color: var(--ink-faint); border: 1px solid var(--border); font-weight: 500; padding: 4px 9px;
-    box-shadow: none;
-  }
+  button.ghost { background: transparent; color: var(--ink-faint); border: 1px solid var(--border); font-weight: 500; padding: 4px 9px; box-shadow: none; }
   button.ghost:hover { color: var(--terracotta); border-color: var(--terracotta); background: transparent; box-shadow: none; transform: none; }
+  button.small { padding: 6px 10px; font-size: 12px; box-shadow: none; background: var(--surface-alt); color: var(--ink-soft); }
+  button.small:hover { background: var(--accent-bg); color: var(--accent); box-shadow: none; transform: none; }
   ul.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; }
-  ul.list li {
-    display: flex; justify-content: space-between; align-items: center; gap: 10px;
-    padding: 9px 11px; background: var(--surface-alt); border-radius: 8px; font-size: 13.5px;
-    transition: box-shadow .12s ease, transform .12s ease;
-  }
+  ul.list li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 11px; background: var(--surface-alt); border-radius: 8px; font-size: 13.5px; transition: box-shadow .12s ease, transform .12s ease; }
   ul.list li:hover { box-shadow: -2px 2px 0 var(--sticker-shadow); transform: translate(1px, -1px); }
-  .pill {
-    font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .03em;
-  }
   .pill.base { background: var(--terracotta-bg); color: var(--terracotta); }
   .pill.ingrediente { background: var(--gold-bg); color: var(--gold); }
   .pill.preparado { background: var(--good-bg); color: var(--good); }
   .empty { color: var(--ink-faint); font-size: 13px; padding: 8px 0; }
 
-  /* estoque: grade de cards agrupada por geladeira/despensa — sem scroll horizontal */
   .estoque-group { margin-top: 18px; }
-  .estoque-group__title {
-    display: flex; align-items: center; gap: 8px; font: 600 12.5px/1 var(--font-body);
-    text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); margin: 0 0 10px;
-    padding-left: 11px; border-left: 3px solid var(--border);
-  }
+  .estoque-group__title { display: flex; align-items: center; gap: 8px; font: 600 12.5px/1 var(--font-body); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); margin: 0 0 10px; padding-left: 11px; border-left: 3px solid var(--border); }
   .estoque-group__title.storage-perecivel { border-left-color: var(--terracotta); }
   .estoque-group__title.storage-seco { border-left-color: var(--gold); }
   .estoque-group__title .count { color: var(--ink-faint); font-weight: 500; text-transform: none; letter-spacing: 0; }
   .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 8px; }
-  .item-card {
-    position: relative; background: var(--surface-alt); border-radius: 10px; padding: 10px 30px 10px 12px;
-    transition: box-shadow .12s ease, transform .12s ease;
-  }
+  .item-card { position: relative; background: var(--surface-alt); border-radius: 10px; padding: 10px 30px 10px 12px; transition: box-shadow .12s ease, transform .12s ease; }
   .item-card:hover { box-shadow: -2px 2px 0 var(--sticker-shadow); transform: translate(1px, -1px); }
   .item-card strong { display: block; font-size: 13.5px; margin-bottom: 3px; text-transform: capitalize; }
   .item-card .qty { color: var(--ink-faint); font-size: 12px; }
   .item-card .pill { margin-left: 6px; }
-  .item-card__remove {
-    position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; padding: 0;
-    display: flex; align-items: center; justify-content: center; border-radius: 50%;
-    background: transparent; color: var(--ink-faint); box-shadow: none; font-size: 14px; line-height: 1;
-  }
+  .item-card .row { margin: 6px 0 0; }
+  .item-card__remove { position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: transparent; color: var(--ink-faint); box-shadow: none; font-size: 14px; line-height: 1; }
   .item-card__remove:hover { background: var(--bad-bg); color: var(--bad); box-shadow: none; transform: none; }
-  .import-nota {
-    margin-top: 20px; padding-top: 16px; border-top: 1px dashed var(--border);
-  }
-  .import-nota summary {
-    cursor: pointer; font: 600 13px/1 var(--font-body); color: var(--accent-soft); list-style: none;
-  }
+  .import-nota { margin-top: 20px; padding-top: 16px; border-top: 1px dashed var(--border); }
+  .import-nota summary { cursor: pointer; font: 600 13px/1 var(--font-body); color: var(--accent-soft); list-style: none; }
   .import-nota summary::-webkit-details-marker { display: none; }
   .import-nota summary::before { content: "＋ "; }
   .import-nota[open] summary::before { content: "－ "; }
-  .import-nota input[type=file] {
-    font-size: 12.5px; flex: 1; padding: 6px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
-  }
-  .suggestion {
-    border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-top: 16px;
-    background: var(--surface-alt);
-  }
-  .suggestion .meta { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--ink-faint); margin-bottom: 12px; }
-  .suggestion .meta code {
-    background: var(--accent-bg); color: var(--accent-soft); padding: 1px 7px; border-radius: 5px; font-size: 11.5px;
-  }
-  .suggestion .text { white-space: pre-wrap; font-size: 14.5px; }
-  .history-item { border-bottom: 1px solid var(--border); padding: 14px 0; }
-  .history-item:last-child { border-bottom: none; }
-  .history-item .prompt { color: var(--ink-faint); font-size: 12.5px; margin-bottom: 4px; font-style: italic; }
-  .status-ok { color: var(--good); font-size: 12.5px; font-weight: 700; }
-  .status-pending { color: var(--warn); font-size: 12.5px; }
-  .err { color: var(--bad); font-size: 13px; margin-top: 8px; }
-  .consumo-item { border-bottom: 1px solid var(--border); padding: 10px 0; font-size: 13.5px; }
-  .consumo-item:last-child { border-bottom: none; }
-  .consumo-item .receita { color: var(--ink-faint); font-size: 12px; font-style: italic; margin-bottom: 5px; }
-  .consumo-item .itens { display: flex; flex-wrap: wrap; gap: 6px; }
-  .consumo-chip {
-    font-size: 12px; padding: 3px 9px; border-radius: 999px; background: var(--gold-bg); color: var(--gold);
-    font-weight: 600;
-  }
-  .consumo-item .quando { color: var(--ink-faint); font-size: 11px; margin-top: 5px; }
+  .import-nota input[type=file] { font-size: 12.5px; flex: 1; padding: 6px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; }
 
-  /* pensamentos: log de relatos/desejos capturados, painel so-leitura */
   .pensamento-item { border-bottom: 1px solid var(--border); padding: 10px 0; font-size: 13.5px; }
   .pensamento-item:last-child { border-bottom: none; }
   .pensamento-item .quem { font-weight: 700; color: var(--ink-soft); margin-right: 6px; }
   .pill.relato_refeicao { background: var(--good-bg); color: var(--good); }
   .pill.desejo { background: var(--terracotta-bg); color: var(--terracotta); }
+  .pill.aquisicao { background: var(--gold-bg); color: var(--gold); }
+  .pill.desperdicio { background: var(--bad-bg); color: var(--bad); }
   .pensamento-item .quando { color: var(--ink-faint); font-size: 11px; margin-top: 4px; }
+
+  /* ---------- gaveta de configuracoes ---------- */
+  .drawer-backdrop { position: fixed; inset: 0; background: rgba(47, 42, 24, .35); opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 90; }
+  .drawer-backdrop.open { opacity: 1; pointer-events: auto; }
+  .drawer { position: fixed; top: 0; right: 0; height: 100%; width: min(360px, 92vw); background: var(--surface); box-shadow: -8px 0 24px rgba(47,42,24,.18); transform: translateX(100%); transition: transform .25s ease; z-index: 91; overflow-y: auto; padding: 20px; }
+  .drawer.open { transform: translateX(0); }
+  .drawer h2 { font: 700 20px/1 var(--font-display); color: var(--accent); margin: 0 0 4px; }
+  .drawer .sub { font-size: 12px; color: var(--ink-faint); margin-bottom: 18px; }
+  .drawer .field-group { margin-bottom: 18px; }
+  .drawer label { display: block; font: 700 11.5px/1 var(--font-body); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); margin-bottom: 6px; }
+  .drawer .hint { font-size: 11px; color: var(--ink-faint); margin-top: 4px; }
+  .drawer input[type=number] { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--ink); width: 100%; }
+  .drawer .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .drawer .actor-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .drawer .actor-row input { flex: 1; }
+  .drawer .budget-list { display: flex; flex-direction: column; gap: 6px; }
+  .drawer .budget-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 11px; background: var(--surface-alt); border-radius: 8px; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); }
+  .drawer .close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: var(--ink-faint); cursor: pointer; box-shadow: none; padding: 4px; }
+  .drawer .save-hint { font-size: 11px; color: var(--good); height: 14px; }
 </style>
 </head>
 <body>
 
 <header>
-  <svg class="ambient-leaf l1" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C13 2 15 7 8 16 1 7 3 2 8 0Z"/></svg>
-  <svg class="ambient-leaf l2 gold" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C13 2 15 7 8 16 1 7 3 2 8 0Z"/></svg>
-  <svg class="ambient-leaf l3" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C13 2 15 7 8 16 1 7 3 2 8 0Z"/></svg>
-  <svg class="ambient-leaf l4 gold" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C13 2 15 7 8 16 1 7 3 2 8 0Z"/></svg>
-  <h1>Chef Caseiro</h1>
-  <div class="tag">produto ficticio de referencia — Evals, observabilidade e conformidade</div>
+  <h1>Musa Balance</h1>
+  <div class="tag">Chef Caseiro — produto fictício de referência, Evals/Observabilidade/Conformidade</div>
 </header>
 <div class="divider" aria-hidden="true">
   <svg viewBox="0 0 400 6" preserveAspectRatio="none">
-    <path d="M0,3 C 25,0 50,6 75,3 S 125,0 150,3 175,6 200,3 225,0 250,3 275,6 300,3 325,0 350,3 375,6 400,3"
-          fill="none" stroke="var(--gold)" stroke-width="2" />
+    <path d="M0,3 C 25,0 50,6 75,3 S 125,0 150,3 175,6 200,3 225,0 250,3 275,6 300,3 325,0 350,3 375,6 400,3" fill="none" stroke="var(--gold)" stroke-width="2" />
   </svg>
 </div>
 
 <div class="config-bar">
   <div class="axes">
-    <strong style="color:var(--ink-soft)">Eixos ao vivo:</strong>
-    <label>Prompt
-      <select id="cfg-prompt">
-        <option value="v1">v1</option>
-        <option value="v2">v2</option>
-      </select>
-    </label>
-    <label>Modelo de geracao
+    <strong style="color:var(--ink-soft)">Eixo ao vivo:</strong>
+    <label>Modelo de geração
       <select id="cfg-model"></select>
     </label>
     <span id="cfg-status" style="color:var(--ink-faint)"></span>
   </div>
-  <div class="object-card" id="card-note">
-    <button class="settings-link" id="trigger-note" aria-expanded="false" aria-controls="panel-note">
-      ⚙ Preferências da casa
-    </button>
+  <div class="actors" id="actor-filter">
+    <button class="actor-chip active" data-filter="all">Todos</button>
   </div>
-  <div class="object-card" id="card-pensamentos">
-    <button class="settings-link" id="trigger-pensamentos" aria-expanded="false" aria-controls="panel-pensamentos">
-      💭 Pensamentos da semana
-    </button>
+  <div style="display:flex; gap:8px;">
+    <div class="object-card" id="card-note">
+      <button class="settings-link" id="trigger-note" aria-expanded="false" aria-controls="panel-note">⚙ Preferências</button>
+    </div>
+    <div class="object-card" id="card-pensamentos">
+      <button class="settings-link" id="trigger-pensamentos" aria-expanded="false" aria-controls="panel-pensamentos">📋 Atividade</button>
+    </div>
+    <button class="settings-link" id="btn-config">⚙ Configurações</button>
   </div>
+</div>
+
+<div class="legend">
+  <span><span class="dot bot"></span> atualizado pelo bot (Telegram)</span>
+  <span><span class="dot manual"></span> movido manualmente aqui</span>
+</div>
+
+<div class="board-wrap">
+  <div class="board" id="board">
+
+    <section class="column" data-stage="planoSemanal">
+      <div class="column-head"><div class="stage-no">Backlog</div><h2>Plano Semanal</h2><div class="desc">desejos + propostas em aberto</div><span class="count"></span></div>
+      <div class="column-body" id="col-planoSemanal"></div>
+    </section>
+
+    <section class="column" data-stage="prePreparo">
+      <div class="column-head"><div class="stage-no">Estágio I</div><h2>Pré-preparo</h2><div class="desc">branqueado — nem todo item passa aqui</div><span class="count"></span></div>
+      <div class="column-body" id="col-prePreparo"></div>
+    </section>
+
+    <section class="column" data-stage="preparo">
+      <div class="column-head"><div class="stage-no">Estágio II</div><h2>Preparo</h2><div class="desc">decisão confirmada, ainda não porcionada</div><span class="count"></span></div>
+      <div class="column-body" id="col-preparo"></div>
+    </section>
+
+    <section class="column" data-stage="porcionamento">
+      <div class="column-head"><div class="stage-no">Estágio III</div><h2>Porcionamento</h2><div class="desc">lote intocado</div><span class="count"></span></div>
+      <div class="column-body" id="col-porcionamento"></div>
+    </section>
+
+    <section class="column" data-stage="consumo">
+      <div class="column-head"><div class="stage-no">Estágio IV</div><h2>Consumo</h2><div class="desc">lote em uso — a corrida contra o desperdício</div><span class="count"></span></div>
+      <div class="column-body" id="col-consumo"></div>
+    </section>
+
+  </div>
+  <div class="dots" id="dots"></div>
 </div>
 
 <div class="stage-wrap">
 <div class="stage">
 
 <div class="kitchen">
-
   <div class="object-card" id="card-fridge">
     <button class="object-trigger" id="trigger-fridge" aria-expanded="false" aria-controls="panel-fridge">
       <div class="fridge-real">
         <img class="fridge-img fridge-img--closed" src="img/fridge-closed.png" alt="" />
         <img class="fridge-img fridge-img--open" src="img/fridge-open.png" alt="" />
       </div>
-      <span class="object-label">Geladeira</span>
-      <span class="object-hint">estoque da casa</span>
+      <span class="object-label">Despensa</span>
+      <span class="object-hint">estoque assentado — fora do fluxo ativo</span>
     </button>
   </div>
-
-  <div class="object-card" id="card-book">
-    <button class="object-trigger" id="trigger-book" aria-expanded="false" aria-controls="panel-book">
-      <div class="book-real">
-        <img class="book-img book-img--closed" src="img/book-closed.png" alt="" />
-        <img class="book-img book-img--open" src="img/book-open.png" alt="" />
-      </div>
-      <span class="object-label">Livro de receitas</span>
-      <span class="object-hint">pedir e revisitar sugestoes</span>
-    </button>
-  </div>
-
 </div>
 
 <div class="panels">
@@ -389,7 +355,7 @@
   <div class="object-panel" id="panel-fridge">
     <div class="object-panel__inner">
       <section class="card">
-        <h2>Estoque</h2>
+        <h2>Despensa</h2>
         <div class="row">
           <input type="text" id="estoque-name" placeholder="item" />
           <input type="number" id="estoque-qty" placeholder="qtd" style="max-width:80px" />
@@ -399,7 +365,6 @@
           <select id="estoque-state">
             <option value="base">base</option>
             <option value="ingrediente">ingrediente</option>
-            <option value="preparado">preparado</option>
           </select>
           <select id="estoque-storage">
             <option value="perecivel">geladeira (perecível)</option>
@@ -426,37 +391,15 @@
           <div id="nota-status" class="empty"></div>
         </details>
       </section>
-      <section class="card">
-        <h2>Consumo registrado</h2>
-        <div id="consumos-list"><div class="empty">Carregando...</div></div>
-      </section>
-    </div>
-  </div>
-
-  <div class="object-panel" id="panel-book">
-    <div class="object-panel__inner">
-      <section class="card">
-        <h2>Pedir sugestao</h2>
-        <textarea id="prompt-text" placeholder="ex: vou receber um casal de amigos hoje a noite, o que consigo cozinhar com o que tenho em casa?"></textarea>
-        <div class="row" style="margin-top:8px">
-          <button id="btn-sugerir">Pedir sugestao</button>
-          <span id="sugerir-status" style="color:var(--ink-faint); align-self:center;"></span>
-        </div>
-        <div id="suggestion-result"></div>
-      </section>
-      <section class="card">
-        <h2>Historico de sugestoes</h2>
-        <div id="history-list"><div class="empty">Carregando...</div></div>
-      </section>
     </div>
   </div>
 
   <div class="object-panel" id="panel-note">
     <div class="object-panel__inner">
       <section class="card">
-        <h2>Preferencias</h2>
+        <h2>Preferências</h2>
         <div class="row">
-          <input type="text" id="pref-text" placeholder="ex: sem lactose, nao gosta de coentro" />
+          <input type="text" id="pref-text" placeholder="ex: sem lactose, não gosta de coentro" />
           <button id="btn-add-pref">+</button>
         </div>
         <ul class="list" id="pref-list"></ul>
@@ -467,10 +410,8 @@
   <div class="object-panel" id="panel-pensamentos">
     <div class="object-panel__inner">
       <section class="card">
-        <h2>Pensamentos da semana</h2>
-        <div class="empty" style="margin-bottom:12px">
-          Relatos e desejos capturados pelo casal (hoje, via texto — Telegram entra depois), se reunindo pra virar uma decisao concreta. So leitura por enquanto.
-        </div>
+        <h2>Atividade recente</h2>
+        <div class="empty" style="margin-bottom:12px">Tudo que o Agente de Ingestão capturou — relato, desejo, aquisição, desperdício. Só leitura.</div>
         <div id="pensamentos-list"><div class="empty">Carregando...</div></div>
       </section>
     </div>
@@ -480,6 +421,45 @@
 
 </div>
 </div>
+
+<div class="drawer-backdrop" id="drawer-backdrop"></div>
+<aside class="drawer" id="drawer">
+  <button class="close-btn" id="drawer-close" aria-label="Fechar">×</button>
+  <h2>Configurações</h2>
+  <div class="sub">Repositório editável de dado quantitativo — o resto do produto só observa isso.</div>
+
+  <div class="field-group">
+    <label>Validade pós-branqueamento (regra D-N)</label>
+    <input type="number" id="cfg-dias-validade" min="1" />
+    <div class="hint">dias até um item branqueado virar "vencido" no estágio Pré-preparo</div>
+  </div>
+
+  <div class="field-group">
+    <label>Orçamento semanal da casa</label>
+    <div class="two-col">
+      <input type="number" id="cfg-teto-calorico" placeholder="kcal/semana" />
+      <input type="number" id="cfg-teto-financeiro" placeholder="R$/semana" />
+    </div>
+  </div>
+
+  <div class="field-group" id="cfg-atores-wrap">
+    <label>Teto calórico / dia por ator</label>
+  </div>
+
+  <div class="field-group">
+    <label>Macros diários (g) — travado</label>
+    <div class="hint" style="background:var(--surface-alt); padding:9px 11px; border-radius:8px; font-style:italic;">travado até a nutricionista recomendar valores reais — sem estimativa inventada.</div>
+  </div>
+
+  <div class="field-group">
+    <label>Categorias de orçamento</label>
+    <div class="budget-list" id="cfg-budget-list"></div>
+    <div class="hint">fixas — o bot pergunta qual delas em toda aquisição sem categoria explícita</div>
+  </div>
+
+  <button id="btn-salvar-config" style="width:100%">Salvar</button>
+  <div class="save-hint" id="cfg-save-hint"></div>
+</aside>
 
 <script src="app.js"></script>
 </body>

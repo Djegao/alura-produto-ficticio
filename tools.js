@@ -95,7 +95,15 @@ async function registrar_itens_usados({ itens } = {}) {
 // chute" pelo Claude — prazo, decaimento e saldo financeiro/calorico sao
 // sempre matematica em codigo. O Claude so le o resultado.
 
-const DIAS_BRANQUEADO = 6; // regra D-6
+async function getDiasValidadePosBranqueamento(householdId) {
+  const { data, error } = await supabase
+    .from('households')
+    .select('dias_validade_pos_branqueamento')
+    .eq('id', householdId)
+    .single();
+  if (error) throw new Error(error.message);
+  return data.dias_validade_pos_branqueamento ?? 6;
+}
 
 async function getActorByRole(role) {
   const householdId = await getHouseholdId();
@@ -194,11 +202,10 @@ const mediatorToolDefinitions = [...toolDefinitions, ...novasToolsMediador];
 
 async function consultar_validade_estoque() {
   const householdId = await getHouseholdId();
-  const { data, error } = await supabase
-    .from('pantry_items')
-    .select('*')
-    .eq('household_id', householdId)
-    .eq('storage', 'perecivel');
+  const [{ data, error }, diasBranqueado] = await Promise.all([
+    supabase.from('pantry_items').select('*').eq('household_id', householdId).eq('storage', 'perecivel'),
+    getDiasValidadePosBranqueamento(householdId),
+  ]);
   if (error) throw new Error(error.message);
 
   const agora = new Date();
@@ -209,7 +216,7 @@ async function consultar_validade_estoque() {
       return { ...item, estado_conservacao: 'fresco', dias_restantes: null };
     }
     const diasDesde = Math.floor((agora - new Date(item.blanched_at)) / 86400000);
-    const diasRestantes = DIAS_BRANQUEADO - diasDesde;
+    const diasRestantes = diasBranqueado - diasDesde;
     return {
       ...item,
       estado_conservacao: diasRestantes >= 0 ? 'branqueado' : 'vencido',

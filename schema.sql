@@ -195,6 +195,11 @@ create table trade_off_decisions (
   proposta jsonb not null,
   escolhida_por uuid references actors(id),
   escolha jsonb,
+  -- fase 4 (Kanban): quando a decisao virou de fato um pantry_item
+  -- 'preparado' (acao "porcionar") — null enquanto ainda esta em Preparo.
+  -- Marca manual de proposito: so quem cozinhou de verdade sabe o
+  -- rendimento real, o Mediador nao inventa numero de porcoes.
+  porcionado_em timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -361,3 +366,11 @@ alter table pensamentos
 
 alter table pensamentos drop constraint if exists pensamentos_tipo_check;
 alter table pensamentos add constraint pensamentos_tipo_check check (tipo in ('relato_refeicao', 'desejo', 'aquisicao', 'desperdicio'));
+
+-- ---------------------------------------------------------------------
+-- PENDENTE fase 4 (Kanban) — ainda NAO rodado no Supabase.
+-- ---------------------------------------------------------------------
+
+-- 2026-08-02: marca de quando uma decisao virou prato pronto de verdade.
+alter table trade_off_decisions
+  add column if not exists porcionado_em timestamptz;
