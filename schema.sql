@@ -50,6 +50,13 @@ create table pantry_items (
   -- null enquanto o item nao foi porcionado ainda.
   portions_total numeric,
   portions_remaining numeric,
+  -- v3 "Musa Balance" fase 3: quando o item virou 'preparado' — base pro
+  -- relogio de validade de prato pronto. Diferente de blanched_at porque
+  -- cada prato decai num ritmo proprio (nao da pra globalizar como o D-6
+  -- de vegetal) — em vez de constante configuravel, a validade e' APRENDIDA
+  -- por relato de desperdicio (ver pensamentos.dias_desde_preparo), nao
+  -- calculada de uma regra fixa.
+  prepared_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -153,6 +160,10 @@ create table meal_reports (
   -- de qual "carteira" saiu o gasto — nao entra na conta do orcamento real
   -- da casa quando e' TR (vale-refeicao), so quando e' credito_familia.
   budget_categoria text check (budget_categoria in ('tr_diego', 'tr_esposa', 'credito_familia')),
+  -- fase 3: distingue refeicao caseira de delivery/restaurante — materia-prima
+  -- pro Agente Mediador notar (ou nao — de proposito nao forcado) a tensao
+  -- entre pedir fora e porcoes caseiras envelhecendo sem uso.
+  fonte_refeicao text check (fonte_refeicao in ('caseira', 'delivery', 'restaurante')),
   created_at timestamptz not null default now()
 );
 
@@ -196,13 +207,20 @@ create table trade_off_decisions (
 create table pensamentos (
   id uuid primary key default gen_random_uuid(),
   actor_id uuid not null references actors(id) on delete cascade,
-  tipo text not null check (tipo in ('relato_refeicao', 'desejo', 'aquisicao')),
+  tipo text not null check (tipo in ('relato_refeicao', 'desejo', 'aquisicao', 'desperdicio')),
   descricao text not null,
   data date,
   calorias numeric,
   custo numeric,
   budget_categoria text check (budget_categoria in ('tr_diego', 'tr_esposa', 'credito_familia')),
   status text not null default 'completo' check (status in ('completo', 'aguardando_categoria')),
+  fonte_refeicao text check (fonte_refeicao in ('caseira', 'delivery', 'restaurante')),
+  -- fase 3: dado APRENDIDO, nao configurado. So preenchido quando tipo=
+  -- desperdicio E o sistema conseguiu casar o relato com um pantry_item
+  -- 'preparado' ainda vivo — dias entre prepared_at e este relato. E' o
+  -- ponto de dado bruto pra uma futura camada de "quanto tempo esse prato
+  -- costuma durar" — nao consumido por nada ainda nesta versao.
+  dias_desde_preparo numeric,
   trace_id text,
   created_at timestamptz not null default now()
 );
@@ -322,3 +340,24 @@ alter table pensamentos
 
 alter table pensamentos drop constraint if exists pensamentos_tipo_check;
 alter table pensamentos add constraint pensamentos_tipo_check check (tipo in ('relato_refeicao', 'desejo', 'aquisicao'));
+
+-- ---------------------------------------------------------------------
+-- PENDENTE fase 3 — ainda NAO rodado no Supabase.
+-- ---------------------------------------------------------------------
+
+-- 2026-08-02: "Musa Balance" fase 3 — validade de prato pronto aprendida
+-- (nao configurada), fonte da refeicao (caseira/delivery/restaurante) pro
+-- Mediador notar tensao de desperdicio, e tipo 'desperdicio' em pensamentos.
+
+alter table pantry_items
+  add column if not exists prepared_at timestamptz;
+
+alter table meal_reports
+  add column if not exists fonte_refeicao text check (fonte_refeicao in ('caseira', 'delivery', 'restaurante'));
+
+alter table pensamentos
+  add column if not exists fonte_refeicao text check (fonte_refeicao in ('caseira', 'delivery', 'restaurante')),
+  add column if not exists dias_desde_preparo numeric;
+
+alter table pensamentos drop constraint if exists pensamentos_tipo_check;
+alter table pensamentos add constraint pensamentos_tipo_check check (tipo in ('relato_refeicao', 'desejo', 'aquisicao', 'desperdicio'));

@@ -82,7 +82,7 @@ async function responderCallback(callbackQueryId, text) {
 // A API de reacao do Telegram so aceita um conjunto FIXO de emojis (nao e'
 // emoji livre como em texto) — 👍 e 🤔 estao confirmados nesse conjunto.
 // Nao usamos 📝/💭 aqui por isso (💭 continua vivo no icone do painel web).
-const EMOJI_POR_TIPO = { relato_refeicao: '👍', desejo: '🤔', aquisicao: '👍' };
+const EMOJI_POR_TIPO = { relato_refeicao: '👍', desejo: '🤔', aquisicao: '👍', desperdicio: '😢' };
 
 async function reagir(chatId, messageId, emoji) {
   if (!process.env.TELEGRAM_BOT_TOKEN) return;
@@ -198,6 +198,7 @@ async function processarUpdate(update, { model }) {
         fonte: 'telegram',
         calorias: intencao.calorias,
         custo: intencao.custo,
+        fonte_refeicao: intencao.fonte_refeicao,
       });
       await supabase.from('pensamentos').insert({
         actor_id: actor.id,
@@ -207,9 +208,46 @@ async function processarUpdate(update, { model }) {
         calorias: intencao.calorias ?? null,
         custo: intencao.custo ?? null,
         budget_categoria: intencao.budget_categoria || null,
+        fonte_refeicao: intencao.fonte_refeicao || null,
         trace_id: traceId,
       });
       await reagir(chatId, message.message_id, EMOJI_POR_TIPO.relato_refeicao);
+    } else if (intencao.tipo === 'desperdicio') {
+      // Aprendizado, nao configuracao: casa o relato com um prato 'preparado'
+      // ainda vivo (mesmo nome, ainda tem porcao restante) e calcula quantos
+      // dias ele durou desde prepared_at. Nao tenta adivinhar quando nao acha
+      // correspondencia — so registra a descricao crua.
+      const householdId = await getHouseholdId();
+      let diasDesdePreparo = null;
+
+      if (intencao.item_nome) {
+        const { data: candidatos } = await supabase
+          .from('pantry_items')
+          .select('*')
+          .eq('household_id', householdId)
+          .eq('state', 'preparado')
+          .not('prepared_at', 'is', null)
+          .ilike('name', `%${intencao.item_nome}%`)
+          .gt('portions_remaining', 0)
+          .order('prepared_at', { ascending: false })
+          .limit(1);
+
+        const item = candidatos && candidatos[0];
+        if (item) {
+          diasDesdePreparo = Math.floor((Date.now() - new Date(item.prepared_at).getTime()) / 86400000);
+          await supabase.from('pantry_items').update({ portions_remaining: 0 }).eq('id', item.id);
+        }
+      }
+
+      await supabase.from('pensamentos').insert({
+        actor_id: actor.id,
+        tipo: 'desperdicio',
+        descricao: intencao.descricao,
+        data: intencao.data || hoje,
+        dias_desde_preparo: diasDesdePreparo,
+        trace_id: traceId,
+      });
+      await reagir(chatId, message.message_id, EMOJI_POR_TIPO.desperdicio);
     } else if (intencao.tipo === 'aquisicao') {
       // Estagio i->ii do pipeline: a aquisicao ja estoca o item (fisicamente
       // ja esta na casa), independente de quem/qual carteira pagou — isso e'

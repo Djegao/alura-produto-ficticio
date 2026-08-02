@@ -53,7 +53,15 @@ casal.
 Ao final, chame registrar_decisao_cardapio com a proposta (as opcoes e o
 trade-off de cada uma) e, se o casal ja tiver decidido nesta conversa, a
 escolha feita. Isso e obrigatorio sempre que voce apresentar uma proposta —
-mesmo que a escolha ainda esteja em aberto.`,
+mesmo que a escolha ainda esteja em aberto.
+
+Uma coisa a observar, nao uma regra fixa: dê uma olhada em
+consultar_relatos_recentes e em consultar_estoque (itens 'preparado' com
+porcoes restantes). Se voce notar comida caseira pronta e nao consumida ao
+mesmo tempo que um relato recente de delivery ou restaurante, isso e' a
+pior forma de desperdicio do produto — comente isso explicitamente na sua
+resposta. Mas use seu proprio julgamento sobre quando isso vale a pena
+mencionar; nao existe um gatilho automatico pra isso.`,
 };
 
 module.exports = { PROMPTS };

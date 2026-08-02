@@ -24,14 +24,20 @@ const REGISTRAR_INTENCAO_TOOL = {
     properties: {
       tipo: {
         type: 'string',
-        enum: ['relato_refeicao', 'desejo', 'aquisicao'],
+        enum: ['relato_refeicao', 'desejo', 'aquisicao', 'desperdicio'],
         description:
-          '"relato_refeicao" = a pessoa esta contando o que ja comeu/vai comer num dia especifico. "desejo" = a pessoa esta pedindo/sugerindo algo pra decisao futura (ex: "poderiamos comer lasanha no fim de semana?"). "aquisicao" = a pessoa esta reportando uma compra/aquisicao de item(ns) pro estoque (ex: "comprei 2kg de arroz").',
+          '"relato_refeicao" = a pessoa esta contando o que ja comeu/vai comer num dia especifico. "desejo" = a pessoa esta pedindo/sugerindo algo pra decisao futura (ex: "poderiamos comer lasanha no fim de semana?"). "aquisicao" = a pessoa esta reportando uma compra/aquisicao de item(ns) pro estoque (ex: "comprei 2kg de arroz"). "desperdicio" = a pessoa esta reportando que jogou fora um prato/item que nao foi consumido a tempo (ex: "joguei fora o resto da lasanha").',
       },
       data: {
         type: 'string',
         description:
-          'Somente se tipo=relato_refeicao ou aquisicao. Data no formato YYYY-MM-DD, resolvida a partir de referencias relativas ("ontem", "hoje") usando a data de referencia fornecida.',
+          'Somente se tipo=relato_refeicao, aquisicao ou desperdicio. Data no formato YYYY-MM-DD, resolvida a partir de referencias relativas ("ontem", "hoje") usando a data de referencia fornecida.',
+      },
+      fonte_refeicao: {
+        type: 'string',
+        enum: ['caseira', 'delivery', 'restaurante'],
+        description:
+          'Somente se tipo=relato_refeicao. De onde veio a comida — caseira (feita em casa), delivery (pedido entregue) ou restaurante (comeu fora). So classifique se der pra inferir do texto; nao force se for ambiguo.',
       },
       descricao: { type: 'string', description: 'O que foi dito, limpo e direto.' },
       calorias: {
@@ -44,15 +50,15 @@ const REGISTRAR_INTENCAO_TOOL = {
       },
       item_nome: {
         type: 'string',
-        description: 'Somente se tipo=aquisicao. Nome limpo e curto do item comprado (ex: "arroz branco").',
+        description: 'Se tipo=aquisicao ou desperdicio. Nome limpo e curto do item comprado/perdido (ex: "arroz branco", "lasanha").',
       },
       item_quantidade: {
         type: 'number',
-        description: 'Somente se tipo=aquisicao. Quantidade normalizada (ex: "2 pacotes de 5kg" vira 10, nao 2).',
+        description: 'Se tipo=aquisicao ou desperdicio. Quantidade normalizada (ex: "2 pacotes de 5kg" vira 10, nao 2; "1/10 da lasanha" vira a fracao/porcao mencionada).',
       },
       item_unidade: {
         type: 'string',
-        description: 'Somente se tipo=aquisicao. Unidade da quantidade normalizada: kg, g, ml, L, unidade, pacote, duzia, etc.',
+        description: 'Se tipo=aquisicao ou desperdicio. Unidade da quantidade normalizada: kg, g, ml, L, unidade, pacote, porcao, duzia, etc.',
       },
       item_state: {
         type: 'string',
@@ -89,7 +95,11 @@ item_state/item_storage (mesmas regras de categorizacao de estoque: state
 descreve o quao transformado o alimento esta, storage descreve onde ele mora
 fisicamente). So preencha budget_categoria se a pessoa disser explicitamente
 de qual das 3 carteiras (TR Diego, TR Esposa, Credito Familia) saiu o gasto —
-caso contrario deixe de fora, o sistema vai perguntar depois.`;
+caso contrario deixe de fora, o sistema vai perguntar depois.
+
+Quando tipo=desperdicio, preencha item_nome/item_quantidade/item_unidade com
+o que foi jogado fora. Nao calcule ha quantos dias o prato foi preparado —
+isso e' resolvido em codigo, cruzando com o registro do item, nao por voce.`;
 
 async function ingerirRelato({ texto, dataReferencia, model, canal }) {
   const agent = startObservation(

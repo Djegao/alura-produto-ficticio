@@ -149,8 +149,24 @@ const novasToolsMediador = [
         fonte: { type: 'string', enum: ['manual', 'telegram', 'reminder'], description: 'Canal de origem do relato.' },
         calorias: { type: 'number', description: 'Estimativa de calorias, se disponivel.' },
         custo: { type: 'number', description: 'Custo em reais, se disponivel.' },
+        fonte_refeicao: {
+          type: 'string',
+          enum: ['caseira', 'delivery', 'restaurante'],
+          description: 'De onde veio a comida, se der pra inferir.',
+        },
       },
       required: ['ator', 'data', 'descricao', 'fonte'],
+    },
+  },
+  {
+    name: 'consultar_relatos_recentes',
+    description:
+      'Consulta os relatos de refeicao dos ultimos dias, incluindo de onde veio cada uma (caseira/delivery/restaurante). Use pra notar se um pedido de fora aconteceu enquanto ha porcoes caseiras prontas e nao consumidas — mas a decisao de comentar ou nao essa tensao e sua, nao ha regra fixa aqui.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        dias: { type: 'number', description: 'Quantos dias pra tras olhar. Padrao: 7.' },
+      },
     },
   },
   {
@@ -249,7 +265,7 @@ async function consultar_orcamento_semanal() {
   };
 }
 
-async function registrar_relato_refeicao({ ator, data, descricao, fonte, calorias, custo } = {}) {
+async function registrar_relato_refeicao({ ator, data, descricao, fonte, calorias, custo, fonte_refeicao } = {}) {
   const actor = await getActorByRole(ator);
   const { error } = await supabase.from('meal_reports').insert({
     actor_id: actor.id,
@@ -258,9 +274,36 @@ async function registrar_relato_refeicao({ ator, data, descricao, fonte, caloria
     source: fonte,
     calories: calorias ?? null,
     cost: custo ?? null,
+    fonte_refeicao: fonte_refeicao ?? null,
   });
   if (error) throw new Error(error.message);
   return { ok: true, ator: actor.name };
+}
+
+async function consultar_relatos_recentes({ dias } = {}) {
+  const householdId = await getHouseholdId();
+  const janela = dias || 7;
+  const desde = new Date(Date.now() - janela * 86400000).toISOString().slice(0, 10);
+
+  const { data: actors, error: actorsError } = await supabase
+    .from('actors')
+    .select('id, name')
+    .eq('household_id', householdId);
+  if (actorsError) throw new Error(actorsError.message);
+  const actorIds = actors.map((a) => a.id);
+  const actorById = Object.fromEntries(actors.map((a) => [a.id, a.name]));
+
+  if (actorIds.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from('meal_reports')
+    .select('actor_id, date, description, fonte_refeicao, cost')
+    .in('actor_id', actorIds)
+    .gte('date', desde)
+    .order('date', { ascending: false });
+  if (error) throw new Error(error.message);
+
+  return data.map((r) => ({ ...r, ator: actorById[r.actor_id] }));
 }
 
 async function registrar_decisao_cardapio({ proposta, escolha } = {}) {
@@ -277,6 +320,7 @@ async function runTool(name, input) {
   if (name === 'consultar_validade_estoque') return consultar_validade_estoque(input);
   if (name === 'consultar_orcamento_semanal') return consultar_orcamento_semanal(input);
   if (name === 'registrar_relato_refeicao') return registrar_relato_refeicao(input);
+  if (name === 'consultar_relatos_recentes') return consultar_relatos_recentes(input);
   if (name === 'registrar_decisao_cardapio') return registrar_decisao_cardapio(input);
   throw new Error(`Ferramenta desconhecida: ${name}`);
 }
