@@ -1,7 +1,7 @@
 # Chef Caseiro — Especificação (SDD)
 
 **Versão documentada:** estado do `master` em 2026-08-02
-**Status:** produto fictício funcional, em uso ativo como base da Aula 4 (e apoio às Aulas 2/3) do curso Alura *"Evals, observabilidade e conformidade"* (formação AI Product Builder).
+**Status:** produto fictício funcional, em uso ativo como base da Aula 4 (e apoio às Aulas 2/3) do curso Alura *"Evals, observabilidade e conformidade"* (formação AI Product Builder). Em 2026-08-02 pivotou pra "Musa Balance" (multi-ator, canal Telegram, Kanban — ver §13); o Chef Ops v1/v2 descrito nas seções 1–12 **continua existindo e funcional**, só sem superfície no dashboard (§13.5).
 **Propósito deste documento:** registrar a especificação da versão atual — não como ela foi pedida originalmente, mas como ela **de fato ficou**, incluindo as restrições que só existem porque a implementação real ensinou algo que o design inicial não previa. É o ponto de partida para reconstruir o produto com entendimento próprio, não um changelog.
 
 ---
@@ -22,6 +22,8 @@ O curso ensina, nessa ordem, evals → observabilidade → conformidade. O produ
 
 ## 3. Escopo da versão atual
 
+*(Esta seção descreve o Chef Ops v1/v2 original — ainda real e funcional, ver §13.5. Escopo do pivot v3 "Musa Balance" está em §13.)*
+
 **Implementado e testado ponta-a-ponta:**
 - Loop agêntico real (Claude + tool use) sugerindo receita a partir de estoque/preferências reais
 - Estoque com duas dimensões de categorização (`state` e `storage`) e CRUD completo
@@ -39,8 +41,8 @@ O curso ensina, nessa ordem, evals → observabilidade → conformidade. O produ
 
 ## 4. Personas
 
-1. **A casa (usuário final fictício)** — quem interage com estoque/preferências/sugestões dentro da narrativa do produto.
-2. **O instrutor (operador real)** — quem manipula os eixos ao vivo durante a gravação, olha o Langfuse, e precisa que o produto falhe de forma **legível**, não silenciosa.
+1. **A casa (usuário final fictício)** — quem interage com estoque/preferências/sugestões dentro da narrativa do produto. No pivot v3 (§13), deixa de ser um bloco indiferenciado e vira dois atores reais com objetivos parcialmente conflitantes (chef/musa) — mas o papel na arquitetura é o mesmo: quem gera o dado.
+2. **O instrutor (operador real)** — quem manipula os eixos ao vivo durante a gravação, olha o Langfuse, e precisa que o produto falhe de forma **legível**, não silenciosa. A partir do v3, esta persona também é usuária real do produto em casa (§13.1) — as duas identidades convergem, não competem.
 
 A persona 2 é a que efetivamente dita requisitos. Um requisito que deixasse a persona 1 mais feliz mas escondesse o comportamento do modelo (ex.: retry silencioso, fallback automático) foi descartado por princípio.
 
@@ -183,6 +185,12 @@ Esta seção é o motivo deste documento existir. Cada achado abaixo começou co
 **Diagnóstico:** o `dotenv` v17 escreve um banner de log no mesmo stdout usado para o pipe do segredo; o banner ficou concatenado na frente do valor real.
 **Restrição derivada:** nunca extrair um segredo de um processo Node via stdout sem isolar exatamente a variável (ler o arquivo `.env` diretamente com `fs`, não via `require('dotenv').config()` + `process.env`, quando o destino é um pipe).
 
+### 11.6 Erro engolido em silêncio por fallback defensivo (`|| []`)
+**Observação:** `GET /api/kanban` (v3) agregava várias queries em paralelo; cada uma tinha um `.then((r) => r.data || [])` "defensivo". Quando uma coluna nova (`trade_off_decisions.porcionado_em`) ainda não existia no banco (migração pendente), a query falhava — mas o fallback transformava o erro em `[]`, e a coluna do Kanban simplesmente aparecia vazia, sem nenhum sinal de que algo tinha quebrado.
+**Diagnóstico:** só apareceu porque o teste (Playwright, local) comparou o resultado esperado (uma proposta recém-criada) contra o estado real e não bateu — sem esse teste ponta-a-ponta, o bug ficaria invisível indefinidamente, disfarçado de "ainda não tem nada aqui".
+**Restrição derivada:** fallback silencioso (`|| []`, `|| null`, `try/catch` vazio) em código que agrega múltiplas fontes é o oposto do que o produto defende (§8, "Observabilidade"). Corrigido para todo erro de query propagar de verdade (`server.js`, helper `semSilencio`) — a rota responde 500 com a mensagem real em vez de fingir que está tudo bem. Vale como o sexto exemplo de "padrão de falha" pra Aula 3, e é o contra-exemplo direto do §11.1: aqui a hipótese de bug *era* verdadeira, e só apareceu por testar de ponta a ponta, não por inspeção de código.
+**Onde:** `server.js` (`GET /api/kanban`, `GET /api/config-quantitativo`).
+
 ## 12. Limitações conhecidas e trabalho futuro
 
 - **Vision para nota fiscal**: hoje só ingere texto/markdown. O terceiro eixo trocável planejado (fable-5/haiku-4-5 para visão) não existe ainda.
@@ -192,6 +200,66 @@ Esta seção é o motivo deste documento existir. Cada achado abaixo começou co
 - **Sem testes automatizados nem CI.**
 - **Household único, sem autenticação real de usuário** — aceitável para o escopo do curso, não seria pra um produto real.
 
-## 13. Como usar este documento
+## 13. v3 "Musa Balance" — pivot multi-ator e redesenho em Kanban
 
-Este documento descreve o que existe, não prescreve como reconstruir. Se o objetivo agora é reconstruir com as próprias mãos: use as seções 5–8 como mapa do que precisa existir, e a seção 11 como a lista de decisões que **não são óbvias na primeira tentativa** — cada uma delas só existe porque a primeira versão ingênua falhou de um jeito específico. Reproduzir o produto sem essas cinco restrições provavelmente reproduz os mesmos cinco problemas.
+Tudo que segue foi construído em 2026-08-02, na mesma sessão, e muda o produto mais do que qualquer mudança anterior — por isso ganha seção própria em vez de ser espalhado pelas seções 1–12 (que continuam descrevendo o Chef Ops v1/v2 com precisão, porque ele **continua existindo**, só sem UI).
+
+### 13.1 Motivação
+
+Chef Caseiro v1 foi julgado, pelo próprio instrutor, conceitualmente raso: "gestor de estoque com chat acoplado". Faltava conflito real — o ingrediente que produz trace interessante pra ensinar diagnóstico não é um bug de prompt, é uma decisão com trade-off de verdade. O pivot nasce de um problema doméstico real do instrutor: ele (chef, cuida de saúde/sustentabilidade/orçamento) e a esposa (musa, traz o desejo e o prazer gastronômico) competem pelo mesmo recurso — a decisão do que a casa vai comer. A partir daqui o produto serve **dois propósitos simultâneos**: modelo de aula e ferramenta real da casa do instrutor, com dado de produção genuíno (não simulado) alimentando os dois.
+
+### 13.2 Camada determinística vs. probabilística (a regra de ouro herdada)
+
+Princípio central, mantido do zero: **o Claude nunca calcula prazo, decaimento ou matemática financeira** — isso é sempre função em código, exposta pro modelo só como resultado de tool. É a mesma lição do §11.3 (prompt não é garantia estrutural), agora generalizada de "não confiar em pedido" pra "não confiar em cálculo". Exemplos concretos: a regra D-6 de branqueamento virou `households.dias_validade_pos_branqueamento`, um número editável em vez de constante fixa no código; o orçamento semanal é somado em `consultar_orcamento_semanal`, nunca estimado pelo modelo.
+
+### 13.3 Atores e canal Telegram
+
+- **`actors`**: substitui a casa como bloco indiferenciado por duas identidades reais (`chef`/`musa`), cada uma ligada a um `telegram_user_id`.
+- **Onboarding por botão, não comando decorado**: a primeira mensagem de um `telegram_user_id` desconhecido faz o bot perguntar quem é, com teclado inline — decisão tomada depois que o fluxo original (`/eusou_chef`) gerou atrito real de UX ("estou sofrendo com a UX do Telegram").
+- **Reação silenciosa em sucesso, mensagem só em erro ou pergunta real**: decisão explícita depois do instrutor apontar que o bot "parece um estranho no meio do debate do casal" comentando cada interação. Captura de relato/desejo/aquisição vira só uma reação (👍/🤔) na própria mensagem; falha continua barulhenta de propósito (nunca falhar em silêncio, §8). **Achado técnico**: a API de reação do Telegram só aceita um conjunto fixo de emojis — não dá pra usar qualquer emoji livre como em texto, teclado precisa ser removido explicitamente da mensagem depois do toque (`editMessageText` com `reply_markup` vazio), senão fica clicável pra sempre.
+- **Atribuição de orçamento por pergunta ativa**: uma aquisição sem "paguei com X" no texto já estoca o item na hora (fisicamente já está na casa) mas fica com `status: 'aguardando_categoria'` até o bot perguntar (3 botões: TR Diego / TR Esposa / Crédito Família) e a resposta resolver o registro — bookkeeping nunca trava o fluxo físico do estoque.
+
+### 13.4 O Kanban — pipeline físico do alimento, não CRUD por tipo de tela
+
+Reformulação central do produto: o painel deixou de ser "lugar de digitar dado" (o bot já captura) e virou "lugar de observar e decidir sobre um pipeline". Chegou nesse formato por várias rodadas de debate, cada uma corrigindo uma suposição inicial errada — vale registrar o raciocínio, não só o resultado:
+
+1. **"Estocar" foi removido do pipeline.** A primeira proposta tinha 5 estágios (Adquirir → Estocar → Pré-preparo → Preparo → Porcionamento). Mas no código, adquirir e estocar **já são o mesmo evento**: tanto a nota fiscal quanto o chat gravam o item já categorizado (`state`+`storage`) numa escrita só — nunca existiu confirmação humana separada de "guardei mesmo". Manter Estocar como estágio seria inventar uma etapa que o produto nunca teve, só pra preencher uma coluna.
+2. **Despensa não é estágio, é função separada, fora do Kanban.** Um Kanban de verdade tem WIP pequeno por definição — empilhar a despensa inteira (potencialmente dezenas de itens) como "trabalho em andamento" reproduziria o mesmo erro já corrigido uma vez no v1 (§7.1: lista plana de +15 itens virou ilegível). A correção usa a mesma lição: Despensa é uma grade densa (Geladeira/Despensa por `storage`, herdada do v1), só itens ainda não `preparado`, acessada sob demanda — não faz parte do fluxo ativo.
+3. **Fronteira "item" → "receita" (story vs. feature) acontece em Preparo.** Até Preparo, um card é um item atômico (arroz, guanciale). Uma receita é composta — "empacota" vários itens, igual um epic empacota stories. Ao ser reclamada por uma decisão de cardápio, o item some do quadro como card próprio (estoque decrementa de verdade) e devia reaparecer como linha dentro do card da receita — mesmo padrão que `meal_suggestions.items_used`/`stock_consumptions.items_consumed` já usam desde o v1, reaplicado, não reinventado.
+4. **Plano Semanal é o backlog, e carrega duas fontes de demanda em tensão.** "Planejamento funcional" (o que a nutricionista recomendaria — calorias controladas, marmitas repetíveis) e "planejamento emergente" (o desejo do momento — premium, ingrediente, história) competem pelo mesmo espaço no backlog. É a mesma tensão fundadora do produto (chef vs. musa), agora modelada como as duas origens de card na mesma coluna, em vez de ficar só como narrativa.
+5. **Porcionamento e Consumo são a mesma tabela, dois recortes — e é aí que mora o valor real.** `pantry_items` com `state='preparado'`: `portions_remaining == portions_total` é lote intocado (Porcionamento); `0 < portions_remaining < portions_total` é lote em uso (Consumo). São populações de card diferentes, não o mesmo estado com nome trocado — só faz sentido cobrar atenção sobre um lote que já começou a ser consumido, não sobre um intocado. É exatamente aí que a "pior derrota" do produto (pedir McDonald's enquanto duas marmitas caseiras ficam esquecidas até vencer) fica **observável como dado**, não só como narrativa de missão.
+6. **Validade de prato pronto é aprendida, não configurada.** Diferente do branqueamento (uma regra D-N razoavelmente universal), cada prato decai no próprio ritmo — não dá pra globalizar. Em vez de inventar uma constante por prato, a validade fica como dado bruto capturado no relato de desperdício (`pantry_items.prepared_at` + `pensamentos.dias_desde_preparo`, calculado em código a partir da correspondência com o item). **Sem nenhum consumidor ainda** — é o primeiro passo concreto de LTM que o produto ganhou, deliberadamente não conectado a nada até existir critério de sucesso definido (mesma cautela que adiou LTM geral desde o pivot original).
+7. **Drag-and-drop manual E atualização automática via bot escrevem no mesmo dado, de propósito.** Não foi decisão por omissão — foi escolha explícita do instrutor depois de eu levantar o risco de divergência: *"o ótimo aqui é fazer o produto quebrar e apresentar em sala de aula"*. Coerente com a razão de o produto existir (§1): produzir trace real e defeituoso, não perfeito.
+8. **A tensão delivery-vs-porção-envelhecendo é comentada pelo Mediador por instrução de prompt, nunca por regra determinística forçada.** Existe uma tool de leitura (`consultar_relatos_recentes`) e uma frase no prompt pedindo pra notar o padrão — sem `tool_choice` forçado, de propósito. Forçar aqui removeria a chance real de o agente ignorar a orientação, que é exatamente o tipo de conteúdo pedagógico que o §11.1 já provou valer mais que um bug garantido.
+
+### 13.5 v1/v2 retirado da interface, preservado no código
+
+Decisão consciente, tomada cientes de que contraria o que este documento (e o `CLAUDE.md`) registravam antes como compromisso ("v1/v2 continuam existindo sem alteração"): a superfície web de "Pedir sugestão" saiu do painel, porque o Kanban não tem um estágio físico honesto pra esse fluxo (não é "preparo" no sentido do pipeline, é uma ferramenta de aula). `agent.js:sugerirReceita`, `prompts.js` (v1/v2) e as rotas `/api/sugestao`/`/api/sugestoes` continuam funcionais e intactas — o comparativo de eixos da Aula 4 passa a ser demonstrado via Postman/curl, não mais por um botão no dashboard do dia a dia.
+
+### 13.6 Modelo de dados v3 (adições sobre a tabela do §6)
+
+| Tabela/coluna | Papel |
+|---|---|
+| `actors` | os dois atores reais (`chef`/`musa`), ligados a `telegram_user_id` |
+| `weekly_budgets` | teto calórico/financeiro da semana, por household |
+| `actor_daily_targets` | meta calórica diária + macros por ator — macros travados até nutricionista real orientar |
+| `meal_reports` | relato de refeição, com `fonte_refeicao` (caseira/delivery/restaurante) e `budget_categoria` |
+| `trade_off_decisions` | proposta + escolha do Agente Mediador; `porcionado_em` marca quando virou prato pronto de verdade |
+| `pensamentos` | log cru de tudo que o Agente de Ingestão classificou — `tipo` em `relato_refeicao/desejo/aquisicao/desperdicio`, com `budget_categoria`, `status` (`aguardando_categoria` até o bot perguntar), `fonte_refeicao`, `dias_desde_preparo` |
+| `pantry_items.blanched_at` | timestamp de branqueamento — base do decaimento D-N |
+| `pantry_items.portions_total`/`portions_remaining` | porcionamento; a diferença entre os dois separa Porcionamento de Consumo |
+| `pantry_items.prepared_at` | quando o item virou `preparado` — base da validade aprendida (§13.4.6) |
+| `households.dias_validade_pos_branqueamento` | D-N editável, substitui constante fixa em código |
+| `households.telegram_chat_id` | aprendido sozinho na primeira mensagem do grupo |
+
+### 13.7 Rotas novas
+
+`/api/atores`, `/api/relatos`, `/api/pensamentos`, `/api/orcamento-semanal`, `/api/mediacao`, `/api/mediacoes`, `/api/telegram/webhook` (autenticado por `TELEGRAM_WEBHOOK_SECRET`, não pelo Basic Auth geral — o Telegram não manda credenciais), `/api/kanban` (agregação dos 5 estágios ativos), `/api/kanban/acao` (`branquear`/`porcionar`/`consumir` — `porcionar` é sempre manual, só quem cozinhou de verdade sabe o rendimento), `/api/config-quantitativo` (+ `/validade`, `/metas`).
+
+### 13.8 Adiado de propósito, não esquecido
+
+Cards com swipe + geração de imagem por IA (mecânica de UI validada como barata via bibliotecas prontas, mas a geração de imagem em si continua cara — registrado como desejo no roadmap, não compromisso desta fase); LTM/aprendizado geral de "match de sucesso" (a validade de prato pronto do §13.4.6 é o primeiro passo concreto, ainda sem consumidor); RLS/multi-tenancy (desnecessário pra uma casa real única — só `SUPABASE_SERVICE_ROLE_KEY` toca essas tabelas, nunca o browser, então o aviso do linter do Supabase não se aplica aqui).
+
+## 14. Como usar este documento
+
+Este documento descreve o que existe, não prescreve como reconstruir. Se o objetivo agora é reconstruir com as próprias mãos: use as seções 5–8 como mapa do Chef Ops original (v1/v2, ainda funcional sob o Kanban), a seção 13 como mapa do pivot v3, e a seção 11 como a lista de decisões que **não são óbvias na primeira tentativa** — cada uma delas só existe porque a primeira versão ingênua falhou de um jeito específico. Reproduzir o produto sem essas restrições provavelmente reproduz os mesmos problemas.
