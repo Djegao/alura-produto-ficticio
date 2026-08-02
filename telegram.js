@@ -49,6 +49,19 @@ async function perguntarOrcamento(chatId, pensamentoId) {
   });
 }
 
+// Remove o teclado da mensagem original apos o toque — sem isso o Telegram
+// deixa os botoes clicaveis pra sempre (nao fecha sozinho so por ter
+// respondido o callback_query). Atualiza o texto tambem, pra mostrar o que
+// foi escolhido em vez de deixar a pergunta pairando sem resposta visivel.
+async function editarMensagem(chatId, messageId, text) {
+  if (!process.env.TELEGRAM_BOT_TOKEN) return;
+  await fetch(`${TELEGRAM_API}/editMessageText`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, message_id: messageId, text, reply_markup: { inline_keyboard: [] } }),
+  });
+}
+
 // Fecha o "carregando..." do botao no app do Telegram. Sem isso o botao
 // fica com o spinner girando ate expirar sozinho.
 async function responderCallback(callbackQueryId, text) {
@@ -125,6 +138,9 @@ async function processarUpdate(update, { model }) {
         .update({ budget_categoria: categoria, status: 'completo' })
         .eq('id', pensamentoId);
       await responderCallback(cq.id, error ? 'Não consegui salvar, tenta de novo.' : `Marcado: ${BUDGET_LABEL[categoria]}`);
+      if (!error) {
+        await editarMensagem(cq.message.chat.id, cq.message.message_id, `De qual orçamento saiu essa compra? → ${BUDGET_LABEL[categoria]} ✓`);
+      }
       return;
     }
 
@@ -133,7 +149,7 @@ async function processarUpdate(update, { model }) {
 
     const actor = await identificarAtor(cq.from.id, role);
     await responderCallback(cq.id, `Prontinho, ${actor.name}!`);
-    await enviarMensagem(cq.message.chat.id, `Prontinho — voce e ${actor.name} (${role}) a partir de agora.`);
+    await editarMensagem(cq.message.chat.id, cq.message.message_id, `Prontinho — você é ${actor.name} (${role}) a partir de agora. ✓`);
     return;
   }
 
