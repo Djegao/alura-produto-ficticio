@@ -174,11 +174,13 @@ Esta seção é o motivo deste documento existir. Cada achado abaixo começou co
 **Consequência de design:** o mesmo padrão foi reaplicado deliberadamente em `nota-fiscal.js` para a extração inteira — não é mais um pedido, é o desenho padrão do projeto pra qualquer saída estruturada que o produto **depende** de receber.
 **Onde:** `agent.js` (bloco após o loop principal), `nota-fiscal.js` (chamada única).
 
-### 11.4 Truncamento por `max_tokens` insuficiente
-**Observação:** uma sugestão de receita terminava visivelmente cortada no meio de uma palavra formatada (`⚠️ **Fa`).
-**Diagnóstico:** confirmado via API pública do Langfuse — a `generation` correspondente tinha `output tokens == 1024`, exatamente o teto configurado em `agent.js`. Não é aleatório: é a assinatura padrão de truncamento por orçamento de tokens.
+### 11.4 Truncamento por `max_tokens` insuficiente — degradou de cosmético pra crash real
+**Observação original:** uma sugestão de receita terminava visivelmente cortada no meio de uma palavra formatada (`⚠️ **Fa`).
+**Diagnóstico original:** confirmado via API pública do Langfuse — a `generation` correspondente tinha `output tokens == 1024`, exatamente o teto configurado em `agent.js`. Não é aleatório: é a assinatura padrão de truncamento por orçamento de tokens.
 **Restrição derivada:** ao inspecionar uma resposta cortada em produção, o primeiro diagnóstico correto é comparar tokens de saída com o `max_tokens` configurado — se forem iguais, é teto, não é outro tipo de falha. Fica documentado como o exemplo canônico de "padrão de falha" pra Aula 3.
-**Status:** achado preservado, correção (aumentar `max_tokens`) ainda **não aplicada** — decisão pendente do instrutor.
+
+**Atualização de 2026-08-12 — o mesmo achado, agora mais grave:** com a despensa real bem maior (semanas de uso acumulado via Telegram/Kanban), o teto de 1024 passou a cortar respostas do v2 **no meio de uma chamada de ferramenta** (`registrar_itens_usados`), não só no meio de uma palavra. Como `response.stop_reason` vira `max_tokens` em vez de `tool_use`, o loop em `agent.js` (`if (response.stop_reason !== 'tool_use') break;`) nunca processa esse `tool_use` truncado — ele fica órfão, sem `tool_result` correspondente. O bloco de `tool_choice` forçado (§11.3) então empilha uma mensagem nova em cima dessa conversa já inconsistente, e a Anthropic rejeita a chamada inteira com `400: tool_use ids were found without tool_result blocks`. Reproduzido ao vivo, trace `57debf7a71533fdc6a9e7a982595ba7c` (v2, Sonnet 5) — mesma causa raiz do achado original, consequência agora estrutural, não só estética.
+**Status:** achado preservado **de propósito**, correção (aumentar `max_tokens`) ainda **não aplicada** — decisão explícita do instrutor em 2026-08-12: manter como está e usar a reprodução ao vivo como conteúdo real de aula (observabilidade: diagnosticar pelo trace; evals: falha estrutural que precede qualquer avaliação de qualidade; conformidade: risco conhecido, aceito e documentado, não escondido).
 
 ### 11.5 Segredo corrompido por saída de log inesperada (achado operacional, não de produto)
 **Observação:** ao extrair `APP_PASSWORD` do `.env` para configurar no Railway via `stdin`, o valor chegou corrompido — 84 caracteres em vez de 12.
@@ -196,7 +198,7 @@ Esta seção é o motivo deste documento existir. Cada achado abaixo começou co
 - **Vision para nota fiscal**: hoje só ingere texto/markdown. O terceiro eixo trocável planejado (fable-5/haiku-4-5 para visão) não existe ainda.
 - **Sem tela de revisão de nota fiscal**: `receipt_items.confirmed` é gravado direto como `true`; a UX de "revisar antes de confirmar" prevista no schema não foi construída.
 - **Pipeline de evals (Aula 2)**: nenhum Score é escrito de volta no Langfuse ainda. Bloqueia conteúdo real de "qualidade ao longo do tempo" na Aula 3.
-- **`max_tokens` truncando respostas** (§11.4) — achado preservado, não corrigido.
+- **`max_tokens` truncando respostas** (§11.4) — achado preservado, não corrigido; desde 2026-08-12 pode derrubar a requisição inteira no v2 (não só cortar texto), risco aceito de propósito como conteúdo de aula ao vivo.
 - **Sem testes automatizados nem CI.**
 - **Household único, sem autenticação real de usuário** — aceitável para o escopo do curso, não seria pra um produto real.
 

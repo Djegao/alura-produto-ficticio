@@ -219,7 +219,13 @@ explicitamente). Detalhados com evidência completa em `SDD.md` §11:
    estruturada crítica (reaplicado em `nota-fiscal.js`).
 4. **Truncamento por `max_tokens`**: resposta cortada no meio de uma
    palavra; confirmado no Langfuse que `output tokens == max_tokens`
-   configurado (1024). Achado preservado, correção ainda **não aplicada**.
+   configurado (1024). Achado preservado, correção ainda **não aplicada** —
+   e em 2026-08-12 degradou de cosmético pra crash real: com a despensa
+   maior, o corte pode acontecer no meio de uma chamada de ferramenta
+   (`registrar_itens_usados`, v2), deixando um `tool_use` órfão que
+   derruba a chamada seguinte com 400 da Anthropic. Decisão explícita do
+   instrutor: manter como está, usar a reprodução ao vivo como conteúdo
+   de aula (ver SDD.md §11.4 pra causa raiz completa e trace de exemplo).
 
 ## O que falta (próximas camadas)
 
