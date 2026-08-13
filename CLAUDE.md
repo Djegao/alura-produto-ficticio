@@ -226,6 +226,13 @@ explicitamente). Detalhados com evidência completa em `SDD.md` §11:
    derruba a chamada seguinte com 400 da Anthropic. Decisão explícita do
    instrutor: manter como está, usar a reprodução ao vivo como conteúdo
    de aula (ver SDD.md §11.4 pra causa raiz completa e trace de exemplo).
+5. **Processo correto, saída vazia** (novo, 2026-08-12): o Mediador chamou
+   as 5 tools de consulta certas, na ordem certa, e ainda assim não
+   convergiu numa decisão — resposta final `text: ""` e `proposta: {}`,
+   mesmo com `tool_choice` forçado. Diferente do achado 4 (não é
+   truncamento) — é "seguiu o processo, não produziu resultado", uma
+   verificação que um pipeline de evals precisa fazer separada da
+   anterior. Ver SDD.md §11.7.
 
 ## O que falta (próximas camadas)
 
