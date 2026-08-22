@@ -91,7 +91,7 @@
   }
   .settings-link:hover { background: var(--surface); color: var(--terracotta); box-shadow: none; transform: none; }
   .settings-link[aria-expanded="true"] { background: var(--accent); color: var(--surface); border-color: var(--accent); }
-  input:focus, textarea:focus, select:focus, button:focus-visible, .object-trigger:focus-visible {
+  input:focus, textarea:focus, select:focus, button:focus-visible, .accordion-trigger:focus-visible {
     outline: 2px solid var(--accent-soft); outline-offset: 2px;
   }
 
@@ -110,13 +110,38 @@
     flex: 1 0 240px; max-width: 340px; background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 13px 15px; box-shadow: -3px 3px 0 var(--sticker-shadow);
   }
-  .estado-card h2 { font: 700 12px/1 var(--font-body); text-transform: uppercase; letter-spacing: .07em; color: var(--gold); margin: 0 0 10px; display: flex; justify-content: space-between; align-items: center; }
+  .estado-card h2 { font: 700 12px/1.3 var(--font-body); text-transform: uppercase; letter-spacing: .07em; color: var(--gold); margin: 0 0 10px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .estado-card h2 .pill { flex-shrink: 0; }
   .estado-card .linha { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; padding: 4px 0; }
   .estado-card .linha strong { text-transform: capitalize; font-size: 13px; }
   .estado-card .num { font: 800 22px/1 var(--font-display); color: var(--accent); font-variant-numeric: tabular-nums; }
   .estado-card .num.bad { color: var(--bad); }
   .estado-card .num.warn { color: var(--warn); }
   .estado-card .sub { font-size: 11px; color: var(--ink-faint); }
+  /* ---------- Accordion generico (2026-08-22) ----------
+     Um mecanismo so, usado pelas 3 cartas de estado, pela Despensa e pelos
+     sub-grupos dela. Mesma tecnica de sempre no projeto: grid 0fr -> 1fr, que
+     anima altura desconhecida sem medir nada em JS. */
+  .acc-painel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s ease; }
+  .acc-painel.open { grid-template-rows: 1fr; }
+  .acc-painel__inner { overflow: hidden; min-height: 0; }
+  .acc-h {
+    width: 100%; display: flex; align-items: center; gap: 8px; text-align: left;
+    background: none; border: none; box-shadow: none; padding: 0; font: inherit; color: inherit; cursor: pointer;
+  }
+  .acc-h:hover { background: none; box-shadow: none; transform: none; }
+  .acc-h .acc-titulo { flex: 1; }
+  .acc-h[aria-expanded="true"] .accordion-chevron { transform: rotate(90deg); }
+  .estado-card h2 .acc-h { color: var(--gold); }
+  .estado-card h2 .acc-h:hover .acc-titulo { color: var(--terracotta); }
+  .estoque-group__title .acc-h { color: inherit; }
+  .estoque-group__title .acc-h:hover .acc-titulo { color: var(--terracotta); }
+  .acc-paginacao { display: flex; justify-content: center; }
+  .ver-mais {
+    background: none; border: none; box-shadow: none; padding: 6px 0 0; cursor: pointer;
+    font: 700 11px/1 var(--font-body); color: var(--accent); text-transform: uppercase; letter-spacing: .05em;
+  }
+  .ver-mais:hover { background: none; box-shadow: none; transform: none; color: var(--terracotta); }
 
   /* ---------- v4 "Feed vivo": conversa + feed (hero, parte 2) ---------- */
   .feed-wrap { max-width: 760px; margin: 0 auto; padding: 10px 20px 28px; }
@@ -170,32 +195,31 @@
   @media (prefers-reduced-motion: reduce) { .feed-item, .estado-card { animation: none !important; transition: none !important; } }
 
   /* ---------- A mesa de acao (Despensa) ---------- */
-  .stage-wrap { padding: 8px 20px 72px; }
+  /* 72px de respiro embaixo existiam pra geladeira ilustrada; com accordion
+     o bloco fechado ficava com 122px de altura pra um cabecalho de 44px. */
+  .stage-wrap { padding: 8px 20px 18px; }
   .stage { max-width: 1160px; margin: 0 auto; position: relative; overflow: hidden;
     background: radial-gradient(circle, color-mix(in srgb, var(--stage-ink) 5%, transparent) 1.5px, transparent 1.5px) 0 0 / 26px 26px, var(--stage-bg);
     border-radius: 32px; padding: 16px 28px 12px; box-shadow: 0 32px 60px -22px rgba(20, 14, 4, .55), -6px 8px 0 var(--sticker-shadow);
   }
-  .kitchen { padding: 40px 0 24px; display: flex; align-items: flex-start; justify-content: center; position: relative; }
-  .object-trigger { background: none; border: none; padding: 0; cursor: pointer; box-shadow: none; display: flex; flex-direction: column; align-items: center; gap: 16px; font: inherit; color: inherit; position: relative; }
-  .object-trigger:hover { background: none; box-shadow: none; transform: none; }
-  .object-trigger::before { content: ""; position: absolute; top: 50%; left: 50%; width: 260px; height: 260px; transform: translate(-50%, -54%); border-radius: 50%; z-index: 0; background: radial-gradient(circle, color-mix(in srgb, var(--gold) 30%, transparent), transparent 68%); filter: blur(6px); opacity: .55; transition: opacity .25s ease, transform .25s ease; }
-  .object-trigger:hover::before { opacity: .85; transform: translate(-50%, -54%) scale(1.08); }
-  .object-label { font: 700 17px/1 var(--font-display); letter-spacing: .01em; color: var(--stage-ink); position: relative; z-index: 1; }
-  .object-hint { font-size: 12px; color: var(--stage-ink-soft); margin-top: -10px; position: relative; z-index: 1; text-transform: uppercase; letter-spacing: .06em; }
-  .fridge-real { position: relative; z-index: 1; width: 320px; height: 176px; margin-bottom: 4px; filter: drop-shadow(-5px 7px 0 var(--sticker-shadow)); transition: transform .2s ease; }
-  .object-trigger:hover .fridge-real { transform: translateY(-2px) scale(1.02); }
-  .fridge-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transition: opacity .4s ease; }
-  .fridge-img--open { opacity: 0; }
-  .object-card.open .fridge-img--closed { opacity: 0; }
-  .object-card.open .fridge-img--open { opacity: 1; }
-  .object-card.open .fridge-real { animation: wobble .5s ease; }
-  @keyframes wobble { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-1.5deg); } 60% { transform: rotate(1deg); } }
-  @media (prefers-reduced-motion: reduce) { .fridge-img { transition: none; } .object-card.open .fridge-real { animation: none; } .object-trigger::before { transition: none; } }
+  .kitchen { padding: 14px 0 0; display: block; position: relative; }
+  /* Cabecalho de accordion (2026-08-22) - substituiu a geladeira ilustrada. */
+  .accordion-trigger {
+    width: 100%; background: none; border: none; box-shadow: none; cursor: pointer;
+    display: flex; align-items: center; gap: 10px; padding: 12px 4px; font: inherit; color: inherit;
+    text-align: left;
+  }
+  .accordion-trigger:hover { background: none; box-shadow: none; transform: none; }
+  .accordion-trigger:hover .object-label { color: var(--gold); }
+  .accordion-chevron { color: var(--stage-ink-soft); font-size: 13px; transition: transform .25s ease; flex-shrink: 0; }
+  .object-label { font: 700 17px/1 var(--font-display); letter-spacing: .01em; color: var(--stage-ink); }
+  .object-hint { font-size: 12px; color: var(--stage-ink-soft); text-transform: uppercase; letter-spacing: .06em; flex: 1; }
+  @media (prefers-reduced-motion: reduce) { .accordion-chevron, .acc-painel { transition: none; } }
 
-  .panels { padding: 8px 0 28px; display: flex; flex-direction: column; gap: 20px; }
-  .object-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .4s ease; }
-  .object-panel.open { grid-template-rows: 1fr; }
-  .object-panel__inner { overflow: hidden; }
+  /* padding zero: com o accordion fechado, 8+28px viravam vazio dentro do
+     bloco escuro. O respiro do painel aberto vem do margin-top do card. */
+  .panels { padding: 0; display: flex; flex-direction: column; gap: 20px; }
+  #panel-fridge > .acc-painel__inner > section.card { margin-top: 12px; margin-bottom: 16px; }
   section.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; box-shadow: -3px 3px 0 var(--sticker-shadow); margin-top: 4px; }
   section.card h2 { font: 600 13px/1 var(--font-body); text-transform: uppercase; letter-spacing: .07em; color: var(--gold); margin: 0 0 16px; }
   .row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
@@ -257,6 +281,12 @@
   .drawer .hint { font-size: 11px; color: var(--ink-faint); margin-top: 4px; }
   .drawer input[type=number] { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--ink); width: 100%; }
   .drawer .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  /* Eixos e Preferencias moraram na barra de topo ate 2026-08-22 e nao tinham
+     estilo de gaveta. O select precisa ocupar a coluna; o rotulo do eixo e'
+     menor que os rotulos de secao pra nao competir com eles. */
+  .drawer .two-col label.eixo { margin-bottom: 0; font-size: 10.5px; color: var(--ink-faint); }
+  .drawer select { width: 100%; margin-top: 5px; }
+  .drawer .row input[type=text] { flex: 1; }
   .drawer .actor-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
   .drawer .actor-row input { flex: 1; }
   .drawer .budget-list { display: flex; flex-direction: column; gap: 6px; }
@@ -276,10 +306,20 @@
     .drawer input[type=number] { font-size: 16px; }
     button.small { min-height: 34px; padding: 8px 12px; font-size: 13px; }
     .settings-link { min-height: 34px; }
-    .config-bar select { min-height: 34px; }
+    /* Os selects de eixo mudaram da barra de topo pra gaveta (2026-08-22) —
+       a regra antiga era .config-bar select e deixou de alcanca-los. */
+    select { min-height: 34px; }
+    /* Alvo de toque do "+N pratos" / "mostrar mais": 11px com padding 6px
+       dava ~23px de altura. */
+    .ver-mais { min-height: 34px; padding: 8px 4px 0; }
+    /* Na largura de celular a linha do accordion nao cabe com a legenda. */
+    .kitchen .object-hint { display: none; }
     button.ghost { min-height: 32px; }
     .item-card__remove { width: 32px; height: 32px; font-size: 17px; }
     .drawer .close-btn { width: 40px; height: 40px; font-size: 24px; top: 10px; right: 10px; }
+    /* Acao principal da gaveta, que desde 2026-08-22 guarda tambem os eixos
+       e as preferencias: 32px estava abaixo do minimo do resto da tela. */
+    #btn-salvar-config { min-height: 40px; }
   }
 </style>
 </head>
@@ -295,111 +335,176 @@
   </svg>
 </div>
 
+<!-- A barra de topo ficou so com o que se usa o tempo todo: filtrar o feed por
+     ator. Eixos ao vivo e Preferencias mudaram pra dentro da gaveta de
+     Configuracoes (2026-08-22) — sao ajuste de sessao, nao controle diario. -->
 <div class="config-bar">
-  <div class="axes">
-    <strong style="color:var(--ink-soft)">Eixos ao vivo:</strong>
-    <label>Geração
-      <select id="cfg-model"></select>
-    </label>
-    <label>Ingestão (barato)
-      <select id="cfg-model-ingestao"></select>
-    </label>
-    <span id="cfg-status" style="color:var(--ink-faint)"></span>
-  </div>
   <div class="actors" id="actor-filter">
     <button class="actor-chip active" data-filter="all">Todos</button>
   </div>
-  <div style="display:flex; gap:8px;">
-    <div class="object-card" id="card-note">
-      <button class="settings-link" id="trigger-note" aria-expanded="false" aria-controls="panel-note">⚙ Preferências</button>
-    </div>
-    <button class="settings-link" id="btn-config">⚙ Configurações</button>
-  </div>
+  <button class="settings-link" id="btn-config">⚙ Configurações</button>
 </div>
 
-<!-- v4 "Feed vivo": faixa de estado derivado — o residuo util do Kanban -->
+<!-- v4 "Feed vivo": faixa de estado derivado — o residuo util do Kanban.
+     2026-08-22: as tres cartas viraram accordions. Regra que manda no
+     desenho — fechado NAO pode significar sem informacao: o numero que
+     importa mora no cabecalho (pill), o detalhe e' que se esconde. No
+     desktop as tres abrem por padrao (ha largura); no mobile so a primeira. -->
 <div class="estado-strip" id="estado-strip">
-  <div class="estado-card">
-    <h2>Porções vivas <span class="pill terracotta">a corrida</span></h2>
-    <div id="estado-porcoes"><div class="empty">carregando...</div></div>
+  <div class="estado-card" id="card-porcoes">
+    <h2>
+      <button class="accordion-trigger acc-h" id="trigger-porcoes" aria-expanded="true" aria-controls="painel-porcoes">
+        <span class="accordion-chevron" aria-hidden="true">▸</span>
+        <span class="acc-titulo">Porções vivas</span>
+        <span class="pill terracotta" id="porcoes-count"></span>
+      </button>
+    </h2>
+    <div class="acc-painel" id="painel-porcoes">
+      <div class="acc-painel__inner">
+        <div id="estado-porcoes"><div class="empty">carregando...</div></div>
+        <div class="acc-paginacao" id="pag-porcoes"></div>
+      </div>
+    </div>
   </div>
-  <div class="estado-card">
-    <h2>Vencendo <span class="pill warn">D-N</span></h2>
-    <div id="estado-vencendo"><div class="empty">carregando...</div></div>
+  <div class="estado-card" id="card-vencendo">
+    <h2>
+      <button class="accordion-trigger acc-h" id="trigger-vencendo" aria-expanded="true" aria-controls="painel-vencendo">
+        <span class="accordion-chevron" aria-hidden="true">▸</span>
+        <span class="acc-titulo">Vencendo</span>
+        <span class="pill warn" id="vencendo-count">D-N</span>
+      </button>
+    </h2>
+    <div class="acc-painel" id="painel-vencendo">
+      <div class="acc-painel__inner">
+        <div id="estado-vencendo"><div class="empty">carregando...</div></div>
+        <div class="acc-paginacao" id="pag-vencendo"></div>
+      </div>
+    </div>
   </div>
-  <div class="estado-card">
-    <h2>Semana <span class="pill gold" id="estado-semana-label"></span></h2>
-    <div id="estado-orcamento"><div class="empty">carregando...</div></div>
+  <div class="estado-card" id="card-semana">
+    <h2>
+      <button class="accordion-trigger acc-h" id="trigger-semana" aria-expanded="true" aria-controls="painel-semana">
+        <span class="accordion-chevron" aria-hidden="true">▸</span>
+        <span class="acc-titulo">Semana</span>
+        <span class="pill gold" id="estado-semana-label"></span>
+      </button>
+    </h2>
+    <div class="acc-painel" id="painel-semana">
+      <div class="acc-painel__inner">
+        <div id="estado-orcamento"><div class="empty">carregando...</div></div>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- v4 "Feed vivo": a conversa E' o feed — um caminho de escrita so -->
-<div class="feed-wrap">
-  <div class="composer">
-    <div class="quem">
-      <span class="hintlabel">Quem fala:</span>
-      <div class="actors" id="composer-atores"></div>
-    </div>
-    <div class="row">
-      <input type="text" id="conversa-texto" placeholder='fala com a cozinha: "comi a lasanha", "porcionei em 8", "branqueei o brócolis"...' autocomplete="off" />
-      <button id="btn-enviar">Enviar</button>
-    </div>
-    <div class="resposta-agente" id="resposta-agente"></div>
-  </div>
-  <div class="feed" id="feed"><div class="empty">carregando o diário da cozinha...</div></div>
-</div>
-
+<!-- Despensa subiu pra ca (2026-08-22): antes ficava depois do feed inteiro, o
+     que so piorava conforme a casa usava o produto. Fechada por padrao. -->
 <div class="stage-wrap">
 <div class="stage">
 
+<!-- A geladeira ilustrada saiu (2026-08-22, decisao do instrutor): 310KB de
+     PNG e um objeto que so abria um painel. Virou cabecalho de accordion. -->
 <div class="kitchen">
   <div class="object-card" id="card-fridge">
-    <button class="object-trigger" id="trigger-fridge" aria-expanded="false" aria-controls="panel-fridge">
-      <div class="fridge-real">
-        <img class="fridge-img fridge-img--closed" src="img/fridge-closed.png" alt="" />
-        <img class="fridge-img fridge-img--open" src="img/fridge-open.png" alt="" />
-      </div>
+    <button class="accordion-trigger" id="trigger-fridge" aria-expanded="false" aria-controls="panel-fridge">
+      <span class="accordion-chevron" aria-hidden="true">▸</span>
       <span class="object-label">Despensa</span>
       <span class="object-hint">estoque assentado — fora do fluxo ativo</span>
+      <span class="pill neutral" id="despensa-count"></span>
     </button>
   </div>
 </div>
 
 <div class="panels">
 
-  <div class="object-panel" id="panel-fridge">
-    <div class="object-panel__inner">
+  <div class="acc-painel" id="panel-fridge">
+    <div class="acc-painel__inner">
       <section class="card">
         <h2>Despensa</h2>
+
+        <!-- 2026-08-22: o painel aberto tinha 3900px (15 pereciveis + 19 secos
+             + lista + formularios, tudo de uma vez). Cada grupo virou
+             sub-accordion fechado, com a contagem no cabecalho, e o conteudo
+             pagina de 6 em 6 quando abre. O filtro existe porque a pagina de 6
+             sem busca transformaria "achar o azeite" em quatro cliques. -->
         <div class="row">
-          <input type="text" id="estoque-name" placeholder="item" />
-          <input type="number" id="estoque-qty" placeholder="qtd" style="max-width:80px" />
-          <input type="text" id="estoque-unit" placeholder="unidade" style="max-width:100px" />
-        </div>
-        <div class="row">
-          <select id="estoque-state" aria-label="Estado do alimento">
-            <option value="base">base</option>
-            <option value="ingrediente">ingrediente</option>
-          </select>
-          <select id="estoque-storage" aria-label="Onde o item é guardado">
-            <option value="perecivel">geladeira (perecível)</option>
-            <option value="seco">despensa (seco)</option>
-          </select>
-          <button id="btn-add-estoque">Adicionar</button>
+          <input type="text" id="estoque-filtro" placeholder="filtrar itens da despensa..." autocomplete="off" aria-label="Filtrar itens do estoque" />
         </div>
 
         <div class="estoque-group">
-          <h3 class="estoque-group__title storage-perecivel">Geladeira <span class="count" id="count-perecivel"></span></h3>
-          <div class="item-grid" id="estoque-perecivel"></div>
-        </div>
-        <div class="estoque-group">
-          <h3 class="estoque-group__title storage-seco">Despensa <span class="count" id="count-seco"></span></h3>
-          <div class="item-grid" id="estoque-seco"></div>
+          <h3 class="estoque-group__title">
+            <button class="accordion-trigger acc-h" id="trigger-add-estoque" aria-expanded="false" aria-controls="painel-add-estoque">
+              <span class="accordion-chevron" aria-hidden="true">▸</span>
+              <span class="acc-titulo">Adicionar item</span>
+            </button>
+          </h3>
+          <div class="acc-painel" id="painel-add-estoque">
+            <div class="acc-painel__inner">
+              <div class="row">
+                <input type="text" id="estoque-name" placeholder="item" />
+                <input type="number" id="estoque-qty" placeholder="qtd" style="max-width:80px" />
+                <input type="text" id="estoque-unit" placeholder="unidade" style="max-width:100px" />
+              </div>
+              <div class="row">
+                <select id="estoque-state" aria-label="Estado do alimento">
+                  <option value="base">base</option>
+                  <option value="ingrediente">ingrediente</option>
+                </select>
+                <select id="estoque-storage" aria-label="Onde o item é guardado">
+                  <option value="perecivel">geladeira (perecível)</option>
+                  <option value="seco">despensa (seco)</option>
+                </select>
+                <button id="btn-add-estoque">Adicionar</button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="estoque-group">
-          <h3 class="estoque-group__title">Lista de compras <span class="count" id="count-lista"></span></h3>
-          <ul class="list" id="lista-compras"></ul>
+          <h3 class="estoque-group__title storage-perecivel">
+            <button class="accordion-trigger acc-h" id="trigger-perecivel" aria-expanded="false" aria-controls="painel-perecivel">
+              <span class="accordion-chevron" aria-hidden="true">▸</span>
+              <span class="acc-titulo">Geladeira</span>
+              <span class="count" id="count-perecivel"></span>
+            </button>
+          </h3>
+          <div class="acc-painel" id="painel-perecivel">
+            <div class="acc-painel__inner">
+              <div class="item-grid" id="estoque-perecivel"></div>
+              <div class="acc-paginacao" id="pag-perecivel"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="estoque-group">
+          <h3 class="estoque-group__title storage-seco">
+            <button class="accordion-trigger acc-h" id="trigger-seco" aria-expanded="false" aria-controls="painel-seco">
+              <span class="accordion-chevron" aria-hidden="true">▸</span>
+              <span class="acc-titulo">Despensa</span>
+              <span class="count" id="count-seco"></span>
+            </button>
+          </h3>
+          <div class="acc-painel" id="painel-seco">
+            <div class="acc-painel__inner">
+              <div class="item-grid" id="estoque-seco"></div>
+              <div class="acc-paginacao" id="pag-seco"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="estoque-group">
+          <h3 class="estoque-group__title">
+            <button class="accordion-trigger acc-h" id="trigger-lista" aria-expanded="false" aria-controls="painel-lista">
+              <span class="accordion-chevron" aria-hidden="true">▸</span>
+              <span class="acc-titulo">Lista de compras</span>
+              <span class="count" id="count-lista"></span>
+            </button>
+          </h3>
+          <div class="acc-painel" id="painel-lista">
+            <div class="acc-painel__inner">
+              <ul class="list" id="lista-compras"></ul>
+            </div>
+          </div>
         </div>
 
         <details class="import-nota">
@@ -418,29 +523,58 @@
     </div>
   </div>
 
-  <div class="object-panel" id="panel-note">
-    <div class="object-panel__inner">
-      <section class="card">
-        <h2>Preferências</h2>
-        <div class="row">
-          <input type="text" id="pref-text" placeholder="ex: sem lactose, não gosta de coentro" />
-          <button id="btn-add-pref">+</button>
-        </div>
-        <ul class="list" id="pref-list"></ul>
-      </section>
+</div>
+
+</div>
+</div>
+<!-- v4 "Feed vivo": a conversa E' o feed — um caminho de escrita so -->
+<div class="feed-wrap">
+  <div class="composer">
+    <div class="quem">
+      <span class="hintlabel">Quem fala:</span>
+      <div class="actors" id="composer-atores"></div>
     </div>
+    <div class="row">
+      <input type="text" id="conversa-texto" placeholder='fala com a cozinha: "comi a lasanha", "porcionei em 8", "branqueei o brócolis"...' autocomplete="off" />
+      <button id="btn-enviar">Enviar</button>
+    </div>
+    <div class="resposta-agente" id="resposta-agente"></div>
   </div>
-
+  <div class="feed" id="feed"><div class="empty">carregando o diário da cozinha...</div></div>
+  <div class="acc-paginacao" id="pag-feed"></div>
 </div>
 
-</div>
-</div>
 
 <div class="drawer-backdrop" id="drawer-backdrop"></div>
 <aside class="drawer" id="drawer">
   <button class="close-btn" id="drawer-close" aria-label="Fechar">×</button>
   <h2>Configurações</h2>
   <div class="sub">Repositório editável de dado quantitativo — o resto do produto só observa isso.</div>
+
+  <!-- Eixos ao vivo: saiu da barra de topo (2026-08-22). Continua sendo
+       troca imediata — grava no POST /api/config assim que muda, sem
+       depender do botao Salvar la embaixo. -->
+  <div class="field-group">
+    <label>Eixos ao vivo</label>
+    <div class="two-col">
+      <label class="eixo">Geração
+        <select id="cfg-model"></select>
+      </label>
+      <label class="eixo">Ingestão (barato)
+        <select id="cfg-model-ingestao"></select>
+      </label>
+    </div>
+    <div class="hint">geração = mediador, nota fiscal, receita premium · ingestão = classificação da conversa <span id="cfg-status"></span></div>
+  </div>
+
+  <div class="field-group">
+    <label for="pref-text">Preferências da casa</label>
+    <div class="row">
+      <input type="text" id="pref-text" placeholder="ex: sem lactose, não gosta de coentro" />
+      <button id="btn-add-pref">+</button>
+    </div>
+    <ul class="list" id="pref-list"></ul>
+  </div>
 
   <div class="field-group">
     <label for="cfg-dias-validade">Validade pós-branqueamento (regra D-N)</label>
