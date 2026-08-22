@@ -203,18 +203,10 @@ propagar com `semSilencio`) sobrevive como convenção em
 **Pendências externas (não é código, é ação manual)** — atualizado
 2026-08-21: bot criado, webhook registrado e validando, os dois atores já
 identificados no grupo (`/eusou_chef`/`/eusou_musa`), Group Privacy
-confirmado off, env vars do Telegram já no Railway. Migrações das fases
-2–5 **rodadas e verificadas (6/6) em 2026-08-21**. Falta:
-1. **Rodar a migração da fase 6** no SQL Editor do Supabase (bloco
-   `PENDENTE fase 6` no fim do `schema.sql` — só a constraint de
-   `pensamentos.tipo` ganhando `branqueamento`/`porcionamento`). Sem isso,
-   relatar branqueamento/porcionamento pela conversa falha barulhento
-   (testado: o erro de constraint aparece na resposta, de propósito).
-   Atenção à ordem de escrita nesse intervalo: os efeitos de estoque rodam
-   antes do insert do pensamento (mesma ordem que o Telegram sempre usou),
-   então um porcionamento dito com número cria o `pantry_item` e só então
-   falha no pensamento — janela conhecida e transitória até a migração.
-2. Semear o cenário real da lasanha como `pantry_item` `preparado` —
+confirmado off, env vars do Telegram já no Railway. **Todas as migrações
+(fases 2–6) rodadas e verificadas em 2026-08-21** — nada pendente no banco.
+Falta:
+1. Semear o cenário real da lasanha como `pantry_item` `preparado` —
    pendente só do número real de porções (não inventado). Pós-v4 dá pra
    fazer por uma frase no chat: "porcionei a lasanha em N".
 
@@ -310,6 +302,12 @@ explicitamente). Detalhados com evidência completa em `SDD.md` §11:
   Aula 3 e conteúdo de diagnóstico na Aula 4.
 - Roteiros de aula ainda não escritos: Aulas 1, 4, 5 completas; Aula 3 falta
   "Lendo os dados de produção" e "Padrões de falha".
+- **Atualização em tempo real do painel web** — hoje o feed e a faixa de
+  estado só refletem escritas do Telegram quando a página é recarregada.
+  Decisão explícita do instrutor (2026-08-21): **não construir agora** —
+  vira exercício de aula sobre observabilidade (o aluno vê a escrita chegar
+  pelo bot, olha o trace no Langfuse, e implementa polling ou SSE
+  entendendo o custo de cada opção). Não "consertar" sem combinar antes.
 
 ## Convenção de processo (instrução do instrutor, válida em qualquer sessão)
 

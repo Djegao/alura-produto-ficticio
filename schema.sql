@@ -415,7 +415,8 @@ create table if not exists premium_suggestions (
 );
 
 -- ---------------------------------------------------------------------
--- PENDENTE fase 6 (v4 "Feed vivo") — ainda NAO rodado no Supabase.
+-- Fase 6 (v4 "Feed vivo") — RODADO no Supabase em 2026-08-21 (verificado:
+-- insert com tipo='branqueamento' aceito).
 -- ---------------------------------------------------------------------
 
 -- 2026-08-21: o Kanban morreu; as acoes de coluna (branquear/porcionar)
