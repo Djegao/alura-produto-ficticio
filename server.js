@@ -8,6 +8,7 @@ const { sugerirReceita, mediarCardapio } = require('./agent');
 const { ingerirNotaFiscal, estocarItensDaNota } = require('./nota-fiscal');
 const { ingerirNotaSefaz } = require('./sefaz');
 const { ingerirRelato } = require('./relato-ingestao');
+const { aplicarIntencao } = require('./intencao-efeitos');
 const { processarUpdate } = require('./telegram');
 const { iniciarLembretes } = require('./lembrete');
 const { sugerirReceitaPremium, iniciarReceitaPremium } = require('./receita-premium');
@@ -45,6 +46,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 let currentConfig = {
   promptVersion: 'v1',
   model: 'claude-sonnet-5',
+  // v4 "Feed vivo": eixo de custo separado — a classificacao conversacional
+  // (agente de ingestao) roda num modelo barato por padrao; o modelo de
+  // geracao (mediador, receita, nota) continua sendo o eixo `model`.
+  modelIngestao: 'claude-haiku-4-5',
 };
 
 const AVAILABLE_MODELS = ['claude-sonnet-5', 'claude-haiku-4-5', 'claude-opus-5'];
@@ -54,9 +59,10 @@ app.get('/api/config', (req, res) => {
 });
 
 app.post('/api/config', (req, res) => {
-  const { promptVersion, model } = req.body;
+  const { promptVersion, model, modelIngestao } = req.body;
   if (promptVersion === 'v1' || promptVersion === 'v2') currentConfig.promptVersion = promptVersion;
   if (AVAILABLE_MODELS.includes(model)) currentConfig.model = model;
+  if (AVAILABLE_MODELS.includes(modelIngestao)) currentConfig.modelIngestao = modelIngestao;
   res.json(currentConfig);
 });
 
@@ -406,47 +412,23 @@ app.get('/api/atores', async (req, res) => {
   res.json(data);
 });
 
-// Recebe texto livre de qualquer ator (o form web manda "ator" explicito; o
-// Telegram, quando existir, resolve via telegram_user_id antes de chamar
-// esta mesma logica). Classifica com o Agente de Ingestao e so persiste
-// relato de refeicao diretamente — "desejo" e devolvido pro front decidir
-// se abre uma mediacao, nunca gravado como se fosse fato.
-app.post('/api/relatos', async (req, res) => {
+// v4 "Feed vivo": a conversa web. Substitui o antigo /api/relatos (que so
+// gravava pensamento + meal_report, sem os outros efeitos) — agora o canal
+// web classifica com o agente de ingestao no modelo BARATO (eixo
+// modelIngestao) e cai no MESMO aplicarIntencao do Telegram. Um caminho de
+// escrita so, três canais.
+app.post('/api/conversa', async (req, res) => {
   const { texto, ator } = req.body;
   if (!texto || !ator) return res.status(400).json({ error: 'texto e ator sao obrigatorios' });
 
-  const { model } = currentConfig;
+  const { modelIngestao } = currentConfig;
   const hoje = new Date().toISOString().slice(0, 10);
 
   try {
-    const { intencao, traceId } = await ingerirRelato({ texto, dataReferencia: hoje, model, canal: 'manual' });
     const actor = await getActorByRole(ator);
-
-    // Todo pensamento classificado entra no log (painel "balao de pensamento"),
-    // relato de refeicao OU desejo — sem distincao de importancia aqui.
-    await supabase.from('pensamentos').insert({
-      actor_id: actor.id,
-      tipo: intencao.tipo,
-      descricao: intencao.descricao,
-      data: intencao.data || null,
-      calorias: intencao.calorias ?? null,
-      custo: intencao.custo ?? null,
-      trace_id: traceId,
-    });
-
-    if (intencao.tipo === 'relato_refeicao') {
-      const resultado = await runTool('registrar_relato_refeicao', {
-        ator,
-        data: intencao.data || hoje,
-        descricao: intencao.descricao,
-        fonte: 'manual',
-        calorias: intencao.calorias,
-        custo: intencao.custo,
-      });
-      return res.json({ intencao, traceId, registrado: resultado });
-    }
-
-    res.json({ intencao, traceId, registrado: null });
+    const { intencao, traceId } = await ingerirRelato({ texto, dataReferencia: hoje, model: modelIngestao, canal: 'web' });
+    const { pensamento, efeitos, pergunta } = await aplicarIntencao({ intencao, actor, canal: 'web', traceId });
+    res.json({ intencao, efeitos, pergunta, pensamento, traceId });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -603,20 +585,19 @@ app.post('/api/config-quantitativo/metas', async (req, res) => {
   res.json(data);
 });
 
-// ---- Kanban "Musa Balance": 3 estagios ativos + Porcionamento/Consumo -----
-// Despensa NAO entra aqui — e' funcao separada (GET /api/estoque, decisao
-// 2026-08-02). O Kanban so mostra trabalho em andamento, por definicao
-// pequeno: Plano Semanal (desejo + proposta aberta), Pre-preparo
-// (branqueado), Preparo (decisao confirmada, ainda nao porcionada),
-// Porcionamento (lote intocado) e Consumo (lote em uso).
+// ---- v4 "Feed vivo": estado derivado da cozinha ---------------------------
+// O Kanban morreu em 2026-08-21 (decisao registrada no CLAUDE.md/SDD): a
+// estrutura de 5 estagios exigia eventos num formato que a vida da casa nao
+// produz. O que ele fazia de util — estado de relance — sobrevive aqui como
+// faixa de leitura derivada: porcoes vivas, o que esta vencendo, e o saldo
+// da semana. Tudo calculado em codigo, nada interativo. As ACOES que eram
+// botoes de coluna (branquear/porcionar/consumir) viraram frases na conversa
+// (ver intencao-efeitos.js).
 
-app.get('/api/kanban', async (req, res) => {
+app.get('/api/estado-cozinha', async (req, res) => {
   const householdId = await getHouseholdId();
 
-  // Nunca engolir erro de query em silencio (nem que seja pra cair num "[]"
-  // que parece vazio de verdade) — cada consulta propaga o proprio erro em
-  // vez de mascarar com fallback, senao um problema real de schema vira uma
-  // coluna vazia sem explicacao nenhuma.
+  // Convencao mantida do endpoint morto: nenhuma consulta cai em silencio.
   const semSilencio = (promise) =>
     promise.then(({ data, error }) => {
       if (error) throw new Error(error.message);
@@ -624,137 +605,48 @@ app.get('/api/kanban', async (req, res) => {
     });
 
   try {
-    const [validadeEstoque, decisoes, pensamentosRecentes, preparados] = await Promise.all([
+    const [validadeEstoque, orcamento, preparados] = await Promise.all([
       runTool('consultar_validade_estoque', {}),
-      semSilencio(
-        supabase
-          .from('trade_off_decisions')
-          .select('*')
-          .eq('household_id', householdId)
-          .is('porcionado_em', null)
-          .order('created_at', { ascending: false })
-      ),
-      semSilencio(
-        supabase
-          .from('pensamentos')
-          .select('*, actors!inner(name, role, household_id)')
-          .eq('actors.household_id', householdId)
-          .eq('tipo', 'desejo')
-          .gte('created_at', new Date(Date.now() - 14 * 86400000).toISOString())
-          .order('created_at', { ascending: false })
-      ),
+      runTool('consultar_orcamento_semanal', {}),
       semSilencio(
         supabase
           .from('pantry_items')
-          .select('*')
+          .select('id, name, portions_total, portions_remaining, prepared_at')
           .eq('household_id', householdId)
           .eq('state', 'preparado')
           .gt('portions_remaining', 0)
+          .order('prepared_at', { ascending: true, nullsFirst: true })
       ),
     ]);
 
-    const planoSemanal = [
-      ...pensamentosRecentes.map((p) => ({
-        kind: 'desejo',
-        id: p.id,
-        descricao: p.descricao,
-        atorNome: p.actors?.name,
-        criadoEm: p.created_at,
-      })),
-      ...decisoes
-        .filter((d) => !d.escolha)
-        .map((d) => ({ kind: 'proposta_aberta', id: d.id, proposta: d.proposta, criadoEm: d.created_at })),
-    ];
+    const agora = Date.now();
+    const porcoesVivas = preparados.map((p) => ({
+      ...p,
+      dias_desde_preparo: p.prepared_at ? Math.floor((agora - new Date(p.prepared_at).getTime()) / 86400000) : null,
+    }));
 
-    const preparo = decisoes
-      .filter((d) => !!d.escolha)
-      .map((d) => ({ kind: 'decisao_confirmada', id: d.id, proposta: d.proposta, escolha: d.escolha, criadoEm: d.created_at }));
+    const vencendo = validadeEstoque
+      .filter((i) => i.blanched_at && i.dias_restantes != null)
+      .sort((a, b) => a.dias_restantes - b.dias_restantes)
+      .map((i) => ({ id: i.id, name: i.name, estado_conservacao: i.estado_conservacao, dias_restantes: i.dias_restantes }));
 
-    const prePreparo = validadeEstoque.filter((item) => item.blanched_at);
-
-    const porcionamento = preparados.filter((p) => p.portions_remaining === p.portions_total);
-    const consumo = preparados.filter((p) => p.portions_remaining < p.portions_total);
-
-    res.json({ planoSemanal, prePreparo, preparo, porcionamento, consumo });
+    res.json({ porcoesVivas, vencendo, orcamento });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.post('/api/kanban/acao', async (req, res) => {
-  const { acao } = req.body;
-  const householdId = await getHouseholdId();
-
-  try {
-    if (acao === 'branquear') {
-      const { item_id } = req.body;
-      const { data, error } = await supabase
-        .from('pantry_items')
-        .update({ blanched_at: new Date().toISOString() })
-        .eq('id', item_id)
-        .select()
-        .single();
-      if (error) throw new Error(error.message);
-      return res.json(data);
-    }
-
-    if (acao === 'porcionar') {
-      // So um humano que cozinhou de verdade sabe o rendimento — por isso
-      // essa acao e' sempre manual, nunca automatizada pelo Mediador.
-      const { trade_off_decision_id, nome, porcoes, unidade } = req.body;
-      if (!nome || !porcoes) return res.status(400).json({ error: 'nome e porcoes sao obrigatorios' });
-
-      const { data: item, error: itemError } = await supabase
-        .from('pantry_items')
-        .insert({
-          household_id: householdId,
-          name: nome,
-          quantity: porcoes,
-          unit: unidade || 'porção',
-          state: 'preparado',
-          storage: 'perecivel',
-          source: 'kanban',
-          prepared_at: new Date().toISOString(),
-          portions_total: porcoes,
-          portions_remaining: porcoes,
-        })
-        .select()
-        .single();
-      if (itemError) throw new Error(itemError.message);
-
-      if (trade_off_decision_id) {
-        await supabase
-          .from('trade_off_decisions')
-          .update({ porcionado_em: new Date().toISOString() })
-          .eq('id', trade_off_decision_id);
-      }
-      return res.json(item);
-    }
-
-    if (acao === 'consumir') {
-      const { pantry_item_id, quantidade } = req.body;
-      const { data: item, error: fetchError } = await supabase
-        .from('pantry_items')
-        .select('portions_remaining')
-        .eq('id', pantry_item_id)
-        .single();
-      if (fetchError) throw new Error(fetchError.message);
-
-      const novoRestante = Math.max(0, Number(item.portions_remaining) - (Number(quantidade) || 1));
-      const { data, error } = await supabase
-        .from('pantry_items')
-        .update({ portions_remaining: novoRestante, updated_at: new Date().toISOString() })
-        .eq('id', pantry_item_id)
-        .select()
-        .single();
-      if (error) throw new Error(error.message);
-      return res.json(data);
-    }
-
-    res.status(400).json({ error: `acao desconhecida: ${acao}` });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// Branquear pelo botao da despensa continua existindo (era a unica acao do
+// Kanban que ja morava na tela certa) — agora como rota do proprio estoque.
+app.post('/api/estoque/:id/branquear', async (req, res) => {
+  const { data, error } = await supabase
+    .from('pantry_items')
+    .update({ blanched_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+    .eq('id', req.params.id)
+    .select()
+    .single();
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
 });
 
 // Webhook do Telegram — validado por secret_token (header proprio do
@@ -771,7 +663,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
   res.sendStatus(200);
 
   try {
-    await processarUpdate(req.body, { model: currentConfig.model });
+    await processarUpdate(req.body, { model: currentConfig.model, modelIngestao: currentConfig.modelIngestao });
   } catch (err) {
     console.error('Erro processando update do Telegram:', err.message);
   }

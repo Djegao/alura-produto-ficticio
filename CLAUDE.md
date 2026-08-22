@@ -58,27 +58,27 @@ categorização de estoque.
   `meal_suggestions` (com `items_used`), `stock_consumptions` (com
   `items_consumed`, retrato tirado na confirmação). Migrações rodadas
   manualmente após o schema inicial documentadas no fim do arquivo.
-- **`public/`** — front vanilla JS, sem build step. **Reescrito em 2026-08-02
-  pra "Musa Balance" (fase 4)**: o hero deixou de ser os "objetos da
-  cozinha" e virou um **Kanban mobile-first** (scroll horizontal) com 5
-  estágios ativos — Plano Semanal / Pré-preparo / Preparo / Porcionamento /
-  Consumo — lido de `GET /api/kanban` e escrito por `POST /api/kanban/acao`
-  (branquear/porcionar/consumir) + pelos canais do bot, de propósito nos
-  dois sentidos (ver `unified-meandering-newell.md` sobre por que a
-  divergência entre os dois caminhos de escrita é intencional, não bug a
-  esconder). Despensa (estoque assentado, geladeira/ilustração real do
-  instrutor) virou **função separada, fora do Kanban** — só itens não
-  `preparado`, grade densa Geladeira/Despensa por `storage`. "Livro de
-  receitas" (UI do v1/v2) foi **retirado da interface** por decisão
-  explícita — `agent.js:sugerirReceita`, `prompts.js` v1/v2 e as rotas
-  `/api/sugestao`/`/api/sugestoes` continuam intactas, só sem botão no
-  painel; demonstrar via Postman/curl na Aula 4. Preferências e Atividade
-  recente (ex-"Pensamentos") continuam como botão de configuração, não
-  objeto físico (SDD §9.5). Painel
-  revelado usa o truque `grid-template-rows: 0fr → 1fr` pra animar altura
-  desconhecida. Paleta/tipografia inspiradas na *linguagem de interação* do
-  site de campanha da Kerrygold ("The Magical Pantry") — objetos como
-  portais de navegação — mas implementação e ilustrações originais.
+- **`public/`** — front vanilla JS, sem build step. **Reescrito em 2026-08-21
+  pra v4 "Feed vivo"**: o hero é uma **faixa de estado derivado** (3 cartas
+  só-leitura, tudo calculado em código: porções vivas, vencendo D-N, saldo
+  da semana — `GET /api/estado-cozinha`) + um **feed** (a tabela
+  `pensamentos` renderizada em ordem cronológica reversa, com filtro por
+  ator) + um **composer de conversa** (`POST /api/conversa`, mesmo caminho
+  de escrita do Telegram). Desejo no feed tem botão "🍳 Mediar" →
+  `/api/mediacao`. **O Kanban (fase 4, 2026-08-02) foi morto em 2026-08-21**
+  por decisão explícita do instrutor — a estrutura de 5 estágios exigia
+  eventos num formato que a vida da casa não produz (colunas cronicamente
+  vazias foram o sintoma; diagnóstico completo na conversa do pivot). As
+  ações de coluna viraram frases na conversa; ver `intencao-efeitos.js`.
+  Despensa continua **função separada** (objeto geladeira/ilustração real
+  do instrutor) — só itens não `preparado`, grade densa por `storage`, +
+  lista de compras + importação de nota. "Livro de receitas" (UI do v1/v2)
+  segue **fora da interface** — `agent.js:sugerirReceita`, `prompts.js`
+  v1/v2 e `/api/sugestao`/`/api/sugestoes` intactas, demonstrar via
+  Postman/curl na Aula 4. Painel revelado usa `grid-template-rows: 0fr →
+  1fr` pra animar altura desconhecida. Paleta/tipografia inspiradas na
+  *linguagem de interação* da campanha "The Magical Pantry" (Kerrygold) —
+  implementação e ilustrações originais.
 - **`instrumentation.js`** — setup do OpenTelemetry + `LangfuseSpanProcessor`.
   Precisa ser o primeiro `require` (já é, em `server.js`).
 - **`generate-slides.js`** / **`docs/rascunho-coordenacao.html`** — material
@@ -121,15 +121,19 @@ em código) e `telegram_chat_id`. RLS deixado desligado de propósito — só o
 `SUPABASE_SERVICE_ROLE_KEY` (só usado em `tools.js`, nunca no browser) toca
 essas tabelas, então o aviso do linter do Supabase não se aplica aqui.
 
-Rotas novas em `server.js`: `/api/atores`, `/api/relatos`,
+Rotas em `server.js` (estado pós-v4): `/api/atores`,
 `/api/orcamento-semanal`, `/api/mediacao`, `/api/mediacoes`,
 `/api/pensamentos`, `/api/telegram/webhook` (autenticado por
 `TELEGRAM_WEBHOOK_SECRET`, não pelo Basic Auth geral — o Telegram não manda
-credenciais), `/api/kanban` (agregação dos 5 estágios ativos) +
-`/api/kanban/acao` (branquear/porcionar/consumir — `porcionar` é sempre
-manual de propósito, só quem cozinhou sabe o rendimento real), e
-`/api/config-quantitativo` (+ `/validade`, `/metas` — o repositório
-editável por trás da gaveta de Configurações).
+credenciais), e `/api/config-quantitativo` (+ `/validade`, `/metas` — o
+repositório editável por trás da gaveta de Configurações). **Mortas na v4
+(2026-08-21)**: `/api/kanban`, `/api/kanban/acao` e `/api/relatos` —
+substituídas por `/api/estado-cozinha` (faixa de estado derivado),
+`/api/conversa` (canal web do caminho único de escrita) e
+`/api/estoque/:id/branquear` (o botão da despensa, única ação do Kanban que
+já morava na tela certa). A regra "porcionar é sempre manual, só quem
+cozinhou sabe o rendimento" sobrevive na conversa: porcionamento sem número
+dito vira pergunta, nunca chute (`intencao-efeitos.js`).
 
 ### Fase 5 (2026-08-21): SEFAZ, lista de compras e receita premium
 
@@ -174,27 +178,45 @@ editável por trás da gaveta de Configurações).
   de `receita-premium` dentro do handler — evita ciclo com
   `enviarMensagem`).
 
-**Pendências externas (não é código, é ação manual)** — atualizado
-2026-08-02: bot criado, webhook registrado e validando, os dois atores já
-identificados no grupo (`/eusou_chef`/`/eusou_musa`), Group Privacy
-confirmado off, env vars do Telegram já no Railway. Falta:
-1. **Rodar a migração pendente das fases 3+4** no SQL Editor do Supabase
-   (bloco `PENDENTE` no fim do `schema.sql` — `prepared_at`,
-   `fonte_refeicao`, `tipo=desperdicio`, `dias_desde_preparo`,
-   `trade_off_decisions.porcionado_em`). Sem isso o `/api/kanban` responde
-   erro (de propósito — nunca cai em silêncio, ver achado de teste abaixo).
-2. Semear o cenário real da lasanha como `pantry_item` `preparado` —
-   pendente só do número real de porções (não inventado).
-3. **Rodar a migração da fase 5** (bloco `PENDENTE fase 5` no fim do
-   `schema.sql` — tabelas `shopping_list_items` e `premium_suggestions`).
-   Sem isso, lista de compras, `/lista`, `/premium` e o job de sexta falham
-   barulhento (de propósito, mesma convenção do Kanban).
+### v4 "Feed vivo" (2026-08-21): o Kanban morreu
 
-**Achado de teste (2026-08-02, Playwright local)**: a primeira versão do
-`GET /api/kanban` mascarava erro de coluna ausente com um fallback `|| []`
-— parecia "coluna vazia", não erro. Corrigido pra propagar toda falha de
-query (`semaSilencio` em `server.js`) — nenhuma consulta do endpoint cai em
-silêncio mais.
+Decisão do instrutor na conversa de 2026-08-21 ("matar; o curso não
+precisa; a faixa de estado entra"): a interface pipeline foi substituída
+por **feed + conversa + faixa de estado derivado**. Racional registrado: a
+estrutura de 5 estágios exigia eventos num formato que a vida da casa não
+produz (as colunas Porcionamento/Consumo ficaram cronicamente vazias); o
+grão real dos dados é evento no tempo — a tabela `pensamentos` É o feed. A
+morte do Kanban também matou a divergência intencional entre os dois
+caminhos de escrita (web × bot): agora existe **um caminho só**,
+`intencao-efeitos.js` (`aplicarIntencao`) — todo canal classifica com o
+agente de ingestão e cai ali pra aplicar efeitos. Dois tipos novos de
+pensamento (`branqueamento`, `porcionamento`) substituem as ações de
+coluna; porcionamento sem número dito vira pergunta (campo `pergunta` no
+retorno), nunca estimativa. Novo eixo de custo demonstrável em aula:
+`modelIngestao` (default `claude-haiku-4-5`) roda a classificação
+conversacional barata; `model` continua sendo o eixo de geração
+(Mediador, nota fiscal, receita premium). O achado de teste do
+`/api/kanban` (fallback `|| []` mascarando erro de schema — corrigido pra
+propagar com `semSilencio`) sobrevive como convenção em
+`/api/estado-cozinha`: nenhuma consulta cai em silêncio.
+
+**Pendências externas (não é código, é ação manual)** — atualizado
+2026-08-21: bot criado, webhook registrado e validando, os dois atores já
+identificados no grupo (`/eusou_chef`/`/eusou_musa`), Group Privacy
+confirmado off, env vars do Telegram já no Railway. Migrações das fases
+2–5 **rodadas e verificadas (6/6) em 2026-08-21**. Falta:
+1. **Rodar a migração da fase 6** no SQL Editor do Supabase (bloco
+   `PENDENTE fase 6` no fim do `schema.sql` — só a constraint de
+   `pensamentos.tipo` ganhando `branqueamento`/`porcionamento`). Sem isso,
+   relatar branqueamento/porcionamento pela conversa falha barulhento
+   (testado: o erro de constraint aparece na resposta, de propósito).
+   Atenção à ordem de escrita nesse intervalo: os efeitos de estoque rodam
+   antes do insert do pensamento (mesma ordem que o Telegram sempre usou),
+   então um porcionamento dito com número cria o `pantry_item` e só então
+   falha no pensamento — janela conhecida e transitória até a migração.
+2. Semear o cenário real da lasanha como `pantry_item` `preparado` —
+   pendente só do número real de porções (não inventado). Pós-v4 dá pra
+   fazer por uma frase no chat: "porcionei a lasanha em N".
 
 Adiado de propósito, não esquecido: cards (swipe + geração de imagem por
 IA), LTM/aprendizado de "match de sucesso" (a validade de prato pronto é o
