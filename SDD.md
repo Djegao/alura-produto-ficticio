@@ -262,6 +262,26 @@ Decisão consciente, tomada cientes de que contraria o que este documento (e o `
 
 Cards com swipe + geração de imagem por IA (mecânica de UI validada como barata via bibliotecas prontas, mas a geração de imagem em si continua cara — registrado como desejo no roadmap, não compromisso desta fase); LTM/aprendizado geral de "match de sucesso" (a validade de prato pronto do §13.4.6 é o primeiro passo concreto, ainda sem consumidor); RLS/multi-tenancy (desnecessário pra uma casa real única — só `SUPABASE_SERVICE_ROLE_KEY` toca essas tabelas, nunca o browser, então o aviso do linter do Supabase não se aplica aqui).
 
-## 14. Como usar este documento
+## 14. v4 "Feed vivo" — a morte do Kanban (2026-08-21)
 
-Este documento descreve o que existe, não prescreve como reconstruir. Se o objetivo agora é reconstruir com as próprias mãos: use as seções 5–8 como mapa do Chef Ops original (v1/v2, ainda funcional sob o Kanban), a seção 13 como mapa do pivot v3, e a seção 11 como a lista de decisões que **não são óbvias na primeira tentativa** — cada uma delas só existe porque a primeira versão ingênua falhou de um jeito específico. Reproduzir o produto sem essas restrições provavelmente reproduz os mesmos problemas.
+### 14.1 O que aconteceu
+
+Dezenove dias depois de nascer, o Kanban da fase 4 (§13) foi **removido por decisão explícita do instrutor**, junto com o diagnóstico de por quê: a estrutura de 5 estágios exigia que a vida da casa produzisse eventos em formato de pipeline, e ela não produz — as colunas Porcionamento/Consumo ficaram cronicamente vazias, o drag só fazia sentido entre 2 das 5 colunas, e as outras transições eram botões porque cada uma dependia de dado que só um humano tem. O gatilho foi um bug report ("o drag não funciona") cujo diagnóstico revelou que o problema não era o drag: era a metáfora. Nas palavras do instrutor, dez anos olhando pipelines de Azure DevOps bastaram.
+
+Este capítulo é deliberadamente mantido como conteúdo de aula sobre produto: construímos a estrutura rigorosa, a realidade não a alimentou, e matá-la — em vez de "consertar o drag" — foi a solução elegante. Elegância aqui definida operacionalmente: **a interface tem o mesmo grão que os dados**. O grão real é evento no tempo, e a tabela central (`pensamentos`) sempre foi um feed esperando pra ser a tela.
+
+### 14.2 O que entrou no lugar
+
+- **Faixa de estado derivado** (`GET /api/estado-cozinha`) — o único pedaço do Kanban que pagava aluguel (estado de relance) sobrevive como 3 cartas só-leitura: porções vivas, vencendo (D-N), saldo da semana. Tudo matemática em código; a convenção `semSilencio` (§13, achado do fallback `|| []`) migrou junto.
+- **Feed** — `pensamentos` em ordem cronológica reversa, com filtro por ator. Desejo ganha botão de mediação (`/api/mediacao`, inalterada).
+- **Conversa** (`POST /api/conversa`) — canal web do **caminho único de escrita**: `intencao-efeitos.js` (`aplicarIntencao`). A divergência intencional entre web e bot da era do Kanban morreu junto com ele; agora Telegram e web classificam com o mesmo agente de ingestão e aplicam efeitos no mesmo módulo.
+- **Dois tipos novos de pensamento** — `branqueamento` e `porcionamento` substituem as ações de coluna. A regra "porcionar é sempre manual" sobrevive **melhor** na conversa: porcionamento sem número dito retorna `pergunta` (o sistema pergunta, nunca estima) e não grava nada até a resposta vir completa.
+- **Eixo de custo novo** (`modelIngestao`, default `claude-haiku-4-5`) — a classificação conversacional roda no modelo barato; `model` segue sendo o eixo de geração (Mediador, nota, receita premium). Comparar o custo dos dois eixos no Langfuse é material novo de aula.
+
+### 14.3 O que morreu e o que ficou
+
+Mortas: `/api/kanban`, `/api/kanban/acao`, `/api/relatos` (substituída por `/api/conversa`), o board inteiro no front, a legenda bot/manual (existia pra explicar a divergência de caminhos, que não existe mais). Vivas e intocadas: v1/v2 do Chef Ops, todos os achados do §11, `trade_off_decisions` (o Mediador segue registrando), a Despensa como objeto, e o botão "branquear" da despensa (rebatizado `/api/estoque/:id/branquear` — era a única ação do Kanban que já morava na tela certa).
+
+## 15. Como usar este documento
+
+Este documento descreve o que existe, não prescreve como reconstruir. Se o objetivo agora é reconstruir com as próprias mãos: use as seções 5–8 como mapa do Chef Ops original (v1/v2, ainda funcional sob o feed), a seção 13 como mapa do pivot v3, a seção 14 como o registro de por que o Kanban da 13 não sobreviveu, e a seção 11 como a lista de decisões que **não são óbvias na primeira tentativa** — cada uma delas só existe porque a primeira versão ingênua falhou de um jeito específico. Reproduzir o produto sem essas restrições provavelmente reproduz os mesmos problemas.

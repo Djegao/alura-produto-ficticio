@@ -309,8 +309,9 @@ insert into households (name) values ('Casa de teste — curso Alura');
 --   select id, 'Esposa', 'musa' from households limit 1;
 
 -- ---------------------------------------------------------------------
--- PENDENTE — ainda NAO rodado no Supabase. Rodar manualmente no SQL Editor,
--- depois comentar este bloco como historico igual aos de cima.
+-- RODADO no Supabase em 2026-08-21 (fases 2+3+4+5 num bloco so, verificacao
+-- 6/6 true via information_schema). Statements todos idempotentes
+-- (if not exists / if exists) — re-rodar e' inofensivo.
 -- ---------------------------------------------------------------------
 
 -- 2026-08-02: "Musa Balance" fase 2 — porcionamento, config editavel
@@ -347,7 +348,7 @@ alter table pensamentos drop constraint if exists pensamentos_tipo_check;
 alter table pensamentos add constraint pensamentos_tipo_check check (tipo in ('relato_refeicao', 'desejo', 'aquisicao'));
 
 -- ---------------------------------------------------------------------
--- PENDENTE fase 3 — ainda NAO rodado no Supabase.
+-- Fase 3 — RODADO em 2026-08-21 (mesmo bloco acima).
 -- ---------------------------------------------------------------------
 
 -- 2026-08-02: "Musa Balance" fase 3 — validade de prato pronto aprendida
@@ -368,7 +369,8 @@ alter table pensamentos drop constraint if exists pensamentos_tipo_check;
 alter table pensamentos add constraint pensamentos_tipo_check check (tipo in ('relato_refeicao', 'desejo', 'aquisicao', 'desperdicio'));
 
 -- ---------------------------------------------------------------------
--- PENDENTE fase 4 (Kanban) — ainda NAO rodado no Supabase.
+-- Fase 4 (Kanban) — RODADO em 2026-08-21. Nota historica: o Kanban morreu
+-- no mesmo dia (v4 "Feed vivo"); porcionado_em segue usado pelo Mediador.
 -- ---------------------------------------------------------------------
 
 -- 2026-08-02: marca de quando uma decisao virou prato pronto de verdade.
@@ -376,8 +378,7 @@ alter table trade_off_decisions
   add column if not exists porcionado_em timestamptz;
 
 -- ---------------------------------------------------------------------
--- PENDENTE fase 5 (lista de compras + receita premium) — ainda NAO rodado
--- no Supabase.
+-- Fase 5 (lista de compras + receita premium) — RODADO em 2026-08-21.
 -- ---------------------------------------------------------------------
 
 -- 2026-08-21: lista de compras (alimentada pelo Mediador quando falta item
@@ -412,3 +413,16 @@ create table if not exists premium_suggestions (
   created_at timestamptz not null default now(),
   unique (household_id, week_start)
 );
+
+-- ---------------------------------------------------------------------
+-- Fase 6 (v4 "Feed vivo") — RODADO no Supabase em 2026-08-21 (verificado:
+-- insert com tipo='branqueamento' aceito).
+-- ---------------------------------------------------------------------
+
+-- 2026-08-21: o Kanban morreu; as acoes de coluna (branquear/porcionar)
+-- viraram frases na conversa, classificadas pelo agente de ingestao como
+-- dois tipos novos de pensamento. So a constraint muda — nenhuma tabela nova.
+
+alter table pensamentos drop constraint if exists pensamentos_tipo_check;
+alter table pensamentos add constraint pensamentos_tipo_check
+  check (tipo in ('relato_refeicao', 'desejo', 'aquisicao', 'desperdicio', 'branqueamento', 'porcionamento'));

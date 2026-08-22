@@ -34,11 +34,8 @@
     --font-body: "Manrope", -apple-system, "Segoe UI", sans-serif;
     --sticker-shadow: rgba(80, 51, 20, .28);
     --stage-bg: #3c4a29;
-    --stage-bg-soft: #46562f;
     --stage-ink: #f4efd9;
     --stage-ink-soft: #cdc6a3;
-    --bot-glow: #6b8f4e;
-    --manual-glow: #c96f34;
   }
   * { box-sizing: border-box; }
   body {
@@ -98,56 +95,68 @@
     outline: 2px solid var(--accent-soft); outline-offset: 2px;
   }
 
-  .legend {
-    display: flex; gap: 14px; align-items: center; padding: 8px 24px; background: var(--stage-bg);
-    color: var(--stage-ink-soft); font-size: 11.5px; flex-wrap: wrap;
+  /* ---------- v4 "Feed vivo": faixa de estado derivado (hero, parte 1) ----
+     O residuo util do Kanban morto: estado de relance, so leitura, tudo
+     calculado em codigo. Tres cartas — porcoes vivas, vencendo, orcamento. */
+  .estado-strip {
+    display: flex; gap: 12px; overflow-x: auto; padding: 16px 20px 6px;
+    -webkit-overflow-scrolling: touch; max-width: 1160px; margin: 0 auto;
+    scroll-snap-type: x proximity;
   }
-  .legend span { display: flex; align-items: center; gap: 6px; }
-  .legend .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .legend .dot.bot { background: var(--bot-glow); }
-  .legend .dot.manual { background: var(--manual-glow); }
+  .estado-card { scroll-snap-align: start; }
+  .estado-strip::-webkit-scrollbar { height: 6px; }
+  .estado-strip::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+  .estado-card {
+    flex: 1 0 240px; max-width: 340px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 13px 15px; box-shadow: -3px 3px 0 var(--sticker-shadow);
+  }
+  .estado-card h2 { font: 700 12px/1 var(--font-body); text-transform: uppercase; letter-spacing: .07em; color: var(--gold); margin: 0 0 10px; display: flex; justify-content: space-between; align-items: center; }
+  .estado-card .linha { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; padding: 4px 0; }
+  .estado-card .linha strong { text-transform: capitalize; font-size: 13px; }
+  .estado-card .num { font: 800 22px/1 var(--font-display); color: var(--accent); font-variant-numeric: tabular-nums; }
+  .estado-card .num.bad { color: var(--bad); }
+  .estado-card .num.warn { color: var(--warn); }
+  .estado-card .sub { font-size: 11px; color: var(--ink-faint); }
 
-  /* ---------- Kanban (hero) ---------- */
-  .board-wrap { padding: 16px 0 4px; background: var(--bg); }
-  .board {
-    display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory;
-    padding: 4px 16px 14px; -webkit-overflow-scrolling: touch;
-  }
-  .board::-webkit-scrollbar { height: 8px; }
-  .board::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
-  .column {
-    scroll-snap-align: start; flex: 0 0 85vw; max-width: 320px; min-width: 240px;
-    display: flex; flex-direction: column;
-  }
-  .column-head { padding: 10px 4px 8px; border-bottom: 2px solid var(--accent); margin-bottom: 8px; position: relative; }
-  .column-head .stage-no { font: 700 10.5px/1 var(--font-body); color: var(--gold); text-transform: uppercase; letter-spacing: .08em; }
-  .column-head h2 { font: 700 18px/1.15 var(--font-display); margin: 4px 0 3px; color: var(--ink); }
-  .column-head .desc { font-size: 11px; color: var(--ink-faint); }
-  .column-head .count {
-    position: absolute; top: 8px; right: 4px; font: 800 12px/1 var(--font-body);
-    background: var(--surface-alt); color: var(--ink-soft); padding: 4px 9px; border-radius: 999px;
-  }
-  .column-body { display: flex; flex-direction: column; gap: 9px; min-height: 90px; padding: 4px 2px 30px; border-radius: 10px; transition: background .15s ease; }
-  .column-body.drag-over { background: color-mix(in srgb, var(--accent) 8%, transparent); }
-  .dots { display: flex; justify-content: center; gap: 7px; padding: 2px 0 14px; }
-  .dots .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: background .2s ease, transform .2s ease; }
-  .dots .dot.active { background: var(--accent); transform: scale(1.3); }
-
-  .kcard {
+  /* ---------- v4 "Feed vivo": conversa + feed (hero, parte 2) ---------- */
+  .feed-wrap { max-width: 760px; margin: 0 auto; padding: 10px 20px 28px; }
+  .composer {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 11px 12px; box-shadow: -3px 3px 0 var(--sticker-shadow);
-    transition: box-shadow .12s ease, transform .12s ease, border-color .3s ease;
-    position: relative;
+    padding: 14px 16px; box-shadow: -3px 3px 0 var(--sticker-shadow);
   }
-  .kcard.draggable { cursor: grab; touch-action: none; user-select: none; }
-  .kcard.draggable:active { cursor: grabbing; }
-  .kcard.dragging { opacity: .35; }
-  .kcard.lifted { position: fixed; z-index: 50; pointer-events: none; box-shadow: -6px 10px 0 var(--sticker-shadow); transform: scale(1.03) rotate(-1.2deg); width: var(--lift-w); }
-  .kcard .eyebrow { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; font-size: 10.5px; color: var(--ink-faint); }
-  .kcard h3 { font: 700 14px/1.3 var(--font-body); margin: 0 0 5px; color: var(--ink); }
-  .kcard .meta-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
-  .kcard .actions { display: flex; gap: 6px; margin-top: 9px; flex-wrap: wrap; }
-  .kcard .actions button { font-size: 11.5px; padding: 6px 10px; }
+  .composer .quem { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+  .composer .quem .hintlabel { font: 700 10.5px/1 var(--font-body); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-faint); }
+  .composer .row { margin-bottom: 0; }
+  /* 16px NAO e' escolha estetica: abaixo disso o Safari do iOS da zoom
+     automatico ao focar o campo e nao volta sozinho. Este input e' a
+     interacao principal do produto num app mobile-first — nao pode zoar. */
+  .composer input[type=text] { background: var(--bg); font-size: 16px; }
+  .resposta-agente {
+    display: none; margin-top: 12px; background: var(--accent-bg); border: 1px solid var(--accent-soft);
+    border-radius: 10px; padding: 11px 13px; font-size: 13.5px;
+  }
+  .resposta-agente.show { display: block; }
+  .resposta-agente .ef { display: flex; gap: 7px; align-items: baseline; padding: 2px 0; }
+  .resposta-agente .ef::before { content: "→"; color: var(--accent-soft); font-weight: 700; flex-shrink: 0; }
+  .resposta-agente.pergunta { background: var(--warn-bg); border-color: var(--warn); }
+  .resposta-agente.mediador { background: var(--gold-bg); border-color: var(--gold); white-space: pre-wrap; }
+  .resposta-agente .fechar { float: right; background: none; border: none; box-shadow: none; color: var(--ink-faint); cursor: pointer; padding: 0 2px; font-size: 15px; }
+
+  .feed { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+  .feed-item {
+    display: flex; gap: 11px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px 14px;
+    transition: box-shadow .12s ease, transform .12s ease;
+  }
+  .feed-item:hover { box-shadow: -3px 3px 0 var(--sticker-shadow); transform: translate(1px, -1px); }
+  .feed-item .actor-avatar { width: 30px; height: 30px; font-size: 13px; margin-top: 2px; }
+  .feed-item .corpo { flex: 1; min-width: 0; }
+  .feed-item .topo { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 3px; }
+  .feed-item .quem { font-weight: 700; font-size: 13px; color: var(--ink-soft); }
+  .feed-item .texto { font-size: 14px; }
+  .feed-item .quando { color: var(--ink-faint); font-size: 11px; margin-top: 5px; }
+  .feed-item .acao-linha { margin-top: 8px; }
+
   .pill { font: 700 10px/1 var(--font-body); padding: 4px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .02em; display: inline-flex; align-items: center; gap: 4px; }
   .pill.good { background: var(--good-bg); color: var(--good); }
   .pill.warn { background: var(--warn-bg); color: var(--warn); }
@@ -155,15 +164,10 @@
   .pill.gold { background: var(--gold-bg); color: var(--gold); }
   .pill.terracotta { background: var(--terracotta-bg); color: var(--terracotta); }
   .pill.neutral { background: var(--surface-alt); color: var(--ink-soft); }
-  .checklist { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; font-size: 12.5px; }
-  .checklist .ok { color: var(--good); } .checklist .falta { color: var(--bad); font-weight: 700; }
   .portion-bar { margin-top: 8px; height: 7px; border-radius: 999px; background: var(--surface-alt); overflow: hidden; display: flex; }
   .portion-bar span { background: var(--accent); height: 100%; }
   .portion-label { font: 700 11px/1 var(--font-body); color: var(--ink-soft); margin-top: 5px; font-variant-numeric: tabular-nums; }
-  .kcard.glow-manual { animation: glowManual 2.4s ease-out 1; border-color: var(--manual-glow); }
-  @keyframes glowManual { 0% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--manual-glow) 55%, transparent), -3px 3px 0 var(--sticker-shadow); } 100% { box-shadow: -3px 3px 0 var(--sticker-shadow); } }
-  @media (prefers-reduced-motion: reduce) { .kcard { animation: none !important; transition: none !important; } }
-  .empty-slot { border: 1.5px dashed var(--border); border-radius: var(--radius); padding: 14px; text-align: center; color: var(--ink-faint); font-size: 12px; }
+  @media (prefers-reduced-motion: reduce) { .feed-item, .estado-card { animation: none !important; transition: none !important; } }
 
   /* ---------- A mesa de acao (Despensa) ---------- */
   .stage-wrap { padding: 8px 20px 72px; }
@@ -234,14 +238,12 @@
   .import-nota[open] summary::before { content: "－ "; }
   .import-nota input[type=file] { font-size: 12.5px; flex: 1; padding: 6px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; }
 
-  .pensamento-item { border-bottom: 1px solid var(--border); padding: 10px 0; font-size: 13.5px; }
-  .pensamento-item:last-child { border-bottom: none; }
-  .pensamento-item .quem { font-weight: 700; color: var(--ink-soft); margin-right: 6px; }
   .pill.relato_refeicao { background: var(--good-bg); color: var(--good); }
   .pill.desejo { background: var(--terracotta-bg); color: var(--terracotta); }
   .pill.aquisicao { background: var(--gold-bg); color: var(--gold); }
   .pill.desperdicio { background: var(--bad-bg); color: var(--bad); }
-  .pensamento-item .quando { color: var(--ink-faint); font-size: 11px; margin-top: 4px; }
+  .pill.branqueamento { background: var(--accent-bg); color: var(--accent); }
+  .pill.porcionamento { background: var(--accent-bg); color: var(--accent-soft); }
 
   /* ---------- gaveta de configuracoes ---------- */
   .drawer-backdrop { position: fixed; inset: 0; background: rgba(47, 42, 24, .35); opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 90; }
@@ -261,6 +263,24 @@
   .drawer .budget-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 11px; background: var(--surface-alt); border-radius: 8px; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); }
   .drawer .close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: var(--ink-faint); cursor: pointer; box-shadow: none; padding: 4px; }
   .drawer .save-hint { font-size: 11px; color: var(--good); height: 14px; }
+  .drawer .save-hint.erro { color: var(--bad); }
+
+  /* ---------- ajustes de toque (mobile-first) ----------
+     Produto e' usado no celular com o dedo: nenhum alvo abaixo de 32px, e
+     todo campo de texto em 16px pra nao disparar o zoom automatico do iOS. */
+  @media (max-width: 767px) {
+    /* .drawer input tem seletor mais especifico com font:inherit, entao os
+       campos da gaveta precisam ser citados explicitamente aqui — senao
+       continuam em 15px e o iOS da zoom neles. */
+    input[type=text], input[type=number], textarea, select,
+    .drawer input[type=number] { font-size: 16px; }
+    button.small { min-height: 34px; padding: 8px 12px; font-size: 13px; }
+    .settings-link { min-height: 34px; }
+    .config-bar select { min-height: 34px; }
+    button.ghost { min-height: 32px; }
+    .item-card__remove { width: 32px; height: 32px; font-size: 17px; }
+    .drawer .close-btn { width: 40px; height: 40px; font-size: 24px; top: 10px; right: 10px; }
+  }
 </style>
 </head>
 <body>
@@ -277,9 +297,12 @@
 
 <div class="config-bar">
   <div class="axes">
-    <strong style="color:var(--ink-soft)">Eixo ao vivo:</strong>
-    <label>Modelo de geração
+    <strong style="color:var(--ink-soft)">Eixos ao vivo:</strong>
+    <label>Geração
       <select id="cfg-model"></select>
+    </label>
+    <label>Ingestão (barato)
+      <select id="cfg-model-ingestao"></select>
     </label>
     <span id="cfg-status" style="color:var(--ink-faint)"></span>
   </div>
@@ -290,48 +313,40 @@
     <div class="object-card" id="card-note">
       <button class="settings-link" id="trigger-note" aria-expanded="false" aria-controls="panel-note">⚙ Preferências</button>
     </div>
-    <div class="object-card" id="card-pensamentos">
-      <button class="settings-link" id="trigger-pensamentos" aria-expanded="false" aria-controls="panel-pensamentos">📋 Atividade</button>
-    </div>
     <button class="settings-link" id="btn-config">⚙ Configurações</button>
   </div>
 </div>
 
-<div class="legend">
-  <span><span class="dot bot"></span> atualizado pelo bot (Telegram)</span>
-  <span><span class="dot manual"></span> movido manualmente aqui</span>
+<!-- v4 "Feed vivo": faixa de estado derivado — o residuo util do Kanban -->
+<div class="estado-strip" id="estado-strip">
+  <div class="estado-card">
+    <h2>Porções vivas <span class="pill terracotta">a corrida</span></h2>
+    <div id="estado-porcoes"><div class="empty">carregando...</div></div>
+  </div>
+  <div class="estado-card">
+    <h2>Vencendo <span class="pill warn">D-N</span></h2>
+    <div id="estado-vencendo"><div class="empty">carregando...</div></div>
+  </div>
+  <div class="estado-card">
+    <h2>Semana <span class="pill gold" id="estado-semana-label"></span></h2>
+    <div id="estado-orcamento"><div class="empty">carregando...</div></div>
+  </div>
 </div>
 
-<div class="board-wrap">
-  <div class="board" id="board">
-
-    <section class="column" data-stage="planoSemanal">
-      <div class="column-head"><div class="stage-no">Backlog</div><h2>Plano Semanal</h2><div class="desc">desejos + propostas em aberto</div><span class="count"></span></div>
-      <div class="column-body" id="col-planoSemanal"></div>
-    </section>
-
-    <section class="column" data-stage="prePreparo">
-      <div class="column-head"><div class="stage-no">Estágio I</div><h2>Pré-preparo</h2><div class="desc">branqueado — nem todo item passa aqui</div><span class="count"></span></div>
-      <div class="column-body" id="col-prePreparo"></div>
-    </section>
-
-    <section class="column" data-stage="preparo">
-      <div class="column-head"><div class="stage-no">Estágio II</div><h2>Preparo</h2><div class="desc">decisão confirmada, ainda não porcionada</div><span class="count"></span></div>
-      <div class="column-body" id="col-preparo"></div>
-    </section>
-
-    <section class="column" data-stage="porcionamento">
-      <div class="column-head"><div class="stage-no">Estágio III</div><h2>Porcionamento</h2><div class="desc">lote intocado</div><span class="count"></span></div>
-      <div class="column-body" id="col-porcionamento"></div>
-    </section>
-
-    <section class="column" data-stage="consumo">
-      <div class="column-head"><div class="stage-no">Estágio IV</div><h2>Consumo</h2><div class="desc">lote em uso — a corrida contra o desperdício</div><span class="count"></span></div>
-      <div class="column-body" id="col-consumo"></div>
-    </section>
-
+<!-- v4 "Feed vivo": a conversa E' o feed — um caminho de escrita so -->
+<div class="feed-wrap">
+  <div class="composer">
+    <div class="quem">
+      <span class="hintlabel">Quem fala:</span>
+      <div class="actors" id="composer-atores"></div>
+    </div>
+    <div class="row">
+      <input type="text" id="conversa-texto" placeholder='fala com a cozinha: "comi a lasanha", "porcionei em 8", "branqueei o brócolis"...' autocomplete="off" />
+      <button id="btn-enviar">Enviar</button>
+    </div>
+    <div class="resposta-agente" id="resposta-agente"></div>
   </div>
-  <div class="dots" id="dots"></div>
+  <div class="feed" id="feed"><div class="empty">carregando o diário da cozinha...</div></div>
 </div>
 
 <div class="stage-wrap">
@@ -362,11 +377,11 @@
           <input type="text" id="estoque-unit" placeholder="unidade" style="max-width:100px" />
         </div>
         <div class="row">
-          <select id="estoque-state">
+          <select id="estoque-state" aria-label="Estado do alimento">
             <option value="base">base</option>
             <option value="ingrediente">ingrediente</option>
           </select>
-          <select id="estoque-storage">
+          <select id="estoque-storage" aria-label="Onde o item é guardado">
             <option value="perecivel">geladeira (perecível)</option>
             <option value="seco">despensa (seco)</option>
           </select>
@@ -390,7 +405,7 @@
         <details class="import-nota">
           <summary>Importar nota fiscal (.md/.txt ou SEFAZ)</summary>
           <div class="row" style="margin-top:10px">
-            <input type="file" id="nota-file" accept=".md,.txt,text/markdown,text/plain" />
+            <input type="file" id="nota-file" accept=".md,.txt,text/markdown,text/plain" aria-label="Arquivo da nota fiscal (.md ou .txt)" />
             <button id="btn-importar-nota">Importar</button>
           </div>
           <div class="row" style="margin-top:8px">
@@ -416,16 +431,6 @@
     </div>
   </div>
 
-  <div class="object-panel" id="panel-pensamentos">
-    <div class="object-panel__inner">
-      <section class="card">
-        <h2>Atividade recente</h2>
-        <div class="empty" style="margin-bottom:12px">Tudo que o Agente de Ingestão capturou — relato, desejo, aquisição, desperdício. Só leitura.</div>
-        <div id="pensamentos-list"><div class="empty">Carregando...</div></div>
-      </section>
-    </div>
-  </div>
-
 </div>
 
 </div>
@@ -438,7 +443,7 @@
   <div class="sub">Repositório editável de dado quantitativo — o resto do produto só observa isso.</div>
 
   <div class="field-group">
-    <label>Validade pós-branqueamento (regra D-N)</label>
+    <label for="cfg-dias-validade">Validade pós-branqueamento (regra D-N)</label>
     <input type="number" id="cfg-dias-validade" min="1" />
     <div class="hint">dias até um item branqueado virar "vencido" no estágio Pré-preparo</div>
   </div>

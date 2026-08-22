@@ -24,9 +24,9 @@ const REGISTRAR_INTENCAO_TOOL = {
     properties: {
       tipo: {
         type: 'string',
-        enum: ['relato_refeicao', 'desejo', 'aquisicao', 'desperdicio'],
+        enum: ['relato_refeicao', 'desejo', 'aquisicao', 'desperdicio', 'branqueamento', 'porcionamento'],
         description:
-          '"relato_refeicao" = a pessoa esta contando o que ja comeu/vai comer num dia especifico. "desejo" = a pessoa esta pedindo/sugerindo algo pra decisao futura (ex: "poderiamos comer lasanha no fim de semana?"). "aquisicao" = a pessoa esta reportando uma compra/aquisicao de item(ns) pro estoque (ex: "comprei 2kg de arroz"). "desperdicio" = a pessoa esta reportando que jogou fora um prato/item que nao foi consumido a tempo (ex: "joguei fora o resto da lasanha").',
+          '"relato_refeicao" = a pessoa esta contando o que ja comeu/vai comer num dia especifico. "desejo" = a pessoa esta pedindo/sugerindo algo pra decisao futura (ex: "poderiamos comer lasanha no fim de semana?"). "aquisicao" = a pessoa esta reportando uma compra/aquisicao de item(ns) pro estoque (ex: "comprei 2kg de arroz"). "desperdicio" = a pessoa esta reportando que jogou fora um prato/item que nao foi consumido a tempo (ex: "joguei fora o resto da lasanha"). "branqueamento" = a pessoa branqueou/escaldou um vegetal pra conservar (ex: "branqueei o brocolis"). "porcionamento" = a pessoa terminou de cozinhar um prato e o dividiu em porcoes (ex: "porcionei a lasanha em 8", "a feijoada rendeu 6 marmitas").',
       },
       data: {
         type: 'string',
@@ -50,11 +50,11 @@ const REGISTRAR_INTENCAO_TOOL = {
       },
       item_nome: {
         type: 'string',
-        description: 'Se tipo=aquisicao ou desperdicio: nome limpo e curto do item comprado/perdido (ex: "arroz branco", "lasanha"). Se tipo=relato_refeicao com fonte_refeicao=caseira E o texto mencionar um prato especifico ja pronto (ex: "comi a lasanha do freezer"): o nome do prato — e isso que baixa a porcao no estoque.',
+        description: 'Se tipo=aquisicao, desperdicio, branqueamento ou porcionamento: nome limpo e curto do item (ex: "arroz branco", "lasanha", "brocolis"). Se tipo=relato_refeicao com fonte_refeicao=caseira E o texto mencionar um prato especifico ja pronto (ex: "comi a lasanha do freezer"): o nome do prato — e isso que baixa a porcao no estoque.',
       },
       item_quantidade: {
         type: 'number',
-        description: 'Se tipo=aquisicao ou desperdicio: quantidade normalizada (ex: "2 pacotes de 5kg" vira 10, nao 2; "1/10 da lasanha" vira a fracao/porcao mencionada). Se tipo=relato_refeicao caseira: quantas porcoes foram comidas, SOMENTE se o texto disser (ex: "comi 2 porcoes"); se nao disser, deixe de fora.',
+        description: 'Se tipo=aquisicao ou desperdicio: quantidade normalizada (ex: "2 pacotes de 5kg" vira 10, nao 2; "1/10 da lasanha" vira a fracao/porcao mencionada). Se tipo=porcionamento: o numero de porcoes que a pessoa DISSE que o prato rendeu — nunca estime; se nao disse, deixe de fora (o sistema pergunta). Se tipo=relato_refeicao caseira: quantas porcoes foram comidas, SOMENTE se o texto disser (ex: "comi 2 porcoes"); se nao disser, deixe de fora.',
       },
       item_unidade: {
         type: 'string',
@@ -105,7 +105,14 @@ nao nomear um prato.
 
 Quando tipo=desperdicio, preencha item_nome/item_quantidade/item_unidade com
 o que foi jogado fora. Nao calcule ha quantos dias o prato foi preparado —
-isso e' resolvido em codigo, cruzando com o registro do item, nao por voce.`;
+isso e' resolvido em codigo, cruzando com o registro do item, nao por voce.
+
+Quando tipo=branqueamento, preencha item_nome com o vegetal branqueado.
+
+Quando tipo=porcionamento, preencha item_nome com o prato e item_quantidade
+com o numero de porcoes SOMENTE se a pessoa disse o numero — o rendimento
+real so quem cozinhou sabe, nunca estime. Sem numero dito, deixe
+item_quantidade de fora que o sistema pergunta.`;
 
 async function ingerirRelato({ texto, dataReferencia, model, canal }) {
   const agent = startObservation(
