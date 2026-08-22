@@ -116,51 +116,23 @@ app.post('/api/notas-fiscais', async (req, res) => {
   const { filename, content } = req.body;
   if (!content) return res.status(400).json({ error: 'content e obrigatorio' });
 
-  const householdId = await getHouseholdId();
   const { model } = currentConfig;
 
   try {
     const result = await ingerirNotaFiscal({ filename, content, model });
 
-    const { data: receipt, error: receiptError } = await supabase
-      .from('receipts')
-      .insert({
-        household_id: householdId,
-        image_path: `texto:${filename || 'nota.md'}`,
-        status: 'confirmado',
-        model_used: model,
-        trace_id: result.traceId,
-      })
-      .select()
-      .single();
-    if (receiptError) return res.status(500).json({ error: receiptError.message });
-
-    const itemsAdded = [];
-    for (const item of result.itens) {
-      const { data, error } = await supabase
-        .from('pantry_items')
-        .insert({
-          household_id: householdId,
-          name: item.name,
-          quantity: item.quantity,
-          unit: item.unit,
-          state: item.state,
-          storage: item.storage,
-          source: 'nota_fiscal',
-        })
-        .select()
-        .single();
-      if (!error) itemsAdded.push(data);
-
-      await supabase.from('receipt_items').insert({
-        receipt_id: receipt.id,
-        name: item.name,
-        quantity: item.quantity,
-        unit: item.unit,
-        state_guess: item.state,
-        confirmed: true,
-      });
-    }
+    // Usa a MESMA persistencia do caminho SEFAZ. Na fase 5 esta rota ficou
+    // com uma copia inline "pra nao refatorar conteudo de aula", mas o teste
+    // de ponta a ponta de 2026-08-21 mostrou o efeito colateral: so o SEFAZ
+    // e o chat fechavam item pendente da lista de compras, e a nota por
+    // texto nao — dois caminhos com comportamentos diferentes, exatamente o
+    // que a v4 matou no chat. Um caminho so.
+    const { receipt, itemsAdded } = await estocarItensDaNota({
+      itens: result.itens,
+      traceId: result.traceId,
+      model,
+      origem: `texto:${filename || 'nota.md'}`,
+    });
 
     res.json({ receipt, itemsAdded, traceId: result.traceId });
   } catch (err) {
