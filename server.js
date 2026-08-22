@@ -447,11 +447,16 @@ app.get('/api/pensamentos', async (req, res) => {
 
   if (actorIds.length === 0) return res.json([]);
 
+  // Teto no feed: sem isso a tela cresce sem limite conforme a casa usa o
+  // produto (achado do QA de 2026-08-21). 200 cobre semanas de uso real; se
+  // um dia precisar de historico completo, isso vira paginacao de verdade.
+  const limite = Math.min(Number(req.query.limite) || 200, 500);
   const { data, error } = await supabase
     .from('pensamentos')
     .select('*')
     .in('actor_id', actorIds)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(limite);
   if (error) return res.status(500).json({ error: error.message });
 
   const actorById = Object.fromEntries(actors.map((a) => [a.id, a]));

@@ -413,10 +413,22 @@ async function loadConfigDrawer() {
   } catch (e) { /* sem orcamento definido ainda — ok deixar em branco */ }
 }
 
+// Abre PRIMEIRO, carrega depois: se o carregamento fosse aguardado antes de
+// abrir, uma falha da API deixava o clique sem efeito nenhum e sem mensagem
+// (bug encontrado no QA de 2026-08-21 — a gaveta simplesmente nao abria).
 $('btn-config').addEventListener('click', async () => {
-  await loadConfigDrawer();
   $('drawer').classList.add('open');
   $('drawer-backdrop').classList.add('open');
+  const hint = $('cfg-save-hint');
+  hint.className = 'save-hint';
+  hint.textContent = 'carregando...';
+  try {
+    await loadConfigDrawer();
+    hint.textContent = '';
+  } catch (err) {
+    hint.className = 'save-hint erro';
+    hint.textContent = 'erro ao carregar: ' + err.message;
+  }
 });
 function closeDrawer() { $('drawer').classList.remove('open'); $('drawer-backdrop').classList.remove('open'); }
 $('drawer-close').addEventListener('click', closeDrawer);
@@ -424,6 +436,7 @@ $('drawer-backdrop').addEventListener('click', closeDrawer);
 
 $('btn-salvar-config').addEventListener('click', async () => {
   const hint = $('cfg-save-hint');
+  hint.className = 'save-hint';
   hint.textContent = 'salvando...';
   try {
     await api('/api/config-quantitativo/validade', { method: 'POST', body: JSON.stringify({ dias: Number($('cfg-dias-validade').value) }) });
@@ -445,6 +458,7 @@ $('btn-salvar-config').addEventListener('click', async () => {
     setTimeout(() => (hint.textContent = ''), 2000);
     loadEstado();
   } catch (err) {
+    hint.className = 'save-hint erro';
     hint.textContent = 'erro: ' + err.message;
   }
 });

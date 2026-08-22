@@ -34,11 +34,8 @@
     --font-body: "Manrope", -apple-system, "Segoe UI", sans-serif;
     --sticker-shadow: rgba(80, 51, 20, .28);
     --stage-bg: #3c4a29;
-    --stage-bg-soft: #46562f;
     --stage-ink: #f4efd9;
     --stage-ink-soft: #cdc6a3;
-    --bot-glow: #6b8f4e;
-    --manual-glow: #c96f34;
   }
   * { box-sizing: border-box; }
   body {
@@ -104,7 +101,9 @@
   .estado-strip {
     display: flex; gap: 12px; overflow-x: auto; padding: 16px 20px 6px;
     -webkit-overflow-scrolling: touch; max-width: 1160px; margin: 0 auto;
+    scroll-snap-type: x proximity;
   }
+  .estado-card { scroll-snap-align: start; }
   .estado-strip::-webkit-scrollbar { height: 6px; }
   .estado-strip::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
   .estado-card {
@@ -128,7 +127,10 @@
   .composer .quem { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
   .composer .quem .hintlabel { font: 700 10.5px/1 var(--font-body); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-faint); }
   .composer .row { margin-bottom: 0; }
-  .composer input[type=text] { background: var(--bg); }
+  /* 16px NAO e' escolha estetica: abaixo disso o Safari do iOS da zoom
+     automatico ao focar o campo e nao volta sozinho. Este input e' a
+     interacao principal do produto num app mobile-first — nao pode zoar. */
+  .composer input[type=text] { background: var(--bg); font-size: 16px; }
   .resposta-agente {
     display: none; margin-top: 12px; background: var(--accent-bg); border: 1px solid var(--accent-soft);
     border-radius: 10px; padding: 11px 13px; font-size: 13.5px;
@@ -236,16 +238,12 @@
   .import-nota[open] summary::before { content: "－ "; }
   .import-nota input[type=file] { font-size: 12.5px; flex: 1; padding: 6px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; }
 
-  .pensamento-item { border-bottom: 1px solid var(--border); padding: 10px 0; font-size: 13.5px; }
-  .pensamento-item:last-child { border-bottom: none; }
-  .pensamento-item .quem { font-weight: 700; color: var(--ink-soft); margin-right: 6px; }
   .pill.relato_refeicao { background: var(--good-bg); color: var(--good); }
   .pill.desejo { background: var(--terracotta-bg); color: var(--terracotta); }
   .pill.aquisicao { background: var(--gold-bg); color: var(--gold); }
   .pill.desperdicio { background: var(--bad-bg); color: var(--bad); }
   .pill.branqueamento { background: var(--accent-bg); color: var(--accent); }
   .pill.porcionamento { background: var(--accent-bg); color: var(--accent-soft); }
-  .pensamento-item .quando { color: var(--ink-faint); font-size: 11px; margin-top: 4px; }
 
   /* ---------- gaveta de configuracoes ---------- */
   .drawer-backdrop { position: fixed; inset: 0; background: rgba(47, 42, 24, .35); opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 90; }
@@ -265,6 +263,24 @@
   .drawer .budget-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 11px; background: var(--surface-alt); border-radius: 8px; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); }
   .drawer .close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: var(--ink-faint); cursor: pointer; box-shadow: none; padding: 4px; }
   .drawer .save-hint { font-size: 11px; color: var(--good); height: 14px; }
+  .drawer .save-hint.erro { color: var(--bad); }
+
+  /* ---------- ajustes de toque (mobile-first) ----------
+     Produto e' usado no celular com o dedo: nenhum alvo abaixo de 32px, e
+     todo campo de texto em 16px pra nao disparar o zoom automatico do iOS. */
+  @media (max-width: 767px) {
+    /* .drawer input tem seletor mais especifico com font:inherit, entao os
+       campos da gaveta precisam ser citados explicitamente aqui — senao
+       continuam em 15px e o iOS da zoom neles. */
+    input[type=text], input[type=number], textarea, select,
+    .drawer input[type=number] { font-size: 16px; }
+    button.small { min-height: 34px; padding: 8px 12px; font-size: 13px; }
+    .settings-link { min-height: 34px; }
+    .config-bar select { min-height: 34px; }
+    button.ghost { min-height: 32px; }
+    .item-card__remove { width: 32px; height: 32px; font-size: 17px; }
+    .drawer .close-btn { width: 40px; height: 40px; font-size: 24px; top: 10px; right: 10px; }
+  }
 </style>
 </head>
 <body>
@@ -361,11 +377,11 @@
           <input type="text" id="estoque-unit" placeholder="unidade" style="max-width:100px" />
         </div>
         <div class="row">
-          <select id="estoque-state">
+          <select id="estoque-state" aria-label="Estado do alimento">
             <option value="base">base</option>
             <option value="ingrediente">ingrediente</option>
           </select>
-          <select id="estoque-storage">
+          <select id="estoque-storage" aria-label="Onde o item é guardado">
             <option value="perecivel">geladeira (perecível)</option>
             <option value="seco">despensa (seco)</option>
           </select>
@@ -389,7 +405,7 @@
         <details class="import-nota">
           <summary>Importar nota fiscal (.md/.txt ou SEFAZ)</summary>
           <div class="row" style="margin-top:10px">
-            <input type="file" id="nota-file" accept=".md,.txt,text/markdown,text/plain" />
+            <input type="file" id="nota-file" accept=".md,.txt,text/markdown,text/plain" aria-label="Arquivo da nota fiscal (.md ou .txt)" />
             <button id="btn-importar-nota">Importar</button>
           </div>
           <div class="row" style="margin-top:8px">
@@ -427,7 +443,7 @@
   <div class="sub">Repositório editável de dado quantitativo — o resto do produto só observa isso.</div>
 
   <div class="field-group">
-    <label>Validade pós-branqueamento (regra D-N)</label>
+    <label for="cfg-dias-validade">Validade pós-branqueamento (regra D-N)</label>
     <input type="number" id="cfg-dias-validade" min="1" />
     <div class="hint">dias até um item branqueado virar "vencido" no estágio Pré-preparo</div>
   </div>
