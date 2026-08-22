@@ -205,10 +205,18 @@ propagar com `semSilencio`) sobrevive como convenção em
 identificados no grupo (`/eusou_chef`/`/eusou_musa`), Group Privacy
 confirmado off, env vars do Telegram já no Railway. **Todas as migrações
 (fases 2–6) rodadas e verificadas em 2026-08-21** — nada pendente no banco.
-Falta:
-1. Semear o cenário real da lasanha como `pantry_item` `preparado` —
-   pendente só do número real de porções (não inventado). Pós-v4 dá pra
-   fazer por uma frase no chat: "porcionei a lasanha em N".
+O cenário real da lasanha foi semeado em 2026-08-21 **pelo próprio produto**,
+via Telegram ("porcionei a lasanha em 4 porções de 250g e 1 porção extra de
+~330g com mais queijo tostado" → `pantry_item` `preparado`, 5 porções) —
+primeiro uso real do caminho único de escrita em produção. Nada pendente.
+
+**Observação em aberto desse primeiro uso real** (não mexer sem decidir,
+convenção de processo abaixo): (a) o agente de ingestão fez `4 + 1 = 5` —
+soma de números ditos explicitamente, mas ainda assim aritmética feita pela
+LLM, no limite da regra de ouro "matemática sempre em código"; (b) as 5
+porções não são equivalentes (4×250g + 1×330g) e o modelo atual trata
+porção como unidade intercambiável — "comi uma porção" decrementa 1
+independente de qual. Importa quando entrar cálculo calórico por porção.
 
 Adiado de propósito, não esquecido: cards (swipe + geração de imagem por
 IA), LTM/aprendizado de "match de sucesso" (a validade de prato pronto é o
