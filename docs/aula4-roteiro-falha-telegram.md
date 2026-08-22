@@ -39,6 +39,42 @@ Esse é o ponto pedagógico central: **o tratamento de erro apagou a
 evidência do erro**. Um `catch` que tenta avisar alguém e não protege esse
 aviso transforma uma falha diagnosticável em duas falhas genéricas.
 
+## O segundo episódio (2026-08-22): a falha *perfeitamente* silenciosa
+
+No dia seguinte a mesma nota foi reencaminhada. Resultado:
+
+| Onde olhar | O que tem |
+|---|---|
+| Resposta no Telegram | nada |
+| Log do Railway | **nenhuma linha** |
+| Trace no Langfuse | **nenhum trace** |
+| Banco (pensamentos/estoque) | **nada** |
+| `getWebhookInfo` do Telegram | `pending_update_count: 0`, `last_error: nenhum` |
+
+O Telegram **entregou** o update com sucesso (0 pendentes, nenhum erro), e
+mesmo assim o sistema não deixou rastro nenhum. Esse é o caso mais rico de
+observabilidade do produto inteiro, porque força a pergunta certa:
+
+> Se o canal confirma a entrega e o sistema não registra nada, onde está a
+> mensagem?
+
+**Diagnóstico por eliminação**: existe exatamente um caminho no
+`processarUpdate` que produz zero log, zero trace, zero escrita e zero
+resposta — o `return` mudo para mensagens sem `.text`:
+
+```js
+if (!message || !message.text) return; // foto/audio: fora do escopo desta fase
+```
+
+Ou seja: a nota "difícil" é uma **foto/PDF do cupom**, não um link. O
+produto não sabe ler imagem ainda (é a próxima camada, já registrada no
+CLAUDE.md) — mas o pecado não é não saber ler: é **não dizer que não sabe**.
+
+Vale contrastar com o episódio anterior: lá o tratamento de erro destruiu a
+evidência; aqui nunca houve evidência para destruir. São os dois modos de
+cegueira, e a correção dos dois é a mesma família: nenhum caminho pode
+terminar em silêncio.
+
 ## Roteiro sugerido (≈15 min)
 
 1. **Reproduzir ao vivo** — mandar a mesma nota difícil no grupo. Nada
