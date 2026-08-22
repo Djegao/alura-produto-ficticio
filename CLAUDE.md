@@ -97,7 +97,8 @@ comparação de aula intacta.
 Arquivos novos: `relato-ingestao.js` (agente de ingestão, classifica texto em
 relato de refeição vs. desejo), `telegram.js` (canal Telegram, roda em
 paralelo ao web), `lembrete.js` (job horário que cobra relato ausente —
-pergunta, nunca infere). `agent.js` ganhou `mediarCardapio` (mesmo padrão de
+pergunta, nunca infere), e (fase 5, 2026-08-21) `sefaz.js` + `receita-premium.js`
+(ver "Fase 5" abaixo). `agent.js` ganhou `mediarCardapio` (mesmo padrão de
 loop + `tool_choice` forçado do `sugerirReceita`, mas com tools
 deterministas novas e `max_tokens` maior — o teto de 1024 do loop original
 **não foi tocado de propósito**, é o achado §11.4 preservado). `tools.js`
@@ -130,6 +131,49 @@ manual de propósito, só quem cozinhou sabe o rendimento real), e
 `/api/config-quantitativo` (+ `/validade`, `/metas` — o repositório
 editável por trás da gaveta de Configurações).
 
+### Fase 5 (2026-08-21): SEFAZ, lista de compras e receita premium
+
+- **`sefaz.js`** — ingestão de NFC-e pela URL do QR code, sem custo nem
+  intermediário: fetch da página pública de consulta da SEFAZ do estado
+  emissor (validada: domínio `.gov.br` + chave de 44 dígitos na URL),
+  HTML→texto, e o texto cai no **mesmo** extrator LLM de `nota-fiscal.js`
+  (estado-agnóstico de propósito — nada de parser por UF). Funciona no
+  painel web (campo "cole o link do QR" dentro de Importar nota fiscal) e
+  mandando o link no Telegram (detectado no meio de texto livre). Limite
+  conhecido: portal estadual que só renderiza via JS falha barulhento com
+  instrução de usar o caminho de texto manual. `nota-fiscal.js` ganhou
+  `estocarItensDaNota` (persistência compartilhada pelos caminhos novos; a
+  rota antiga `/api/notas-fiscais` mantém o inline dela de propósito).
+- **Lista de compras** (`shopping_list_items`) — alimentada por 3 fontes:
+  o Mediador (novas tools `verificar_disponibilidade`, que faz match de
+  ingredientes contra o estoque **em código**, e `registrar_lista_compras`;
+  o prompt `mediador` agora manda resolver falta de item nesta ordem:
+  substituição com o que há no estoque → lista de compras com motivo — a
+  falta nunca cancela a proposta, vira trade-off), a receita premium
+  (faltantes prováveis, source `premium`) e manual. Itens pendentes viram
+  `comprado` **automaticamente** quando a compra chega (aquisição via chat
+  ou item de nota fiscal/SEFAZ com nome casando — `marcarCompradoNaLista`
+  em `tools.js`). Rotas: `/api/lista-compras` (+ `/:id/status`), comando
+  `/lista` no Telegram, e seção na despensa do painel web.
+- **Estoque atualizado pelo chat** — relato de refeição `caseira` que nomeia
+  um prato (ex.: "comi a lasanha") agora baixa `portions_remaining` do
+  `pantry_item` `preparado` correspondente (mesmo padrão de match do
+  desperdício; sem match, não infere nada). `relato-ingestao.js` extrai
+  `item_nome`/`item_quantidade` também pra relato caseiro.
+- **`receita-premium.js`** — toda sexta ≥10h, job (padrão `lembrete.js`)
+  escolhe UMA receita premium do canal do chef Mohamad Hindi
+  (youtube.com/@mohindi) via **feed RSS público** do YouTube (sem API key;
+  channelId resolvido da página do canal — regex aceita
+  `externalId|browseId|channelId`, testado ao vivo). A única decisão da LLM
+  é qual vídeo casa com estoque+preferências (tool_choice forçado +
+  guarda-corpo: URL registrada tem que existir no feed, senão erro).
+  Dedupe real é o `unique(household_id, week_start)` de
+  `premium_suggestions`. Posta no grupo do Telegram e alimenta a lista de
+  compras. Rotas `/api/receita-premium` (POST, `force` regenera) e
+  `/api/receitas-premium`; comando `/premium` no Telegram (require tardio
+  de `receita-premium` dentro do handler — evita ciclo com
+  `enviarMensagem`).
+
 **Pendências externas (não é código, é ação manual)** — atualizado
 2026-08-02: bot criado, webhook registrado e validando, os dois atores já
 identificados no grupo (`/eusou_chef`/`/eusou_musa`), Group Privacy
@@ -141,6 +185,10 @@ confirmado off, env vars do Telegram já no Railway. Falta:
    erro (de propósito — nunca cai em silêncio, ver achado de teste abaixo).
 2. Semear o cenário real da lasanha como `pantry_item` `preparado` —
    pendente só do número real de porções (não inventado).
+3. **Rodar a migração da fase 5** (bloco `PENDENTE fase 5` no fim do
+   `schema.sql` — tabelas `shopping_list_items` e `premium_suggestions`).
+   Sem isso, lista de compras, `/lista`, `/premium` e o job de sexta falham
+   barulhento (de propósito, mesma convenção do Kanban).
 
 **Achado de teste (2026-08-02, Playwright local)**: a primeira versão do
 `GET /api/kanban` mascarava erro de coluna ausente com um fallback `|| []`

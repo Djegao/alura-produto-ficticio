@@ -178,6 +178,46 @@ const novasToolsMediador = [
     },
   },
   {
+    name: 'verificar_disponibilidade',
+    description:
+      'Verifica, em codigo (match de nome contra o estoque real), quais ingredientes de uma receita existem no estoque e quais faltam. Use SEMPRE antes de afirmar que algo falta ou sobra — nunca decida disponibilidade "de olho" em cima do consultar_estoque.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        itens: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Nomes dos ingredientes necessarios, limpos e curtos (ex: "arroz arboreo", "parmesao").',
+        },
+      },
+      required: ['itens'],
+    },
+  },
+  {
+    name: 'registrar_lista_compras',
+    description:
+      'Adiciona itens faltantes a lista de compras da casa. So chame para itens que verificar_disponibilidade confirmou como faltantes E que nao tem substituto razoavel no estoque — substituicao vem antes de compra.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        itens: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              nome: { type: 'string', description: 'nome limpo e curto do item' },
+              quantidade: { type: 'number', description: 'quantidade necessaria, se souber' },
+              unidade: { type: 'string', description: 'kg, g, ml, L, unidade, etc' },
+              motivo: { type: 'string', description: 'pra que serve, ex: "risoto premium de sabado"' },
+            },
+            required: ['nome'],
+          },
+        },
+      },
+      required: ['itens'],
+    },
+  },
+  {
     name: 'registrar_decisao_cardapio',
     description:
       'Registra a proposta de trade-off apresentada e a escolha feita para a semana. So chame depois de consultar estoque, validade e orcamento — a decisao final e sempre do casal, voce so expoe o trade-off e registra o que foi decidido.',
@@ -313,6 +353,91 @@ async function consultar_relatos_recentes({ dias } = {}) {
   return data.map((r) => ({ ...r, ator: actorById[r.actor_id] }));
 }
 
+// Normaliza nome pra match: minusculo, sem acento. O match e' bidirecional
+// ("arroz" acha "arroz arboreo" e vice-versa) — grosseiro de proposito, e'
+// a camada deterministica; refinamento culinario e' trabalho do Mediador.
+function normalizarNome(s) {
+  return String(s || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .trim();
+}
+
+function nomesCasam(a, b) {
+  const na = normalizarNome(a);
+  const nb = normalizarNome(b);
+  if (!na || !nb) return false;
+  return na.includes(nb) || nb.includes(na);
+}
+
+async function verificar_disponibilidade({ itens } = {}) {
+  const householdId = await getHouseholdId();
+  const { data: estoque, error } = await supabase
+    .from('pantry_items')
+    .select('id, name, quantity, unit, state, storage, portions_remaining')
+    .eq('household_id', householdId);
+  if (error) throw new Error(error.message);
+
+  const disponiveis = [];
+  const faltantes = [];
+  for (const solicitado of itens || []) {
+    const encontrados = estoque.filter(
+      (e) => nomesCasam(e.name, solicitado) && (Number(e.quantity) > 0 || Number(e.portions_remaining) > 0)
+    );
+    if (encontrados.length > 0) {
+      disponiveis.push({ solicitado, itens_no_estoque: encontrados });
+    } else {
+      faltantes.push(solicitado);
+    }
+  }
+  return { disponiveis, faltantes };
+}
+
+async function registrar_lista_compras({ itens } = {}) {
+  const householdId = await getHouseholdId();
+  const rows = (itens || [])
+    .filter((i) => i && i.nome)
+    .map((i) => ({
+      household_id: householdId,
+      name: i.nome,
+      quantity: i.quantidade ?? null,
+      unit: i.unidade ?? null,
+      motivo: i.motivo ?? null,
+      status: 'pendente',
+      source: 'mediador',
+    }));
+  if (rows.length === 0) return { ok: true, adicionados: 0 };
+  const { error } = await supabase.from('shopping_list_items').insert(rows);
+  if (error) throw new Error(error.message);
+  return { ok: true, adicionados: rows.length };
+}
+
+// Fecha o ciclo da falta: quando um item chega (aquisicao via chat ou nota
+// fiscal), o item correspondente da lista de compras vira 'comprado'. Match
+// pelo mesmo criterio bidirecional de verificar_disponibilidade — o filtro
+// fino e' feito aqui em codigo, nao via ilike, pra manter um criterio so.
+async function marcarCompradoNaLista(nomeItem) {
+  if (!nomeItem) return { atualizados: 0 };
+  const householdId = await getHouseholdId();
+  const { data: pendentes, error } = await supabase
+    .from('shopping_list_items')
+    .select('id, name')
+    .eq('household_id', householdId)
+    .eq('status', 'pendente');
+  if (error) throw new Error(error.message);
+
+  const ids = (pendentes || []).filter((p) => nomesCasam(p.name, nomeItem)).map((p) => p.id);
+  if (ids.length === 0) return { atualizados: 0 };
+
+  const { error: updError } = await supabase
+    .from('shopping_list_items')
+    .update({ status: 'comprado', updated_at: new Date().toISOString() })
+    .in('id', ids);
+  if (updError) throw new Error(updError.message);
+  return { atualizados: ids.length };
+}
+
 async function registrar_decisao_cardapio({ proposta, escolha } = {}) {
   // Igual a registrar_itens_usados: nao grava aqui — o loop do agente
   // mediador captura o input desta chamada diretamente pra persistir em
@@ -329,6 +454,8 @@ async function runTool(name, input) {
   if (name === 'registrar_relato_refeicao') return registrar_relato_refeicao(input);
   if (name === 'consultar_relatos_recentes') return consultar_relatos_recentes(input);
   if (name === 'registrar_decisao_cardapio') return registrar_decisao_cardapio(input);
+  if (name === 'verificar_disponibilidade') return verificar_disponibilidade(input);
+  if (name === 'registrar_lista_compras') return registrar_lista_compras(input);
   throw new Error(`Ferramenta desconhecida: ${name}`);
 }
 
@@ -340,4 +467,6 @@ module.exports = {
   getActorByRole,
   getWeekStart,
   supabase,
+  marcarCompradoNaLista,
+  nomesCasam,
 };

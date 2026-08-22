@@ -8,8 +8,10 @@
 // webhook (tipo de update diferente de mensagem de texto), tratado abaixo.
 // /eusou_chef e /eusou_musa continuam funcionando tambem, como atalho.
 
-const { supabase, getHouseholdId, getActorByRole, runTool } = require('./tools');
+const { supabase, getHouseholdId, getActorByRole, runTool, marcarCompradoNaLista } = require('./tools');
 const { ingerirRelato } = require('./relato-ingestao');
+const { extrairUrlNfce, ingerirNotaSefaz } = require('./sefaz');
+const { estocarItensDaNota } = require('./nota-fiscal');
 
 const TELEGRAM_API = 'https://api.telegram.org/bot' + process.env.TELEGRAM_BOT_TOKEN;
 
@@ -187,6 +189,71 @@ async function processarUpdate(update, { model }) {
 
   const hoje = new Date().toISOString().slice(0, 10);
 
+  // /lista: a lista de compras pendente, direto no chat — a interface
+  // primaria do produto e' o Telegram, nao o painel web.
+  if (texto === '/lista') {
+    const householdId = await getHouseholdId();
+    const { data: pendentes, error } = await supabase
+      .from('shopping_list_items')
+      .select('name, quantity, unit, motivo')
+      .eq('household_id', householdId)
+      .eq('status', 'pendente')
+      .order('created_at', { ascending: true });
+    if (error) {
+      await enviarMensagem(chatId, '⚠️ Nao consegui ler a lista de compras: ' + error.message);
+      return;
+    }
+    if (!pendentes.length) {
+      await enviarMensagem(chatId, '🛒 Lista de compras vazia — nada pendente.');
+      return;
+    }
+    const linhas = pendentes.map(
+      (p) => `• ${p.name}${p.quantity ? ` (${p.quantity} ${p.unit || ''})`.trimEnd() + ')' : ''}${p.motivo ? ` — ${p.motivo}` : ''}`
+    );
+    await enviarMensagem(chatId, `🛒 Lista de compras:\n${linhas.join('\n')}`);
+    return;
+  }
+
+  // /premium: forca a sugestao premium da semana agora, sem esperar sexta.
+  // require tardio de proposito: receita-premium.js importa enviarMensagem
+  // deste arquivo — require no topo criaria ciclo com modulo pela metade.
+  if (texto === '/premium') {
+    await enviarMensagem(chatId, '⭐ Buscando a receita premium da semana no canal do Mohamad Hindi...');
+    try {
+      const { sugerirReceitaPremium } = require('./receita-premium');
+      await sugerirReceitaPremium({ model, force: true });
+      // A propria sugerirReceitaPremium posta o resultado no grupo.
+    } catch (err) {
+      console.error('Erro na receita premium via /premium:', err.message);
+      await enviarMensagem(chatId, '⚠️ Nao consegui fechar a receita premium agora: ' + err.message);
+    }
+    return;
+  }
+
+  // Link do QR code de NFC-e no meio da mensagem: ingestao SEFAZ direto do
+  // chat — busca a pagina publica da nota, extrai os itens de comida e
+  // estoca. Resposta com o resumo do que entrou (aqui a resposta em texto se
+  // justifica: e' resultado de acao pedida, nao comentario de conversa).
+  const urlNfce = extrairUrlNfce(texto);
+  if (urlNfce) {
+    await reagir(chatId, message.message_id, '👍');
+    try {
+      const { itens, traceId, chave } = await ingerirNotaSefaz({ url: urlNfce.url, model });
+      const { itemsAdded } = await estocarItensDaNota({
+        itens,
+        traceId,
+        model,
+        origem: `sefaz:${chave}`,
+      });
+      const resumo = itemsAdded.map((i) => `• ${i.name} (${i.quantity} ${i.unit})`).join('\n');
+      await enviarMensagem(chatId, `🧾 Nota da SEFAZ ingerida — ${itemsAdded.length} itens no estoque:\n${resumo}`);
+    } catch (err) {
+      console.error('Erro ingerindo NFC-e via Telegram:', err.message);
+      await enviarMensagem(chatId, '⚠️ Nao consegui ler essa nota na SEFAZ: ' + err.message);
+    }
+    return;
+  }
+
   try {
     const { intencao, traceId } = await ingerirRelato({ texto, dataReferencia: hoje, model, canal: 'telegram' });
 
@@ -200,6 +267,37 @@ async function processarUpdate(update, { model }) {
         custo: intencao.custo,
         fonte_refeicao: intencao.fonte_refeicao,
       });
+
+      // Estoque atualizado pelo chat (requisito 2026-08-21): relato de comida
+      // caseira que nomeia um prato preparado baixa a(s) porcao(oes)
+      // correspondente(s) — mesmo padrao de match do desperdicio abaixo.
+      // Sem match exato de prato 'preparado' vivo, nao baixa nada: relato
+      // sem correspondencia nao vira inferencia de consumo.
+      if (intencao.fonte_refeicao === 'caseira' && intencao.item_nome) {
+        const householdId = await getHouseholdId();
+        const { data: candidatos } = await supabase
+          .from('pantry_items')
+          .select('id, name, portions_remaining')
+          .eq('household_id', householdId)
+          .eq('state', 'preparado')
+          .ilike('name', `%${intencao.item_nome}%`)
+          .gt('portions_remaining', 0)
+          .order('prepared_at', { ascending: false })
+          .limit(1);
+
+        const prato = candidatos && candidatos[0];
+        if (prato) {
+          const porcoes = Number(intencao.item_quantidade) || 1;
+          await supabase
+            .from('pantry_items')
+            .update({
+              portions_remaining: Math.max(0, Number(prato.portions_remaining) - porcoes),
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', prato.id);
+        }
+      }
+
       await supabase.from('pensamentos').insert({
         actor_id: actor.id,
         tipo: intencao.tipo,
@@ -263,6 +361,14 @@ async function processarUpdate(update, { model }) {
           storage: intencao.item_storage,
           source: 'telegram',
         });
+      }
+
+      // Compra relatada no chat tambem fecha item pendente da lista de
+      // compras, igual a ingestao de nota fiscal faz.
+      if (intencao.item_nome) {
+        await marcarCompradoNaLista(intencao.item_nome).catch((err) =>
+          console.warn('Nao consegui cruzar aquisicao com a lista de compras:', err.message)
+        );
       }
 
       const temCategoria = !!intencao.budget_categoria;

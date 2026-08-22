@@ -138,6 +138,56 @@ $('btn-importar-nota').addEventListener('click', async () => {
   }
 });
 
+$('btn-importar-sefaz').addEventListener('click', async () => {
+  const url = $('nota-sefaz-url').value.trim();
+  const status = $('nota-status');
+  if (!url) { status.textContent = 'Cole o link do QR code da NFC-e primeiro.'; return; }
+  status.textContent = 'Consultando a SEFAZ e extraindo itens...';
+  try {
+    const result = await api('/api/notas-fiscais/sefaz', { method: 'POST', body: JSON.stringify({ url }) });
+    status.textContent = `${result.itemsAdded.length} itens adicionados da nota ${result.chave.slice(0, 8)}... (trace: ${result.traceId}).`;
+    $('nota-sefaz-url').value = '';
+    loadEstoque();
+    loadListaCompras();
+  } catch (err) {
+    status.textContent = `Erro: ${err.message}`;
+  }
+});
+
+// ---- Lista de compras ----
+
+async function loadListaCompras() {
+  const list = $('lista-compras');
+  try {
+    const items = await api('/api/lista-compras');
+    const pendentes = items.filter((i) => i.status === 'pendente');
+    $('count-lista').textContent = pendentes.length ? `(${pendentes.length})` : '';
+    if (!pendentes.length) { list.innerHTML = '<div class="empty">Nada pendente pra comprar.</div>'; return; }
+    list.innerHTML = pendentes
+      .map(
+        (i) => `<li><span>${escapeHtml(i.name)}${i.quantity ? ` — ${i.quantity} ${escapeHtml(i.unit || '')}` : ''}${i.motivo ? ` <em style="opacity:.7">(${escapeHtml(i.motivo)})</em>` : ''}</span>
+          <span><button class="ghost" data-lista-comprado="${i.id}">comprado</button>
+          <button class="ghost" data-lista-dispensar="${i.id}">dispensar</button></span></li>`
+      )
+      .join('');
+  } catch (err) {
+    // Antes da migracao fase 5 rodar no Supabase, a tabela nao existe — o
+    // erro aparece aqui em vez de sumir (convencao: nunca falhar em silencio).
+    $('count-lista').textContent = '';
+    list.innerHTML = `<div class="empty">Erro na lista de compras: ${escapeHtml(err.message)}</div>`;
+  }
+}
+$('lista-compras').addEventListener('click', async (e) => {
+  const compradoId = e.target.dataset.listaComprado;
+  const dispensarId = e.target.dataset.listaDispensar;
+  if (!compradoId && !dispensarId) return;
+  await api(`/api/lista-compras/${compradoId || dispensarId}/status`, {
+    method: 'POST',
+    body: JSON.stringify({ status: compradoId ? 'comprado' : 'dispensado' }),
+  });
+  loadListaCompras();
+});
+
 // ---- Preferencias ----
 
 async function loadPreferencias() {
@@ -455,6 +505,6 @@ kitchenObjects.forEach((obj) => {
 
 // ---- Boot ----
 
-Promise.all([loadConfig(), loadAtores(), loadEstoque(), loadPreferencias(), loadPensamentos(), loadKanban('all')]).catch((err) =>
+Promise.all([loadConfig(), loadAtores(), loadEstoque(), loadListaCompras(), loadPreferencias(), loadPensamentos(), loadKanban('all')]).catch((err) =>
   console.error('Erro ao carregar painel:', err)
 );

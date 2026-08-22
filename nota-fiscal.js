@@ -5,6 +5,7 @@
 
 const Anthropic = require('@anthropic-ai/sdk');
 const { startObservation } = require('@langfuse/tracing');
+const { supabase, getHouseholdId, marcarCompradoNaLista } = require('./tools');
 
 const anthropic = new Anthropic();
 
@@ -100,4 +101,61 @@ async function ingerirNotaFiscal({ filename, content, model }) {
   }
 }
 
-module.exports = { ingerirNotaFiscal };
+// Persistencia dos itens extraidos (receipt + pantry_items + receipt_items),
+// compartilhada pelos caminhos novos (SEFAZ via web e via Telegram). A rota
+// antiga /api/notas-fiscais mantem a propria versao inline em server.js de
+// proposito — codigo que ja e' conteudo de aula nao se refatora sem motivo.
+// De quebra, cada item estocado marca como 'comprado' o item correspondente
+// da lista de compras, se houver — a compra fecha o ciclo da falta.
+async function estocarItensDaNota({ itens, traceId, model, origem }) {
+  const householdId = await getHouseholdId();
+
+  const { data: receipt, error: receiptError } = await supabase
+    .from('receipts')
+    .insert({
+      household_id: householdId,
+      image_path: origem,
+      status: 'confirmado',
+      model_used: model,
+      trace_id: traceId,
+    })
+    .select()
+    .single();
+  if (receiptError) throw new Error(receiptError.message);
+
+  const itemsAdded = [];
+  for (const item of itens) {
+    const { data, error } = await supabase
+      .from('pantry_items')
+      .insert({
+        household_id: householdId,
+        name: item.name,
+        quantity: item.quantity,
+        unit: item.unit,
+        state: item.state,
+        storage: item.storage,
+        source: 'nota_fiscal',
+      })
+      .select()
+      .single();
+    if (!error) itemsAdded.push(data);
+
+    await supabase.from('receipt_items').insert({
+      receipt_id: receipt.id,
+      name: item.name,
+      quantity: item.quantity,
+      unit: item.unit,
+      state_guess: item.state,
+      confirmed: true,
+    });
+
+    await marcarCompradoNaLista(item.name).catch((err) =>
+      // Falha aqui nao pode derrubar a ingestao da nota — loga e segue.
+      console.warn('Nao consegui cruzar item da nota com a lista de compras:', err.message)
+    );
+  }
+
+  return { receipt, itemsAdded };
+}
+
+module.exports = { ingerirNotaFiscal, estocarItensDaNota };
