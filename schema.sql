@@ -374,3 +374,41 @@ alter table pensamentos add constraint pensamentos_tipo_check check (tipo in ('r
 -- 2026-08-02: marca de quando uma decisao virou prato pronto de verdade.
 alter table trade_off_decisions
   add column if not exists porcionado_em timestamptz;
+
+-- ---------------------------------------------------------------------
+-- PENDENTE fase 5 (lista de compras + receita premium) — ainda NAO rodado
+-- no Supabase.
+-- ---------------------------------------------------------------------
+
+-- 2026-08-21: lista de compras (alimentada pelo Mediador quando falta item
+-- pra receita escolhida, pela receita premium semanal e manualmente; itens
+-- viram 'comprado' automaticamente quando a compra chega via chat ou nota
+-- fiscal/SEFAZ) e registro da receita premium semanal escolhida do canal
+-- do Mohamad Hindi (unique por semana = dedupe real do job de sexta).
+
+create table if not exists shopping_list_items (
+  id uuid primary key default gen_random_uuid(),
+  household_id uuid not null references households(id) on delete cascade,
+  name text not null,
+  quantity numeric,
+  unit text,
+  motivo text,
+  status text not null default 'pendente' check (status in ('pendente', 'comprado', 'dispensado')),
+  source text not null default 'manual' check (source in ('mediador', 'manual', 'premium')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists premium_suggestions (
+  id uuid primary key default gen_random_uuid(),
+  household_id uuid not null references households(id) on delete cascade,
+  week_start date not null,
+  video_title text not null,
+  video_url text not null,
+  video_published_at timestamptz,
+  justificativa text,
+  itens_faltantes jsonb not null default '[]',
+  trace_id text,
+  created_at timestamptz not null default now(),
+  unique (household_id, week_start)
+);

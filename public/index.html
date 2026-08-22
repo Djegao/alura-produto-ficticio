@@ -382,11 +382,20 @@
           <div class="item-grid" id="estoque-seco"></div>
         </div>
 
+        <div class="estoque-group">
+          <h3 class="estoque-group__title">Lista de compras <span class="count" id="count-lista"></span></h3>
+          <ul class="list" id="lista-compras"></ul>
+        </div>
+
         <details class="import-nota">
-          <summary>Importar nota fiscal (.md/.txt)</summary>
+          <summary>Importar nota fiscal (.md/.txt ou SEFAZ)</summary>
           <div class="row" style="margin-top:10px">
             <input type="file" id="nota-file" accept=".md,.txt,text/markdown,text/plain" />
             <button id="btn-importar-nota">Importar</button>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <input type="text" id="nota-sefaz-url" placeholder="ou cole o link do QR code da NFC-e" />
+            <button id="btn-importar-sefaz">Buscar na SEFAZ</button>
           </div>
           <div id="nota-status" class="empty"></div>
         </details>

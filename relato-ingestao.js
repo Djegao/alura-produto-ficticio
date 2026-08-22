@@ -50,11 +50,11 @@ const REGISTRAR_INTENCAO_TOOL = {
       },
       item_nome: {
         type: 'string',
-        description: 'Se tipo=aquisicao ou desperdicio. Nome limpo e curto do item comprado/perdido (ex: "arroz branco", "lasanha").',
+        description: 'Se tipo=aquisicao ou desperdicio: nome limpo e curto do item comprado/perdido (ex: "arroz branco", "lasanha"). Se tipo=relato_refeicao com fonte_refeicao=caseira E o texto mencionar um prato especifico ja pronto (ex: "comi a lasanha do freezer"): o nome do prato — e isso que baixa a porcao no estoque.',
       },
       item_quantidade: {
         type: 'number',
-        description: 'Se tipo=aquisicao ou desperdicio. Quantidade normalizada (ex: "2 pacotes de 5kg" vira 10, nao 2; "1/10 da lasanha" vira a fracao/porcao mencionada).',
+        description: 'Se tipo=aquisicao ou desperdicio: quantidade normalizada (ex: "2 pacotes de 5kg" vira 10, nao 2; "1/10 da lasanha" vira a fracao/porcao mencionada). Se tipo=relato_refeicao caseira: quantas porcoes foram comidas, SOMENTE se o texto disser (ex: "comi 2 porcoes"); se nao disser, deixe de fora.',
       },
       item_unidade: {
         type: 'string',
@@ -96,6 +96,12 @@ descreve o quao transformado o alimento esta, storage descreve onde ele mora
 fisicamente). So preencha budget_categoria se a pessoa disser explicitamente
 de qual das 3 carteiras (TR Diego, TR Esposa, Credito Familia) saiu o gasto —
 caso contrario deixe de fora, o sistema vai perguntar depois.
+
+Quando tipo=relato_refeicao de comida caseira que mencione um prato
+especifico (ex: "almocei a lasanha de ontem"), preencha item_nome com o
+prato — o sistema usa isso pra baixar a porcao correspondente no estoque.
+Nao preencha item_nome se a refeicao foi delivery/restaurante ou se o texto
+nao nomear um prato.
 
 Quando tipo=desperdicio, preencha item_nome/item_quantidade/item_unidade com
 o que foi jogado fora. Nao calcule ha quantos dias o prato foi preparado —

@@ -5,10 +5,12 @@ const path = require('path');
 const crypto = require('crypto');
 const { supabase, getHouseholdId, getWeekStart, getActorByRole, runTool } = require('./tools');
 const { sugerirReceita, mediarCardapio } = require('./agent');
-const { ingerirNotaFiscal } = require('./nota-fiscal');
+const { ingerirNotaFiscal, estocarItensDaNota } = require('./nota-fiscal');
+const { ingerirNotaSefaz } = require('./sefaz');
 const { ingerirRelato } = require('./relato-ingestao');
 const { processarUpdate } = require('./telegram');
 const { iniciarLembretes } = require('./lembrete');
+const { sugerirReceitaPremium, iniciarReceitaPremium } = require('./receita-premium');
 
 const app = express();
 
@@ -158,6 +160,101 @@ app.post('/api/notas-fiscais', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// Ingestao direto da SEFAZ, pela URL do QR code da NFC-e — sem custo nem
+// intermediario (a pagina publica de consulta do estado emissor vira texto e
+// cai no mesmo extrator LLM da rota acima). Ver sefaz.js.
+app.post('/api/notas-fiscais/sefaz', async (req, res) => {
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ error: 'url e obrigatoria (link do QR code da NFC-e)' });
+
+  const { model } = currentConfig;
+  try {
+    const { itens, traceId, chave } = await ingerirNotaSefaz({ url, model });
+    const { receipt, itemsAdded } = await estocarItensDaNota({ itens, traceId, model, origem: `sefaz:${chave}` });
+    res.json({ receipt, itemsAdded, traceId, chave });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ---- Lista de compras (alimentada pelo Mediador, pela receita premium e
+// manualmente; itens viram 'comprado' quando a compra chega via chat/nota) ----
+
+app.get('/api/lista-compras', async (req, res) => {
+  const householdId = await getHouseholdId();
+  const { data, error } = await supabase
+    .from('shopping_list_items')
+    .select('*')
+    .eq('household_id', householdId)
+    .order('created_at', { ascending: false });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+app.post('/api/lista-compras', async (req, res) => {
+  const { name, quantity, unit, motivo } = req.body;
+  if (!name) return res.status(400).json({ error: 'name e obrigatorio' });
+  const householdId = await getHouseholdId();
+  const { data, error } = await supabase
+    .from('shopping_list_items')
+    .insert({
+      household_id: householdId,
+      name,
+      quantity: quantity ?? null,
+      unit: unit ?? null,
+      motivo: motivo ?? null,
+      status: 'pendente',
+      source: 'manual',
+    })
+    .select()
+    .single();
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+app.post('/api/lista-compras/:id/status', async (req, res) => {
+  const { status } = req.body;
+  if (!['pendente', 'comprado', 'dispensado'].includes(status)) {
+    return res.status(400).json({ error: 'status invalido' });
+  }
+  const { data, error } = await supabase
+    .from('shopping_list_items')
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq('id', req.params.id)
+    .select()
+    .single();
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+app.delete('/api/lista-compras/:id', async (req, res) => {
+  const { error } = await supabase.from('shopping_list_items').delete().eq('id', req.params.id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ ok: true });
+});
+
+// ---- Receita premium semanal (canal do Mohamad Hindi) ----
+
+app.post('/api/receita-premium', async (req, res) => {
+  try {
+    const result = await sugerirReceitaPremium({ model: currentConfig.model, force: !!req.body?.force });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/receitas-premium', async (req, res) => {
+  const householdId = await getHouseholdId();
+  const { data, error } = await supabase
+    .from('premium_suggestions')
+    .select('*')
+    .eq('household_id', householdId)
+    .order('week_start', { ascending: false });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
 });
 
 // ---- Preferencias ----
@@ -684,4 +781,7 @@ const PORT = process.env.PORT || 3300;
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
   iniciarLembretes();
+  // O job le o modelo na hora de rodar (getter), pra respeitar troca de eixo
+  // ao vivo feita no painel entre uma sexta e outra.
+  iniciarReceitaPremium(() => currentConfig.model);
 });
