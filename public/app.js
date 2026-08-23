@@ -77,6 +77,78 @@ async function loadAtores() {
   });
 }
 
+// Tamanhos de pagina. 6 no estoque por decisao do instrutor: quem olha o
+// estoque no dia a dia e' o agente, nao a pessoa — a consulta manual e' rara,
+// e quando acontece o filtro resolve mais rapido que rolar.
+const ESTOQUE_PAGINA = 6;
+const ESTADO_PAGINA = 5;
+
+// Termo do filtro da despensa. Declarado aqui, junto das constantes, porque
+// renderEstoqueGroup le ele e e' definida antes do listener que o alimenta.
+let estoqueFiltro = '';
+
+// ---- Accordion e paginacao: um mecanismo so (2026-08-22) ----
+// Antes existiam tres jeitos diferentes de esconder conteudo (o .object-panel
+// da Despensa, o .expandido/.oculto das porcoes e o slice do feed). Agora e'
+// um par de helpers, usado por todos.
+
+// Liga um cabecalho <button aria-expanded> ao painel .acc-painel que ele
+// controla. O estado de verdade mora no aria-expanded — a classe .open e' so
+// o gancho de CSS, nunca a fonte.
+function ligarAccordion(triggerId, painelId, { aberto = false, aoAbrir } = {}) {
+  const trigger = $(triggerId);
+  const painel = $(painelId);
+  if (!trigger || !painel) return null;
+
+  const aplicar = (estaAberto) => {
+    trigger.setAttribute('aria-expanded', String(estaAberto));
+    painel.classList.toggle('open', estaAberto);
+    if (estaAberto && aoAbrir) aoAbrir();
+  };
+
+  trigger.addEventListener('click', () => {
+    aplicar(trigger.getAttribute('aria-expanded') !== 'true');
+  });
+
+  aplicar(aberto);
+  return { abrir: () => aplicar(true), fechar: () => aplicar(false) };
+}
+
+// Renderiza `itens` em blocos de `tamanho`, com um botao "mostrar mais" que
+// vira "recolher" no fim. `render` recebe a fatia e devolve HTML.
+// Mesmo componente do feed, das cartas de estado e dos grupos da despensa.
+function paginar({ container, botaoContainer, itens, tamanho, render, vazio }) {
+  const alvo = $(container);
+  const caixaBotao = botaoContainer ? $(botaoContainer) : null;
+  let visiveis = tamanho;
+
+  const desenhar = () => {
+    if (!itens.length) {
+      alvo.innerHTML = `<div class="empty">${vazio || 'Nada por aqui ainda.'}</div>`;
+      if (caixaBotao) caixaBotao.innerHTML = '';
+      return;
+    }
+    const mostrados = Math.min(visiveis, itens.length);
+    alvo.innerHTML = render(itens.slice(0, mostrados));
+
+    if (!caixaBotao) return;
+    caixaBotao.innerHTML = '';
+    if (itens.length <= tamanho) return;
+
+    const btn = document.createElement('button');
+    btn.className = 'ver-mais';
+    const restantes = itens.length - mostrados;
+    btn.textContent = restantes > 0 ? `mostrar mais (${restantes} restante${restantes === 1 ? '' : 's'})` : 'recolher';
+    btn.addEventListener('click', () => {
+      visiveis = restantes > 0 ? visiveis + tamanho : tamanho;
+      desenhar();
+    });
+    caixaBotao.appendChild(btn);
+  };
+
+  desenhar();
+}
+
 // ---- v4 "Feed vivo": faixa de estado derivado ----
 // So leitura, tudo calculado em codigo no backend — o residuo util do Kanban.
 
@@ -90,30 +162,52 @@ async function loadEstado() {
   try {
     const k = await api('/api/estado-cozinha');
 
-    const porcoesEl = $('estado-porcoes');
-    if (!k.porcoesVivas.length) {
-      porcoesEl.innerHTML = '<div class="empty">nenhum prato pronto na geladeira</div>';
-    } else {
-      porcoesEl.innerHTML = k.porcoesVivas
-        .map((p) => {
-          const pct = p.portions_total ? (p.portions_remaining / p.portions_total) * 100 : 0;
-          return `
+    const totalPorcoes = k.porcoesVivas.reduce((s, p) => s + Number(p.portions_remaining || 0), 0);
+    // Pill do titulo: era o rotulo fixo "a corrida", que nao vinha de dado
+    // nenhum. Agora conta porcao de verdade (2026-08-22).
+    // Texto curto de proposito: com 1 prato so o numero de porcoes basta, e
+    // no card de 240px o rotulo longo quebrava em duas linhas e batia no
+    // titulo.
+    $('porcoes-count').textContent = !k.porcoesVivas.length
+      ? 'vazio'
+      : k.porcoesVivas.length === 1
+        ? `${totalPorcoes} porç${totalPorcoes === 1 ? 'ão' : 'ões'}`
+        : `${totalPorcoes} em ${k.porcoesVivas.length} pratos`;
+
+    // O backend entrega por prepared_at ascendente — os mais antigos, que sao
+    // os mais urgentes, vem primeiro.
+    paginar({
+      container: 'estado-porcoes',
+      botaoContainer: 'pag-porcoes',
+      itens: k.porcoesVivas,
+      tamanho: ESTADO_PAGINA,
+      vazio: 'nenhum prato pronto na geladeira',
+      render: (fatia) =>
+        fatia
+          .map((p) => {
+            const pct = p.portions_total ? (p.portions_remaining / p.portions_total) * 100 : 0;
+            return `
         <div class="linha"><strong>${escapeHtml(p.name)}</strong>
           <span class="num${p.dias_desde_preparo >= 4 ? ' warn' : ''}">${p.portions_remaining}<span class="sub">/${p.portions_total}</span></span></div>
         <div class="portion-bar"><span style="width:${pct}%"></span></div>
         <div class="sub">${p.dias_desde_preparo != null ? `preparado há ${p.dias_desde_preparo}d` : ''}</div>`;
-        })
-        .join('');
-    }
+          })
+          .join(''),
+    });
 
-    const vencendoEl = $('estado-vencendo');
-    if (!k.vencendo.length) {
-      vencendoEl.innerHTML = '<div class="empty">nada branqueado correndo prazo</div>';
-    } else {
-      vencendoEl.innerHTML = k.vencendo
-        .map((i) => `<div class="linha"><strong>${escapeHtml(i.name)}</strong>${pillDias(i.dias_restantes)}</div>`)
-        .join('');
-    }
+    // Pill de "Vencendo": era o rotulo fixo "D-N". Fechado, o cabecalho tem
+    // que dizer se ha algo correndo prazo — senao o accordion esconde
+    // justamente a informacao que faz alguem abrir.
+    $('vencendo-count').textContent = k.vencendo.length ? `${k.vencendo.length} ${k.vencendo.length === 1 ? 'item' : 'itens'}` : 'nenhum';
+    paginar({
+      container: 'estado-vencendo',
+      botaoContainer: 'pag-vencendo',
+      itens: k.vencendo,
+      tamanho: ESTADO_PAGINA,
+      vazio: 'nada branqueado correndo prazo',
+      render: (fatia) =>
+        fatia.map((i) => `<div class="linha"><strong>${escapeHtml(i.name)}</strong>${pillDias(i.dias_restantes)}</div>`).join(''),
+    });
 
     const orc = k.orcamento;
     $('estado-semana-label').textContent = orc.semana_inicio ? new Date(orc.semana_inicio + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : '';
@@ -131,6 +225,10 @@ async function loadEstado() {
   } catch (err) {
     // Convencao do projeto: erro aparece, nunca vira "vazio" misterioso.
     ['estado-porcoes', 'estado-vencendo', 'estado-orcamento'].forEach((id) => {
+      // Erro tambem abre o accordion: mensagem escondida atras de um chevron
+      // fechado e' a mesma coisa que erro engolido.
+      const painel = $(id).closest('.acc-painel');
+      if (painel) painel.classList.add('open');
       $(id).innerHTML = `<div class="empty">erro: ${escapeHtml(err.message)}</div>`;
     });
   }
@@ -144,13 +242,23 @@ const TIPO_LABEL = {
 };
 const BUDGET_LABEL = { tr_diego: 'TR Diego', tr_esposa: 'TR Esposa', credito_familia: 'Crédito Família' };
 
+// Pagina no cliente (2026-08-22): o servidor ja tem teto de 200, mas
+// renderizar tudo de uma vez fazia a tela crescer sem limite. Mostra os N mais
+// recentes e o resto sob demanda — nada some, so espera ser pedido.
+const FEED_PAGINA = 10;
+
 async function loadFeed() {
   const box = $('feed');
   try {
     let items = await api('/api/pensamentos');
     if (currentFilter !== 'all') items = items.filter((p) => p.actor?.role === currentFilter);
-    if (!items.length) { box.innerHTML = '<div class="empty">nada por aqui ainda — conta pra cozinha o que aconteceu.</div>'; return; }
-    box.innerHTML = items
+    paginar({
+      container: 'feed',
+      botaoContainer: 'pag-feed',
+      itens: items,
+      tamanho: FEED_PAGINA,
+      vazio: 'nada por aqui ainda — conta pra cozinha o que aconteceu.',
+      render: (fatia) => fatia
       .map((p) => {
         const extras = [];
         if (p.budget_categoria) extras.push(`<span class="pill gold">${BUDGET_LABEL[p.budget_categoria]}</span>`);
@@ -175,7 +283,8 @@ async function loadFeed() {
         </div>
       </div>`;
       })
-      .join('');
+      .join(''),
+    });
   } catch (err) {
     box.innerHTML = `<div class="empty">erro no feed: ${escapeHtml(err.message)}</div>`;
   }
@@ -240,14 +349,27 @@ $('feed').addEventListener('click', async (e) => {
 
 const STATE_LABEL = { base: 'base', ingrediente: 'ingrediente' };
 
-function renderEstoqueGroup(containerId, countId, items) {
-  const container = $(containerId);
-  $(countId).textContent = items.length ? `(${items.length})` : '';
-  if (!items.length) {
-    container.innerHTML = '<div class="empty">Nada por aqui ainda.</div>';
-    return;
-  }
-  container.innerHTML = items
+function renderEstoqueGroup(containerId, countId, items, pagContainerId) {
+  const total = items.length;
+  const filtrados = estoqueFiltro
+    ? items.filter((it) => it.name.toLowerCase().includes(estoqueFiltro))
+    : items;
+
+  // Com filtro ativo o cabecalho mostra "achados/total" — senao o accordion
+  // fechado mentiria sobre quantos itens existem.
+  $(countId).textContent = !total
+    ? ''
+    : estoqueFiltro
+      ? `(${filtrados.length} de ${total})`
+      : `(${total})`;
+
+  paginar({
+    container: containerId,
+    botaoContainer: pagContainerId,
+    itens: filtrados,
+    tamanho: ESTOQUE_PAGINA,
+    vazio: estoqueFiltro ? `Nenhum item com "${escapeHtml(estoqueFiltro)}".` : 'Nada por aqui ainda.',
+    render: (fatia) => fatia
     .map((it) => {
       const podeBranquear = it.storage === 'perecivel' && !it.blanched_at;
       return `
@@ -259,13 +381,25 @@ function renderEstoqueGroup(containerId, countId, items) {
       <button class="item-card__remove" data-del-estoque="${it.id}" title="remover" aria-label="remover ${escapeHtml(it.name)}">×</button>
     </div>`;
     })
-    .join('');
+    .join(''),
+  });
 }
+
+let estoqueCache = [];
 
 async function loadEstoque() {
   const items = await api('/api/estoque');
-  renderEstoqueGroup('estoque-perecivel', 'count-perecivel', items.filter((i) => i.storage === 'perecivel'));
-  renderEstoqueGroup('estoque-seco', 'count-seco', items.filter((i) => i.storage !== 'perecivel'));
+  estoqueCache = items;
+  redesenharEstoque();
+}
+
+function redesenharEstoque() {
+  const items = estoqueCache;
+  renderEstoqueGroup('estoque-perecivel', 'count-perecivel', items.filter((i) => i.storage === 'perecivel'), 'pag-perecivel');
+  renderEstoqueGroup('estoque-seco', 'count-seco', items.filter((i) => i.storage !== 'perecivel'), 'pag-seco');
+  // Contador no cabecalho do accordion: fechado, ele precisa dizer o que tem
+  // dentro — senao abrir vira sempre uma aposta.
+  $('despensa-count').textContent = `${items.length} ${items.length === 1 ? 'item' : 'itens'}`;
 }
 
 $('btn-add-estoque').addEventListener('click', async () => {
@@ -465,20 +599,38 @@ $('btn-salvar-config').addEventListener('click', async () => {
 
 // ---- Objetos da cozinha (Despensa / Preferencias) ----
 
-const kitchenObjects = [
-  { card: $('card-fridge'), trigger: $('trigger-fridge'), panel: $('panel-fridge') },
-  { card: $('card-note'), trigger: $('trigger-note'), panel: $('panel-note') },
-];
-function closeKitchenObject(obj) { obj.card.classList.remove('open'); obj.panel.classList.remove('open'); obj.trigger.setAttribute('aria-expanded', 'false'); }
-function openKitchenObject(obj) {
-  kitchenObjects.forEach((other) => { if (other !== obj) closeKitchenObject(other); });
-  obj.card.classList.add('open'); obj.panel.classList.add('open'); obj.trigger.setAttribute('aria-expanded', 'true');
-}
-kitchenObjects.forEach((obj) => {
-  obj.trigger.addEventListener('click', () => {
-    if (obj.card.classList.contains('open')) closeKitchenObject(obj);
-    else openKitchenObject(obj);
-  });
+// A Despensa usava o mecanismo antigo (.object-panel). Ele ficava preso em
+// altura 0 depois que o conteudo virou sub-accordions — o `1fr` nao resolvia.
+// Trocado pelo mesmo .acc-painel de todo o resto: um mecanismo so, que era o
+// objetivo da mudanca de qualquer forma.
+
+// Despensa, sub-accordions dela e as 3 cartas de estado — todos no mesmo helper.
+// Desktop abre as cartas (ha largura); mobile abre so a primeira.
+const ehMobile = window.matchMedia('(max-width: 767px)').matches;
+ligarAccordion('trigger-fridge', 'panel-fridge');
+ligarAccordion('trigger-porcoes', 'painel-porcoes', { aberto: true });
+ligarAccordion('trigger-vencendo', 'painel-vencendo', { aberto: !ehMobile });
+ligarAccordion('trigger-semana', 'painel-semana', { aberto: !ehMobile });
+ligarAccordion('trigger-add-estoque', 'painel-add-estoque');
+ligarAccordion('trigger-perecivel', 'painel-perecivel');
+ligarAccordion('trigger-seco', 'painel-seco');
+ligarAccordion('trigger-lista', 'painel-lista');
+
+// Filtro do estoque: existe porque a pagina de 6 sem busca faria "achar o
+// azeite entre 19 secos" custar quatro cliques. Abre os grupos que tem
+// resultado — filtrar e nao ver o achado seria pior que nao filtrar.
+
+$('estoque-filtro').addEventListener('input', (e) => {
+  estoqueFiltro = e.target.value.trim().toLowerCase();
+  redesenharEstoque();
+  if (!estoqueFiltro) return;
+  [['estoque-perecivel', 'trigger-perecivel', 'painel-perecivel'], ['estoque-seco', 'trigger-seco', 'painel-seco']].forEach(
+    ([grade, trigger, painel]) => {
+      const achou = $(grade).querySelector('.item-card');
+      $(painel).classList.toggle('open', !!achou);
+      $(trigger).setAttribute('aria-expanded', String(!!achou));
+    }
+  );
 });
 
 // ---- Boot ----
