@@ -1,5 +1,12 @@
 # Chef Caseiro — produto fictício de referência
 
+> **📹 GRAVAÇÃO DE 29/08 — leia `docs/RUNBOOK-gravacao-29-08.md` primeiro.**
+> Produção está com **falhas preservadas de propósito** para demonstração ao
+> vivo. Há dois PRs abertos que **não devem ser mergeados nem deployados
+> antes da gravação**, e a ordem entre eles importa: **#4 antes do #6**.
+> Se você é uma sessão nova dando suporte à aula, o runbook tem o estado
+> atual, a sequência dos atos e os comandos de cada momento.
+
 Produto fictício construído para o curso Alura **"Evals, observabilidade e
 conformidade"** (parte da formação AI Product Builder). Não é um produto real
 — existe para dar suporte de exemplo prático às aulas sobre Langfuse,
@@ -316,6 +323,17 @@ explicitamente). Detalhados com evidência completa em `SDD.md` §11:
   vira exercício de aula sobre observabilidade (o aluno vê a escrita chegar
   pelo bot, olha o trace no Langfuse, e implementa polling ou SSE
   entendendo o custo de cada opção). Não "consertar" sem combinar antes.
+
+5. **Match de nome derruba o estoque em silêncio** (22/08, ao vivo na aula):
+   relato "comemos 3 porções de **lasagna**" foi classificado perfeitamente
+   pelo agente (`fonte_refeicao: caseira`, `item_nome: lasagna`,
+   `item_quantidade: 3`), mas o prato está gravado como **lasanha** — o
+   `ilike`/`nomesCasam` não casa (`gn` × `nh`, não é acento), e as porções
+   **não foram baixadas**. Nada falhou visivelmente: relato gravado,
+   `meal_report` gravado, reação 👍 enviada, estado errado. Decisão do
+   instrutor: **preservar para a gravação de 29/08** — é o caso em que o
+   modelo acertou e o código determinístico errou. Não corrigir sem
+   combinar. Detalhes em `docs/aula4-inventario-conteudo.md` §1b.
 
 ## Convenção de processo (instrução do instrutor, válida em qualquer sessão)
 
