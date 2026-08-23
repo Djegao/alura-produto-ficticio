@@ -320,6 +320,9 @@
     /* Acao principal da gaveta, que desde 2026-08-22 guarda tambem os eixos
        e as preferencias: 32px estava abaixo do minimo do resto da tela. */
     #btn-salvar-config { min-height: 40px; }
+    /* O <summary> de "Importar nota fiscal" ficava em 26px — e' <summary>,
+       nao <button>, entao nenhuma das regras acima o alcancava (QA 23/08). */
+    .import-nota summary { min-height: 34px; display: flex; align-items: center; }
   }
 </style>
 </head>
