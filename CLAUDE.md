@@ -1,5 +1,12 @@
 # Chef Caseiro — produto fictício de referência
 
+> **📹 GRAVAÇÃO DE 29/08 — leia `docs/RUNBOOK-gravacao-29-08.md` primeiro.**
+> Produção está com **falhas preservadas de propósito** para demonstração ao
+> vivo. Há dois PRs abertos que **não devem ser mergeados nem deployados
+> antes da gravação**, e a ordem entre eles importa: **#4 antes do #6**.
+> Se você é uma sessão nova dando suporte à aula, o runbook tem o estado
+> atual, a sequência dos atos e os comandos de cada momento.
+
 Produto fictício construído para o curso Alura **"Evals, observabilidade e
 conformidade"** (parte da formação AI Product Builder). Não é um produto real
 — existe para dar suporte de exemplo prático às aulas sobre Langfuse,
