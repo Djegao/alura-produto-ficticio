@@ -16,16 +16,41 @@ const { estocarItensDaNota } = require('./nota-fiscal');
 
 const TELEGRAM_API = 'https://api.telegram.org/bot' + process.env.TELEGRAM_BOT_TOKEN;
 
+// `fetch failed` do Node esconde a causa real (DNS, TLS, conexao recusada)
+// numa mensagem generica — sem isso o log de producao nao diz nada util.
+function detalharErro(err) {
+  const causa = err?.cause;
+  if (!causa) return err?.message || String(err);
+  return `${err.message} (causa: ${causa.code || causa.message || causa})`;
+}
+
 async function enviarMensagem(chatId, text, replyMarkup) {
   if (!process.env.TELEGRAM_BOT_TOKEN) {
     console.warn('TELEGRAM_BOT_TOKEN nao configurado — mensagem nao enviada:', text);
     return;
   }
-  await fetch(`${TELEGRAM_API}/sendMessage`, {
+  const res = await fetch(`${TELEGRAM_API}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ chat_id: chatId, text, reply_markup: replyMarkup }),
   });
+  // A API do Telegram responde 200 com {ok:false} pra varios erros (chat
+  // errado, texto vazio, markup invalido) — sem checar isso, uma mensagem
+  // que nunca chegou parecia enviada com sucesso.
+  if (!res.ok) {
+    console.warn('Telegram recusou a mensagem:', res.status, (await res.text()).slice(0, 200));
+  }
+}
+
+// Avisar o usuario NUNCA pode derrubar o fluxo: se o proprio aviso de erro
+// falhar (rede caida), o erro original se perdia e o log so mostrava o
+// segundo "fetch failed" — foi o que cegou o diagnostico em 2026-08-21.
+async function avisar(chatId, text) {
+  try {
+    await enviarMensagem(chatId, text);
+  } catch (err) {
+    console.error('Nao consegui nem avisar o usuario no Telegram:', detalharErro(err));
+  }
 }
 
 async function perguntarIdentidade(chatId) {
@@ -160,7 +185,25 @@ async function processarUpdate(update, { model, modelIngestao }) {
   }
 
   const message = update.message;
-  if (!message || !message.text) return; // foto/audio: fora do escopo desta fase
+
+  // Foto/audio ainda nao sao lidos — mas ANTES isso era um `return` mudo, e
+  // quem mandava a foto do cupom nao recebia sinal nenhum de que o bot tinha
+  // desistido (nem reacao, nem mensagem, nem log). Falhar em silencio e' o
+  // unico pecado capital deste projeto; agora diz que nao sabe ler ainda.
+  if (message && !message.text) {
+    const tipo = message.photo ? 'foto' : message.voice || message.audio ? 'audio' : message.document ? 'documento' : 'esse formato';
+    console.warn('Update ignorado — formato nao suportado:', tipo, '| chat:', message.chat?.id);
+    if (message.chat?.id) {
+      await avisar(
+        message.chat.id,
+        tipo === 'foto'
+          ? '📷 Ainda não sei ler foto de cupom — leitura por imagem é a próxima camada. Por enquanto me manda o link do QR code da nota, ou o texto dela.'
+          : `Ainda não sei processar ${tipo}. Por texto eu entendo tudo: relato, compra, desperdício, porcionamento e link de nota fiscal.`
+      );
+    }
+    return;
+  }
+  if (!message) return;
 
   const telegramUserId = message.from.id;
   const chatId = message.chat.id;
@@ -229,7 +272,7 @@ async function processarUpdate(update, { model, modelIngestao }) {
       // A propria sugerirReceitaPremium posta o resultado no grupo.
     } catch (err) {
       console.error('Erro na receita premium via /premium:', err.message);
-      await enviarMensagem(chatId, '⚠️ Nao consegui fechar a receita premium agora: ' + err.message);
+      await avisar(chatId, "⚠️ Nao consegui fechar a receita premium agora: " + err.message);
     }
     return;
   }
@@ -239,6 +282,23 @@ async function processarUpdate(update, { model, modelIngestao }) {
   // estoca. Resposta com o resumo do que entrou (aqui a resposta em texto se
   // justifica: e' resultado de acao pedida, nao comentario de conversa).
   const urlNfce = extrairUrlNfce(texto);
+
+  // Se veio link mas nao e' NFC-e reconhecida, dizer isso em voz alta. Antes
+  // a mensagem caia calada no classificador de relato e virava um "desejo"
+  // sem sentido — o usuario mandava a nota e nao entendia por que nada
+  // acontecia (episodio de 2026-08-21).
+  if (!urlNfce && /https?:\/\//i.test(texto)) {
+    const link = (texto.match(/https?:\/\/\S+/i) || [''])[0];
+    console.warn('Link recebido mas nao reconhecido como NFC-e:', link.slice(0, 120));
+    await avisar(
+      chatId,
+      'Recebi um link, mas não reconheci como consulta de NFC-e. Espero o endereço do QR code do cupom ' +
+        '(domínio .gov.br com a chave de acesso de 44 dígitos). Se o seu veio encurtado, abre ele no navegador ' +
+        'e me manda o endereço final.'
+    );
+    return;
+  }
+
   if (urlNfce) {
     await reagir(chatId, message.message_id, '👍');
     try {
@@ -250,10 +310,10 @@ async function processarUpdate(update, { model, modelIngestao }) {
         origem: `sefaz:${chave}`,
       });
       const resumo = itemsAdded.map((i) => `• ${i.name} (${i.quantity} ${i.unit})`).join('\n');
-      await enviarMensagem(chatId, `🧾 Nota da SEFAZ ingerida — ${itemsAdded.length} itens no estoque:\n${resumo}`);
+      await avisar(chatId, `🧾 Nota da SEFAZ ingerida — ${itemsAdded.length} itens no estoque:\n${resumo}`);
     } catch (err) {
-      console.error('Erro ingerindo NFC-e via Telegram:', err.message);
-      await enviarMensagem(chatId, '⚠️ Nao consegui ler essa nota na SEFAZ: ' + err.message);
+      console.error('Erro ingerindo NFC-e via Telegram:', detalharErro(err), '| url:', urlNfce.url.slice(0, 120));
+      await avisar(chatId, '⚠️ Nao consegui ler essa nota na SEFAZ: ' + err.message);
     }
     return;
   }
@@ -283,8 +343,8 @@ async function processarUpdate(update, { model, modelIngestao }) {
       await perguntarOrcamento(chatId, pensamento.id);
     }
   } catch (err) {
-    console.error('Erro capturando relato/desejo/aquisicao via Telegram:', err.message);
-    await enviarMensagem(chatId, '⚠️ Não consegui registrar essa — tenta de novo em instantes.');
+    console.error('Erro capturando relato/desejo/aquisicao via Telegram:', detalharErro(err));
+    await avisar(chatId, '⚠️ Não consegui registrar essa — tenta de novo em instantes.');
   }
 }
 
