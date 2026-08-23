@@ -20,6 +20,48 @@ O par é bom porque são **os dois modos de cegueira**: no A a informação
 existiu e foi destruída; no B nunca foi gerada. E os dois têm a mesma
 família de correção — nenhum caminho pode terminar em silêncio.
 
+## 1b. Terceiro episódio (22/08, durante a aula): o modelo acertou, o código errou
+
+Capturado na própria gravação e **preservado para a continuidade de 29/08**.
+
+Alguém relatou no Telegram:
+
+> "Comemos 3 porções de lasagna, 1 e 1/2 para cada!"
+
+O agente de ingestão acertou **tudo** (trace `41a4e5c75e`, haiku, 1,3 s,
+US$ 0,0033):
+
+```json
+{ "tipo": "relato_refeicao", "fonte_refeicao": "caseira",
+  "item_nome": "lasagna", "item_quantidade": 3 }
+```
+
+Inclusive a aritmética implícita: "1 e 1/2 para cada" (duas pessoas) → 3.
+
+**E o estoque continuou 5/5.** O prato está gravado como `lasanha`; o texto
+trouxe `lasagna`. O match é `ilike '%lasagna%'`, que não casa — e
+`nomesCasam()` também não, porque o problema não é acento, é `gn` × `nh`.
+
+Por que este é o melhor dos três episódios para a aula:
+
+- Os dois anteriores são falhas de **canal** (erro engolido, formato não
+  suportado). Este é uma falha de **estado**: tudo "funcionou", o relato
+  entrou, o `meal_report` entrou, a reação 👍 apareceu — e o dado ficou
+  errado.
+- É a refutação direta do reflexo "o problema é o prompt". Aqui o prompt e o
+  modelo estão impecáveis; quem errou foi a camada determinística que o
+  próprio projeto defende como mais confiável.
+- Só é detectável **cruzando o trace com o estado resultante**. Nenhum log,
+  nenhum alerta, nenhum erro. É o argumento mais forte do curso para
+  observabilidade de produto, não só de modelo.
+
+Discussão que ele abre (sem resposta óbvia): match aproximado resolveria
+`lasagna`/`lasanha`, mas "aproximado demais" cria falso positivo em cozinha
+— grão-de-bico × grão, leite × leite condensado, farinha de trigo × farinha
+de rosca. A saída provável não é um algoritmo mais esperto, e sim **o
+sistema perguntar quando estiver em dúvida** — mesma regra que já vale para
+porcionamento.
+
 ## 2. Eixo de custo, com números reais
 
 Custo e latência médios por tipo de operação (dados de produção):

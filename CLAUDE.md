@@ -317,6 +317,17 @@ explicitamente). Detalhados com evidência completa em `SDD.md` §11:
   pelo bot, olha o trace no Langfuse, e implementa polling ou SSE
   entendendo o custo de cada opção). Não "consertar" sem combinar antes.
 
+5. **Match de nome derruba o estoque em silêncio** (22/08, ao vivo na aula):
+   relato "comemos 3 porções de **lasagna**" foi classificado perfeitamente
+   pelo agente (`fonte_refeicao: caseira`, `item_nome: lasagna`,
+   `item_quantidade: 3`), mas o prato está gravado como **lasanha** — o
+   `ilike`/`nomesCasam` não casa (`gn` × `nh`, não é acento), e as porções
+   **não foram baixadas**. Nada falhou visivelmente: relato gravado,
+   `meal_report` gravado, reação 👍 enviada, estado errado. Decisão do
+   instrutor: **preservar para a gravação de 29/08** — é o caso em que o
+   modelo acertou e o código determinístico errou. Não corrigir sem
+   combinar. Detalhes em `docs/aula4-inventario-conteudo.md` §1b.
+
 ## Convenção de processo (instrução do instrutor, válida em qualquer sessão)
 
 Ao debugar e encontrar algo que possa virar conteúdo de aula, **perguntar
