@@ -3,29 +3,21 @@
 Fallback de gravação para o vídeo **2.4 (Primeiro conjunto de evals)**. Se a
 API falhar ao vivo, é daqui que sai o que aparece na tela.
 
-> ## ⚠️ ESTADO EM 28/08/2026 — LEIA ANTES DE GRAVAR
+> ## ✅ ESTADO EM 28/08/2026 — RESOLVIDO
 >
-> O pipeline (`evals/run-evals.js`) está **construído e testado contra o
-> Langfuse real**, mas **a rodada com o juiz não pôde ser executada hoje**:
-> a `ANTHROPIC_API_KEY` está **revogada**.
+> O pipeline **rodou de verdade** em 28/08 às 13h: 9 interações reais de
+> produção julgadas e **39 Scores gravados no Langfuse**. Os resultados
+> agregados estão na seção "Rodada real" abaixo.
 >
-> - A chave do `.env` local, a do `.env` do repo principal e a do **Railway
->   (produção)** são **byte a byte a mesma** (108 caracteres, terminando em
->   `n_Z0QQAA`), e as três recebem `401 authentication_error: "API key is
->   invalid."`. Confirmado por dois caminhos independentes (Node `fetch` e
->   `Invoke-WebRequest` do PowerShell) contra `GET /v1/models`.
-> - **Consequência maior que a Aula 2:** com essa chave, **produção também
->   está sem nenhuma chamada de LLM funcionando** — Mediador, ingestão de
->   relato, nota fiscal e receita premium. O trace mais recente no Langfuse é
->   de **2026-08-24**, coerente com a revogação ter acontecido nesses dias.
-> - **Ação necessária (só o Diego pode fazer):** gerar uma chave nova em
->   console.anthropic.com → API Keys, colocar no `.env` local **e** no
->   Railway (`railway variables --set ANTHROPIC_API_KEY=...`), e **redeployar
->   antes da gravação**.
->
-> Assim que a chave nova estiver no `.env`, rode o comando da seção
-> "Comando exato" abaixo e **cole a saída na seção marcada**. Nada aqui foi
-> inventado: o que está colado é saída literal de execução real de 28/08.
+> Histórico do bloqueio, porque explica a chave atual: a
+> `ANTHROPIC_API_KEY` antiga estava revogada (401), o que tinha derrubado
+> **todas** as chamadas de LLM em produção desde ~24/08. A conta emite
+> chaves **identity-linked**, que exigem também
+> `ANTHROPIC_WORKSPACE_ID=wrkspc_01DEmvYfoN3SESEnSYfinMmH` — sem essa
+> variável a chave é válida mas devolve 400. Hoje as duas variáveis estão
+> no `.env` **e** no Railway, produção foi redeployada e verificada
+> (401 do Basic Auth, API respondendo, webhook do Telegram sem erro).
+> Detalhes e armadilhas em [`../SETUP-MAQUINA-ESCOLA.md`](../SETUP-MAQUINA-ESCOLA.md) §0.
 
 ---
 
@@ -214,20 +206,68 @@ juiz.
 
 ---
 
-## ⬇️ COLAR AQUI A SAÍDA DA RODADA REAL
+## Rodada real — 28/08/2026, 13h (`--limit 3`)
 
-Assim que a `ANTHROPIC_API_KEY` nova estiver no `.env`:
+Saída literal do resumo agregado. **39 Scores gravados no Langfuse**, 9
+interações reais julgadas. Estes números já estão no dashboard e podem ser
+mostrados na aula mesmo sem rodar nada ao vivo.
+
+```
+  RESUMO
+  ==============================================================================
+
+  sugerir-receita  (3 interacoes julgadas)
+    execucao_integra        0.33  #######.............  binario · 2 reprovado(s)
+    fidelidade_ao_estoque   0.17  ###.................  0-1 · 2 reprovado(s)
+    respeito_as_restricoes  0.33  #######.............  binario · 2 reprovado(s)
+    consumo_registrado      0.67  #############.......  binario · 1 reprovado(s)
+
+  mediar-cardapio  (3 interacoes julgadas)
+    execucao_integra        0.33  #######.............  binario · 2 reprovado(s)
+    trade_off_com_numeros   0.30  ######..............  0-1 · 2 reprovado(s)
+    numeros_de_tool         0.67  #############.......  binario · 1 reprovado(s)
+    mediou_sem_decidir      0.33  #######.............  binario · 2 reprovado(s)
+    falta_virou_trade_off   0.33  #######.............  binario · 2 reprovado(s)
+
+  ingerir-relato  (3 interacoes julgadas)
+    execucao_integra        1.00  ####################  binario
+    tipo_correto            0.67  #############.......  binario · 1 reprovado(s)
+    sem_invencao_numerica   1.00  ####################  binario
+    ancoragem_no_texto      0.67  #############.......  0-1 · 1 reprovado(s)
+
+  media geral do conjunto: 0.52  (39 scores em 9 interacoes)
+
+  39 Scores enviados ao Langfuse.
+```
+
+### Por que esse resultado é ouro para as Aulas 3 e 4
+
+Não force a leitura na hora — ela já vem pronta destes números:
+
+- **`execucao_integra` em 0.33 nas duas operações de geração.** Dois de
+  cada três traces de `sugerir-receita` e de `mediar-cardapio` estão
+  **estruturalmente quebrados** — truncamento por `max_tokens`, observação
+  em erro ou saída final vazia. É o achado §11.4 aparecendo como número, e
+  não como anedota. E confirma que o truncamento **alcançou o Mediador**,
+  não é mais só do v1/v2.
+- **O contraste entre operações conta a história sozinho.** `ingerir-relato`
+  (haiku, tarefa simples, barata) tem integridade perfeita; as operações
+  caras e complexas é que degradam. Esse é exatamente o argumento do vídeo
+  3.3 sobre custo × qualidade.
+- **`fidelidade_ao_estoque` em 0.17 é o pior número do conjunto** — e é a
+  promessa central do produto. Um eval que aponta para o coração da
+  proposta de valor é o melhor exemplo possível de "priorize o erro mais
+  caro" (vídeo 2.4).
+- **Um reprovado em `tipo_correto` foi o trace da mensagem "Ingerir"**, sem
+  conteúdo nenhum: o agente inventou um relato de refeição a partir de um
+  verbo solto. É um caso real de alucinação por entrada degenerada, pego
+  pelo eval — bom material para o vídeo 4.2 (diagnóstico: prompt, dado ou
+  modelo?).
+
+Para gerar uma saída nova e completa em arquivo, se quiser:
 
 ```bash
 node evals/run-evals.js --limit 5 --sem-cor > docs/apoio/saida-evals-bruta.txt 2>&1
-```
-
-...e cole o conteúdo no bloco abaixo. **Não invente essa saída** — se ela
-estiver vazia no dia da gravação, use o modo `--dry-run` ao vivo e explique
-que os Scores da rodada anterior já estão no Langfuse.
-
-```
-(pendente — bloqueado pela ANTHROPIC_API_KEY revogada em 28/08/2026)
 ```
 
 Formato esperado da saída (é o que o script imprime; serve de referência

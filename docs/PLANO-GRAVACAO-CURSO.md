@@ -10,18 +10,27 @@ vivo.
 Convenção de comando: cada bloco `bash` é **um** comando, na ordem em que
 deve rodar. "Sem comando" significa vídeo sem demo de terminal.
 
-> 🔴 **BLOQUEANTE conhecido em 28/08: a `ANTHROPIC_API_KEY` está
-> revogada** (401 `API key is invalid`, confirmado por dois caminhos, tanto
-> na chave local quanto na do Railway). Isso derruba **toda** demo com
-> modelo — Mediador, ingestão pelo Telegram, nota fiscal, receita premium e
-> o juiz da Aula 2. Trocar a chave é o **passo 0 obrigatório** do
-> [setup](./SETUP-MAQUINA-ESCOLA.md), antes de qualquer gravação.
+> ✅ **Estado ao fim de 28/08 — tudo verificado e funcionando.** Foi um dia
+> de dois sustos, os dois resolvidos:
 >
-> **Estado verificado em 28/08.** Produção esteve fora do ar durante a
-> manhã (todos os deployments do Railway constavam `REMOVED`, a URL
-> devolvia 404) e **voltou às 10h34** — `chef.workshopee.com.br` responde
-> 401 do Basic Auth, que é o esperado. Antes de gravar, reconfirme com
-> `curl -I https://chef.workshopee.com.br`: **401 é bom, 404 é problema**.
+> - Produção caiu de manhã (fim do período gratuito do Railway; a URL
+>   devolvia 404) e **voltou às 10h34**.
+> - A `ANTHROPIC_API_KEY` estava revogada, o que tinha derrubado **toda**
+>   chamada de modelo desde ~24/08. Substituída às 12h54. A conta emite
+>   chaves *identity-linked*, então agora também é obrigatória a variável
+>   `ANTHROPIC_WORKSPACE_ID` — ela está no `.env` **e** no Railway.
+>
+> Verificado depois do redeploy: produção responde **401** do Basic Auth,
+> `/api/estado-cozinha` devolve dados reais, o webhook do Telegram está sem
+> erro pendente, e o pipeline de evals rodou de verdade gravando **39
+> Scores** no Langfuse.
+>
+> Antes de gravar, reconfirme só isto — **401 é bom, 404 é problema**:
+>
+> ```bash
+> curl.exe -s -o NUL -w "HTTP %{http_code}\n" https://chef.workshopee.com.br
+> ```
+>
 > O pre-flight do runbook §1 (esperar o hash `b876e2c`) **está
 > desatualizado** — veja o comando correto no
 > [setup](./SETUP-MAQUINA-ESCOLA.md), passo 5.

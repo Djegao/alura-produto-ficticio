@@ -31,19 +31,57 @@ Sem trocar a chave, **as Aulas 1, 2, 3 e 4 não têm demo ao vivo**.
 **Só o Diego pode fazer isto:**
 
 1. Gerar uma chave nova em `console.anthropic.com` → API Keys.
-2. Colocar no Railway (é o que produção usa). O comando abaixo **lê a chave
-   pelo stdin**, então ela não fica no histórico do shell — cole a chave,
-   dê Enter e `Ctrl+Z` + Enter para encerrar a entrada:
 
-```bash
-railway variable set ANTHROPIC_API_KEY --stdin --service chef-caseiro
-```
+   ⚠️ **Gere uma API key comum de workspace, não uma chave vinculada a
+   identidade.** Aconteceu em 28/08: a primeira chave gerada era
+   *identity-linked*, e esse tipo não é rejeitado com 401 — ele passa na
+   autenticação e falha depois com **400**:
 
-   Se preferir o caminho direto (a chave fica no histórico, e na máquina da
-   escola isso é aceitável porque ela será formatada):
+   ```
+   anthropic-workspace-id is required when authenticating with an
+   identity-linked API key
+   ```
+
+   Uma chave dessas só funciona se existir também a variável
+   `ANTHROPIC_WORKSPACE_ID`, **nos dois lugares** (`.env` e Railway). O SDK
+   sabe lê-la, mas é uma peça a mais para faltar bem na hora de gravar. Se
+   você já tiver uma chave assim, o mais rápido é gerar uma comum.
+
+   Para distinguir: se a chamada devolve **401**, a chave é inválida ou
+   revogada; se devolve **400 falando em `workspace-id`**, a chave é válida
+   mas é identity-linked.
+
+   **Foi exatamente o que aconteceu em 28/08**, e a conta desta organização
+   emite chaves identity-linked por padrão — duas tentativas seguidas
+   saíram assim. A solução aplicada foi manter a chave e declarar o
+   workspace:
+
+   ```
+   ANTHROPIC_WORKSPACE_ID=wrkspc_01DEmvYfoN3SESEnSYfinMmH
+   ```
+
+   Essa variável precisa existir **junto com a chave nos dois lugares**
+   (`.env` e Railway). O SDK a lê sozinho da variável de ambiente e
+   acrescenta o header — verificado com uma chamada real ao modelo, sem
+   alterar nenhuma linha de código do produto.
+2. Colocar no Railway (é o que produção usa):
 
 ```bash
 railway variable set ANTHROPIC_API_KEY=<chave-nova> --service chef-caseiro
+```
+
+   ⚠️ **Não use `--stdin` no PowerShell.** Aconteceu em 28/08: mandar a
+   chave por pipe gravou **109 caracteres** em vez de 108 — o pipe anexa
+   uma quebra de linha, e o valor vai para produção corrompido. Nada
+   acusa o erro na hora: o comando termina em silêncio e só a chamada ao
+   modelo falha depois. É a mesma família do achado §11.5 do SDD (segredo
+   corrompido por saída de terminal).
+
+   **Sempre confira o tamanho depois de gravar** — tem que bater com o
+   `.env`:
+
+```bash
+railway variable list --kv
 ```
 
    **Definir a variável já dispara um redeploy sozinho** — não precisa de
@@ -61,6 +99,16 @@ railway variable list --kv
    ainda não houver, gere-o **depois** de atualizar o Railway, com
    `powershell -File scripts/observabilidade.ps1 preparar` — assim ele já
    nasce com a chave nova.
+
+   > **São dois lugares independentes, e os dois importam.** O `.env` está
+   > no `.gitignore` e **não vai junto no deploy** — produção lê as
+   > variáveis guardadas no próprio Railway. Trocar a chave só no `.env`
+   > conserta a sua máquina e deixa o site e o bot do Telegram quebrados;
+   > trocar só no Railway deixa a Aula 2 sem rodar localmente.
+   >
+   > Cuidado extra nesta máquina: além do `.env` do repositório, **este
+   > worktree tem um `.env` próprio**. Se for rodar os evals de dentro do
+   > worktree, a chave precisa estar no `.env` de lá também.
 5. Conferir que voltou a funcionar, mandando uma mensagem qualquer no grupo
    do Telegram e vendo o bot responder — ou rodando:
 

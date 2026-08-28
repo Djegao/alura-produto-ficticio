@@ -10,10 +10,13 @@
 > Langfuse para a demo da Aula 3). Nada disso altera o produto — é tudo
 > aditivo, e os quatro achados preservados continuam intactos.
 >
-> 🔴 **Bloqueante aberto em 28/08: a `ANTHROPIC_API_KEY` está revogada**
-> (401 `API key is invalid`, mesma chave no `.env` e no Railway). Nenhuma
-> chamada de modelo funciona em produção desde ~24/08 (último trace no
-> Langfuse). Trocar a chave é o passo 0 de `docs/SETUP-MAQUINA-ESCOLA.md`.
+> ✅ **Credenciais trocadas em 28/08.** A `ANTHROPIC_API_KEY` antiga estava
+> revogada (nenhuma chamada de modelo funcionou entre ~24/08 e 28/08). A
+> chave nova é *identity-linked*, então o produto agora exige também
+> `ANTHROPIC_WORKSPACE_ID` — presente no `.env` e no Railway. O SDK envia o
+> header sozinho a partir da variável; **nenhuma linha de código mudou**.
+> Produção redeployada e verificada, e o pipeline de evals gravou 39 Scores
+> reais no Langfuse.
 >
 > **Achado novo de 28/08, ainda não corrigido (convenção: perguntar antes):**
 > o truncamento do §11.4 **não é só do v1/v2** — o `mediar-cardapio` também
