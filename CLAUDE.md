@@ -1,6 +1,32 @@
 # Chef Caseiro — produto fictício de referência
 
-> **📹 GRAVAÇÃO DE 29/08 — leia `docs/RUNBOOK-gravacao-29-08.md` primeiro.**
+> **📹 GRAVAÇÃO DE 29/08 — o curso inteiro (Aulas 1–5) está pré-preparado.**
+> Comece por **`docs/PLANO-GRAVACAO-CURSO.md`** (mapa mestre: aula → vídeo →
+> versão do produto → comandos → slides) e por
+> **`docs/SETUP-MAQUINA-ESCOLA.md`** (checklist da máquina da escola).
+> Material criado em 28/08: roteiros por aula (`docs/aula{1,2,3,5}-roteiro.md`),
+> checklist de conformidade, pipeline de evals real em `evals/`, decks em
+> `slides/*.pptx` e o script `scripts/observabilidade.ps1` (liga/desliga o
+> Langfuse para a demo da Aula 3). Nada disso altera o produto — é tudo
+> aditivo, e os quatro achados preservados continuam intactos.
+>
+> 🔴 **Bloqueante aberto em 28/08: a `ANTHROPIC_API_KEY` está revogada**
+> (401 `API key is invalid`, mesma chave no `.env` e no Railway). Nenhuma
+> chamada de modelo funciona em produção desde ~24/08 (último trace no
+> Langfuse). Trocar a chave é o passo 0 de `docs/SETUP-MAQUINA-ESCOLA.md`.
+>
+> **Achado novo de 28/08, ainda não corrigido (convenção: perguntar antes):**
+> o truncamento do §11.4 **não é só do v1/v2** — o `mediar-cardapio` também
+> está batendo nos tetos (2048 e 1024) com ~18,5 mil tokens de entrada.
+> Evidência em `docs/apoio/aula2-saida-evals.md`.
+>
+> Dois avisos operacionais de 28/08: (a) o pre-flight do runbook que espera
+> o hash `b876e2c` **está desatualizado** — use o comando corrigido em
+> `docs/SETUP-MAQUINA-ESCOLA.md` §5, que compara só os arquivos de código;
+> (b) produção caiu de manhã (fim do período gratuito do Railway) e voltou
+> às 10h34 — confira sempre com `curl.exe`, esperando **401**, não 404.
+
+> **A Aula 4 continua regida por `docs/RUNBOOK-gravacao-29-08.md`.**
 > Produção está com **falhas preservadas de propósito** para demonstração ao
 > vivo. Há dois PRs abertos que **não devem ser mergeados nem deployados
 > antes da gravação**, e a ordem entre eles importa: **#4 antes do #6**.

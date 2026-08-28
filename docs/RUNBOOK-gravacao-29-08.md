@@ -33,6 +33,19 @@ git fetch origin && git log --oneline -1 origin/master
 
 Se o resultado for `b876e2c`, está tudo como planejado.
 
+> ⚠️ **Atualização de 28/08 — este check já não vale como está.** Depois de
+> escrito este runbook, o merge do PR #7 e o material de aula criado em
+> 28/08 avançaram o topo de `master`; o hash **não é mais `b876e2c`** e ver
+> outro valor aqui **não** significa problema. O que importa é que nenhum
+> **código do app** mudou desde então — use o comando corrigido em
+> [`SETUP-MAQUINA-ESCOLA.md`](./SETUP-MAQUINA-ESCOLA.md) §5, que compara só
+> os arquivos de código e deve sair vazio.
+>
+> Também de 28/08: produção ficou fora do ar pela manhã (fim do período
+> gratuito do Railway) e **voltou às 10h34**. Confira com
+> `curl.exe -s -o NUL -w "HTTP %{http_code}\n" https://chef.workshopee.com.br`
+> — **401 é o esperado**, 404 significa sem deploy ativo.
+
 ---
 
 ## 2. O material: quatro falhas reais
