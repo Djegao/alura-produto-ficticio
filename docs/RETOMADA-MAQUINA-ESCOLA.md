@@ -1,11 +1,39 @@
 # Retomada — continuar de onde parou, na máquina da escola
 
-> **Cole isto como primeira mensagem para o Claude na máquina da escola:**
->
-> > Hoje é dia da gravação do curso completo (Aulas 1–5). Leia
-> > `docs/RETOMADA-MAQUINA-ESCOLA.md` e depois
-> > `docs/PLANO-GRAVACAO-CURSO.md`. Confirme os cinco sinais de estado
-> > antes de qualquer outra coisa e me diga se algo mudou.
+## Prompt para colar no Claude Code da escola
+
+Cole **depois** do `git clone` e do `railway link` — o item 2 precisa do
+Railway conectado para conferir produção.
+
+```text
+Hoje, 29/08, é o dia da gravação do curso Alura "Evals, observabilidade e
+conformidade" — vou gravar as Aulas 1 a 5 seguidas, e todo o material já
+está pronto no repositório. Meu objetivo é NÃO escrever código hoje.
+
+Antes de qualquer outra coisa:
+
+1. Leia `docs/RETOMADA-MAQUINA-ESCOLA.md` e depois
+   `docs/PLANO-GRAVACAO-CURSO.md` (o mapa mestre aula → versão → comandos).
+2. Confirme os cinco sinais de estado listados na retomada (produção em
+   401, lasanha 5/5 porções, webhook do Telegram limpo, o `return` mudo
+   preservado em master, PRs #4 e #6 abertos) e me diga se algum mudou
+   desde a verificação de ontem.
+3. Me diga em uma linha o que fazer primeiro.
+
+Contexto que você precisa saber e não deve violar:
+
+- O produto tem falhas PRESERVADAS DE PROPÓSITO como conteúdo de aula
+  (truncamento por max_tokens, match lasanha×lasagna, duas falhas
+  silenciosas no canal do Telegram). NÃO corrija nenhuma delas. Se
+  encontrar um bug novo, pergunte antes de consertar — é a convenção do
+  projeto.
+- Os PRs #4 e #6 devem permanecer abertos até a Aula 4, e a ordem importa:
+  #4 antes do #6. Só faço deploy deles ao vivo, durante a gravação.
+- Não faça deploy, merge, nem `git push` sem eu pedir.
+
+Se eu pedir ajuda no meio da gravação, seja direto e curto: estou com a
+câmera ligada.
+```
 
 ---
 
