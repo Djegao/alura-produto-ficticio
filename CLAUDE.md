@@ -1,6 +1,11 @@
 # Chef Caseiro — produto fictício de referência
 
-> **📹 GRAVAÇÃO DE 29/08 — o curso inteiro (Aulas 1–5) está pré-preparado.**
+> **📹 HOJE É O DIA DA GRAVAÇÃO (29/08) — Aulas 1–5.**
+> **Sessão nova? Comece por `docs/RETOMADA-MAQUINA-ESCOLA.md`** — ele tem
+> os cinco sinais de estado (todos verificados verdes às 10h39 de 29/08), o
+> que já está pronto, as decisões vigentes e o erro mais provável do dia.
+>
+> **📹 O curso inteiro está pré-preparado.**
 > Comece por **`docs/PLANO-GRAVACAO-CURSO.md`** (mapa mestre: aula → vídeo →
 > versão do produto → comandos → slides) e por
 > **`docs/SETUP-MAQUINA-ESCOLA.md`** (checklist da máquina da escola).
