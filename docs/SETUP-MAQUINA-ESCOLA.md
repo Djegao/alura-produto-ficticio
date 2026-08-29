@@ -9,26 +9,35 @@ você deixa abas abertas.
 
 ---
 
-## 0. BLOQUEANTE — a chave da Anthropic precisa ser trocada
+## 0. Credenciais — já resolvidas em 28/08, só validar
 
-**Descoberto em 28/08 e confirmado por dois caminhos independentes: a
-`ANTHROPIC_API_KEY` do projeto está revogada.** A chave do `.env` local e a
-do Railway são a mesma (108 caracteres, terminando em `n_Z0QQAA`), e ambas
-recebem:
+**Não há nada a trocar.** A `ANTHROPIC_API_KEY` foi substituída em 28/08 às
+12h54 e está funcionando no `.env` e no Railway. Esta seção existe para você
+**validar em 30 segundos** e para saber o que fazer se algo tiver mudado.
 
+Contexto, porque explica a variável extra: a chave antiga estava revogada e
+tinha desligado a inteligência do produto inteiro (Mediador, ingestão pelo
+Telegram, nota fiscal, receita premium) desde ~24/08. A chave nova é
+*identity-linked* — a conta emite assim por padrão —, e esse tipo exige
+também `ANTHROPIC_WORKSPACE_ID`. As duas variáveis já estão nos dois
+lugares, e **nenhuma linha de código do produto mudou**: o SDK lê a variável
+de ambiente e manda o header sozinho.
+
+**Validação (rode e compare):**
+
+```bash
+railway variable list --kv | grep ANTHROPIC
 ```
-401 authentication_error: "API key is invalid."
-```
 
-**Isso não afeta só a Aula 2 — desliga a inteligência do produto inteiro:**
-Mediador, ingestão de relato pelo Telegram, leitura de nota fiscal e receita
-premium. O produto sobe, o painel abre, o bot recebe a mensagem — e toda
-chamada ao modelo falha. Coerente com o Langfuse: o trace mais recente é de
-**24/08**.
+Esperado: `ANTHROPIC_API_KEY` com **108 caracteres** e
+`ANTHROPIC_WORKSPACE_ID=wrkspc_01DEmvYfoN3SESEnSYfinMmH`.
 
-Sem trocar a chave, **as Aulas 1, 2, 3 e 4 não têm demo ao vivo**.
+Se precisar gerar uma chave nova por qualquer motivo, leia os dois avisos
+abaixo antes — os dois custaram tempo em 28/08.
 
-**Só o Diego pode fazer isto:**
+### Contingência — só se a chave parar de funcionar
+
+Se a validação acima falhar (e **só** nesse caso), o procedimento é este:
 
 1. Gerar uma chave nova em `console.anthropic.com` → API Keys.
 
