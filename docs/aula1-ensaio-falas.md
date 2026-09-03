@@ -9,11 +9,13 @@ junta evidência e pergunta. Nenhum slide fala em arquivo, linha, `agent.js`
 ou nome de tabela — e a fala também não deve.
 
 **Regra operacional desta gravação**: só existem **três chamadas reais** ao
-produto nas Aulas 1 e 2, todas pré-combinadas e testadas antes de gravar —
-nada de improviso ao vivo com a IA. As três estão descritas abaixo, com o
-texto exato a digitar. **Teste as três fora de câmera antes de gravar** e
-confira se o comportamento bate com o esperado; se algo vier diferente do
-que este ensaio descreve, ajuste a fala — não invente o que o modelo disse.
+produto nas Aulas 1 e 2, todas pré-combinadas — nada de improviso ao vivo com
+a IA. **As três já foram testadas em 03/09** contra o Supabase novo
+(`kujsmqihnvwbfzdbdhmt`), com o estoque e a preferência exatos descritos
+abaixo. As respostas reais estão citadas nas falas dos slides 16 (Aula 1) e
+10/13 (Aula 2) — **não são exemplos hipotéticos**. Se você regravar o teste
+antes de gravar o vídeo e a resposta vier diferente, ajuste a fala — não
+mantenha uma citação que não bate com o que o modelo respondeu de verdade.
 
 ---
 
@@ -24,16 +26,9 @@ que este ensaio descreve, ajuste a fala — não invente o que o modelo disse.
 | Item | Como deixar |
 |---|---|
 | Branch | **`aula1-2/produto-virgem`**, neste checkout (`aula1-virgem/`) |
-| Produto | zerado — nenhum item no estoque, nenhuma preferência, nenhuma sugestão anterior |
-| `.env` | precisa existir aqui **com um Supabase próprio** (schema.sql deste checkout, não o do produto antigo) — ver nota abaixo |
-| Prompt ativo | começa em **v1** (config padrão do `server.js`) |
-
-⚠️ **Este checkout não tem `.env` ainda.** Antes de qualquer ensaio, alguém
-precisa: rodar `schema.sql` num projeto Supabase (novo ou um espaço isolado
-do existente — **não** aponte para o Supabase do produto antigo, ou o
-"zerado" deixa de ser zerado), e preencher `ANTHROPIC_API_KEY`,
-`ANTHROPIC_WORKSPACE_ID`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` a
-partir de `.env.example`.
+| Produto | ✅ testado em 03/09 e **já zerado de volta** (`GET /api/estoque` confirmado `[]`) — pronto pra gravar |
+| `.env` | ✅ já existe — Supabase próprio (`kujsmqihnvwbfzdbdhmt`), `ANTHROPIC_API_KEY`/`WORKSPACE_ID` reaproveitados do produto antigo |
+| Prompt ativo | volta pra **v1** sozinho — é `currentConfig` em memória em `server.js`, e o servidor do teste já foi encerrado. Ao rodar `npm start` de novo, começa em v1. |
 
 ### As três chamadas — texto exato
 
@@ -218,15 +213,25 @@ pré-combinada — o mesmo texto da Chamada 1.
 ### Slide 16 — O que eu observei na comparação
 
 **Dizer**:
-> "Compara as duas. [Descreva a diferença real que apareceu nas suas duas
-> respostas testadas — por exemplo: numa ela às vezes sugere direto, sem
-> checar nada; na outra ela sempre confere antes, e demora um pouco mais.]
+> "Compara as duas. A primeira, em v1, veio completa: ela me contou a
+> receita inteira — frango grelhado com arroz, feijão e salada de alface —
+> com modo de preparo passo a passo, e até me explicou por que deixou o
+> leite de fora: por causa da restrição. A segunda, em v2, foi seca: só
+> disse 'pronto, registrei o uso dos itens', sem me contar qual receita era.
+> As duas respeitaram a restrição — mas só uma delas me disse o que eu ia
+> comer.
+>
 > Nenhuma das duas é 'a errada' — são dois comportamentos possíveis do mesmo
-> produto, e cabe a mim decidir qual eu quero manter."
+> produto. E repara: eu só consegui notar essa diferença porque comparei
+> lado a lado. Se eu tivesse visto só uma das duas, teria achado normal."
 
-**Cuidados**: a frase entre colchetes acima **depende do que sua Chamada 1 e
-Chamada 2 realmente produziram** no teste fora de câmera. Substitua pela
-diferença de verdade — não force uma diferença que não aconteceu.
+**Nota**: essa é a resposta real, testada em 03/09. v1 respondeu com receita
+completa e explicação; v2 respondeu apenas "Pronto! Registrei o uso dos
+itens no estoque. Esse jantar aproveita bem o que você já tem em casa, é
+nutritivo e não usa nenhum ingrediente com lactose." — mesmo tendo
+consultado estoque e preferências e usado exatamente os mesmos itens. Se
+você regravar o teste e a diferença vier outra, ajuste a fala pra descrever
+o que realmente aconteceu.
 
 ---
 

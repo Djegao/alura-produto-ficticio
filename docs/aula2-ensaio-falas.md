@@ -11,6 +11,10 @@ consegue responder olhando a resposta, sem programar.
 **Chamada 1** e **Chamada 2** já foram feitas e suas respostas guardadas. A
 **Chamada 3** (única chamada nova desta aula) acontece dentro do vídeo 2.3.
 
+**As três já foram testadas em 03/09** — as falas dos slides 10 e 13 citam
+as respostas reais, não hipóteses. Se você regravar o teste antes de filmar
+e o resultado vier diferente, ajuste a fala pra bater com o que aconteceu.
+
 ---
 
 ## Antes do REC
@@ -28,10 +32,13 @@ consegue responder olhando a resposta, sem programar.
 **Chamada 3** (vídeo 2.3, prompt v2 — deixe configurado assim desde o fim da Aula 1):
 > "Quero fazer algo com o leite que tenho."
 
-Teste esta chamada **fora de câmera antes de gravar**, junto com a Aula 1 —
-o ensaio da 2.4 (leitura de padrões) depende de saber, com antecedência, se
-ela respeitou ou não a restrição "sem lactose". Ajuste a fala da 2.4 para
-bater com o que realmente aconteceu — não invente o resultado.
+**Resultado real (03/09)**: o produto não sugeriu nada ainda. Ele identificou
+a tensão sozinho — "o estoque tem Leite (1 L, comum, sem indicação de ser
+zero lactose), mas as preferências indicam restrição sem lactose" — e
+perguntou de volta se o leite era zero lactose antes de prosseguir, em vez
+de arriscar um palpite. `items_used` veio vazio: nenhum consumo foi
+registrado. Se você regravar o teste e o resultado vier diferente, ajuste a
+fala da 2.4 pra bater com o que aconteceu.
 
 ### Janelas para alt+tab
 
@@ -103,21 +110,21 @@ bater com o que realmente aconteceu — não invente o resultado.
 
 ---
 
-## Vídeo 2.3 — Pedindo ajuda pra gerar casos de teste
+## Vídeo 2.3 — Desenhando um pedido pra testar o critério
 
 ### Slide 8 — Divisor 2.3
 
 **Claquete**: segure 2 s em silêncio antes de falar.
 
-### Slide 9 — Um pedido não é suficiente pra confiar em nada
+### Slide 9 — Um pedido qualquer não testa nada específico
 
 **Dizer**:
-> "Eu testei com dois pedidos, na aula passada. Isso ainda não prova nada —
-> só mostra que funcionou duas vezes, comigo, num dia. Pra realmente
-> testar o critério de respeito às restrições, eu preciso de um pedido
-> desenhado pra tensionar exatamente esse ponto."
+> "Os dois pedidos da aula passada foram genéricos — bons pra eu conhecer o
+> produto, mas nenhum deles foi desenhado pra pressionar um critério
+> específico. Pra realmente testar o respeito às restrições, eu preciso de
+> um pedido que force essa tensão a aparecer, de propósito."
 
-### Slide 10 — Rodando o produto contra a situação
+### Slide 10 — A tensão que eu desenhei
 
 **Tela**: painel, configuração já em v2.
 
@@ -130,14 +137,16 @@ bater com o que realmente aconteceu — não invente o resultado.
 
 *(mande "Quero fazer algo com o leite que tenho." e leia a resposta)*
 
-> "[Leia a resposta em voz alta e comente o que ela decidiu fazer com o
-> leite e a restrição — se ela evitou usá-lo, sugeriu substituto, ou
-> ignorou a restrição.]"
+> "Olha o que ela fez: não sugeriu nada ainda. Ela reparou sozinha que eu
+> tenho leite comum no estoque, sem nenhuma indicação de ser zero lactose, e
+> que a restrição cadastrada é sem lactose — e voltou a pergunta pra mim,
+> em vez de arriscar. Não registrou nenhum consumo. Ela preferiu parar a
+> arriscar errado."
 
-**Cuidados**: a fala entre colchetes **depende do resultado real** do seu
-teste fora de câmera. Escreva a reação de acordo com o que aconteceu de
-verdade — os dois desfechos (respeitou / não respeitou a restrição) são
-igualmente úteis como conteúdo de aula, contanto que sejam reais.
+**Nota**: esta é a resposta real do teste de 03/09. Se você regravar o teste
+antes de filmar e o resultado vier diferente — por exemplo, se ela sugerir
+algo com o leite sem perguntar — ajuste a fala pra descrever o que
+aconteceu de verdade, e ajuste também o slide 13 (o padrão muda).
 
 ---
 
@@ -160,12 +169,24 @@ igualmente úteis como conteúdo de aula, contanto que sejam reais.
 
 **Tela**: as três respostas lado a lado, com suas notas.
 
+**Fazer**: releia as três notas em voz alta antes de agrupar:
+- Chamada 1 (v1): respeitou a restrição, mas o mérito foi por acaso — v1
+  não obriga a consulta, só permite.
+- Chamada 2 (v2): respeitou a restrição e registrou certo, mas a resposta
+  não contou que prato era — eu só sei o que vou comer se eu for olhar o
+  estoque depois.
+- Chamada 3 (v2): parou e perguntou antes de arriscar a restrição — o mais
+  seguro dos três, mas também o único que não chegou a uma resposta pronta.
+
 **Dizer**:
-> "Depois de ler as três, eu junto as notas parecidas e dou nome a cada
-> grupo — isso é a taxonomia, e ela nasce do dado que eu tenho na frente,
-> não de uma lista pronta que eu trouxe de fora. Normalmente, dois ou três
-> padrões respondem pela maioria dos problemas. É neles que vale focar
-> primeiro."
+> "Lendo as três notas juntas, aparece um padrão que eu não veria olhando
+> uma de cada vez: nas duas vezes em que a restrição foi testada de
+> verdade, o produto foi cauteloso — mas cauteloso de dois jeitos
+> diferentes. Uma vez ele decidiu sozinho e me contou pouco. Na outra, ele
+> nem decidiu — devolveu a decisão pra mim. Isso não é uma falha clara, é
+> uma inconsistência de comportamento: eu não sei, de antemão, qual dos
+> dois vou receber. E é exatamente esse tipo de padrão que a leitura em
+> conjunto revela e a leitura isolada esconde."
 
 ---
 

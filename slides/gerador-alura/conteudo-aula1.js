@@ -78,9 +78,9 @@ module.exports.slides = [
     ] },
   { type: 'bullets', eyebrow: 'Vídeo 1.5', title: 'O que eu observei na comparação',
     bullets: [
-      'Numa das formas, às vezes a sugestão sai direto — sem checar nada, só no que parece razoável.',
-      'Na outra, ela sempre confere antes. A resposta demora um pouco mais, mas vem apoiada no que é real.',
-      { text: 'Nenhuma das duas é "a errada" — são dois comportamentos possíveis do mesmo produto, e cabe a mim decidir qual eu quero.', bold: true },
+      'Na forma solta, a resposta veio completa: a receita inteira, passo a passo, e até por que o leite ficou de fora.',
+      'Na forma rígida, ela fez tudo certo por dentro — mas a resposta final foi seca: só confirmou que registrou o uso.',
+      { text: 'As duas respeitaram a restrição. Só uma me contou o que eu ia comer — e isso eu não esperava antes de comparar.', bold: true },
     ] },
 
   { type: 'divider', number: '1.6', title: 'O ciclo que faz a diferença' },

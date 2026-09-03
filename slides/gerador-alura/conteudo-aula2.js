@@ -41,16 +41,16 @@ module.exports.slides = [
       'Esses dois nascem direto do que o produto promete. Se algum dos dois falha, a promessa central quebrou.',
     ] },
 
-  { type: 'divider', number: '2.3', title: 'Pedindo ajuda pra gerar casos de teste' },
-  { type: 'bullets', eyebrow: 'Vídeo 2.3', title: 'Um pedido não é suficiente pra confiar em nada',
+  { type: 'divider', number: '2.3', title: 'Desenhando um pedido pra testar o critério' },
+  { type: 'bullets', eyebrow: 'Vídeo 2.3', title: 'Um pedido qualquer não testa nada específico',
     bullets: [
-      'Eu testei com um pedido só, na Aula 1. Isso não prova nada — só mostra que funcionou uma vez, com uma pessoa, num dia.',
-      { text: 'Vou pedir pro Claude gerar várias situações diferentes de pedido — como se fossem várias pessoas reais perguntando.', bold: true },
+      'Os dois pedidos da Aula 1 foram genéricos — bons pra conhecer o produto, mas não desenhados pra pressionar nenhum critério em particular.',
+      { text: 'Pra testar de verdade o respeito às restrições, eu preciso de um pedido que force essa tensão a aparecer, de propósito.', bold: true },
     ] },
-  { type: 'bullets', eyebrow: 'Vídeo 2.3', title: 'Rodando o produto contra cada situação',
+  { type: 'bullets', eyebrow: 'Vídeo 2.3', title: 'A tensão que eu desenhei',
     bullets: [
-      'Cadastro estoques e restrições diferentes para cada situação gerada, e mando cada pedido pro Chef Caseiro.',
-      { text: 'Agora eu tenho várias respostas reais para julgar — não mais uma opinião sobre um caso só.', bold: true },
+      'Tenho leite no estoque e a restrição "sem lactose" cadastrada. Vou pedir algo que usa exatamente esse ingrediente.',
+      { text: 'Se o produto ignorar a restrição, eu vejo isso na hora. Se ele resolver bem, eu também vejo — e aprendo como ele resolve.', bold: true },
     ] },
 
   { type: 'divider', number: '2.4', title: 'Lendo o que aconteceu de verdade' },
@@ -69,7 +69,7 @@ module.exports.slides = [
   { type: 'bullets', eyebrow: 'Fechamento da aula', title: 'O que aprendemos',
     bullets: [
       'Um critério só serve se qualquer pessoa da equipe conseguir julgá-lo, olhando a resposta, sem programar.',
-      'Testar com um caso só não prova nada — pedir ajuda ao Claude pra gerar várias situações resolve isso rápido.',
+      'Um pedido genérico não testa nada específico — desenhar a tensão certa no pedido é o que revela se um critério aguenta.',
       { text: 'Ler as respostas e agrupar em padrões (não em categorias prontas) revela onde o produto realmente falha.', bold: true },
       'Hoje eu li tudo à mão, um por um. Isso não escala — e é exatamente o problema que a próxima aula resolve.',
     ] },
