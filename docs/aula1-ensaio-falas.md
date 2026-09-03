@@ -61,7 +61,7 @@ ensina a escrever.
 
 ### Janelas para alt+tab
 
-1. `localhost:3300` (o produto) · 2. `aula1-alura.pptx` · 3. Este ensaio
+1. Cliente de API (Postman, apontando pra `localhost:3300`) · 2. `aula1-alura.pptx` · 3. Este ensaio
 
 ---
 
@@ -133,7 +133,13 @@ ensina a escrever.
 
 ### Slide 9 — O produto que vamos construir junto
 
-**Tela**: painel em `localhost:3300`, zerado.
+**Tela**: cliente de API (Postman ou similar), apontando pra
+`localhost:3300` — sem nenhuma chamada salva ainda.
+
+**Nota de produto**: o Chef Caseiro, neste ponto do curso, não tem tela
+própria. Ele é conversado por chamada direta — é assim que o v1/v2 sempre
+funcionou neste projeto. Uma interface visual é trabalho futuro, fora do
+escopo destas duas aulas.
 
 **Dizer**:
 > "Esse é o Chef Caseiro. Ele sugere o que cozinhar com o que a casa já tem
@@ -160,12 +166,13 @@ ensina a escrever.
 
 ### Slide 12 — Vamos fazer o primeiro pedido juntos
 
-**Tela**: painel, mostrando o estoque e a preferência já cadastrados (feito
-fora de câmera — ver "Antes do REC").
+**Tela**: cliente de API, mostrando `GET /api/estoque` e
+`GET /api/preferencias` já retornando o que foi cadastrado fora de câmera
+(ver "Antes do REC").
 
-**Fazer**: mostre rapidamente o estoque cadastrado (arroz, feijão, frango,
-alface, leite) e a preferência ("sem lactose"). Depois, faça a **Chamada 1**
-pré-combinada.
+**Fazer**: mostre rapidamente a resposta dessas duas chamadas (arroz,
+feijão, frango, alface, leite; e a preferência "sem lactose"). Depois, faça
+a **Chamada 1** pré-combinada.
 
 **Dizer**:
 > "Eu já deixei preparado o que essa casa tem: arroz, feijão, frango,
@@ -196,10 +203,11 @@ pré-combinada.
 
 ### Slide 15 — O mesmo produto, dois jeitos de instruir
 
-**Tela**: painel, tela de configuração.
+**Tela**: cliente de API, chamando `POST /api/config`.
 
-**Fazer**: troque a configuração para o prompt **v2** e faça a **Chamada 2**
-pré-combinada — o mesmo texto da Chamada 1.
+**Fazer**: troque a configuração para o prompt **v2** (`POST /api/config`
+com `{"promptVersion":"v2"}`) e faça a **Chamada 2** pré-combinada — o
+mesmo texto da Chamada 1.
 
 **Dizer**:
 > "Existem duas formas de orientar essa inteligência. A que eu usei agora há

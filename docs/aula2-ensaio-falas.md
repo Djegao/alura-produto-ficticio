@@ -42,7 +42,7 @@ fala da 2.4 pra bater com o que aconteceu.
 
 ### Janelas para alt+tab
 
-1. `localhost:3300` (o produto) · 2. `aula2-alura.pptx` · 3. Registro das Chamada 1/2 · 4. Este ensaio
+1. Cliente de API (Postman, apontando pra `localhost:3300`) · 2. `aula2-alura.pptx` · 3. Registro das Chamada 1/2 · 4. Este ensaio
 
 ---
 
@@ -126,7 +126,7 @@ fala da 2.4 pra bater com o que aconteceu.
 
 ### Slide 10 — A tensão que eu desenhei
 
-**Tela**: painel, configuração já em v2.
+**Tela**: cliente de API, confirmando `GET /api/config` em v2.
 
 **Fazer**: faça a **Chamada 3** pré-combinada.
 
