@@ -5,3 +5,5 @@ node_modules/
 interactions.db
 server.log
 .playwright-mcp/
+*.pptx.lock
+~$*.pptx

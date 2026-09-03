@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Chef Caseiro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+  :root {
+    --bg: #0C0C0E;
+    --blue: #1F53E5;
+    --title-gray: #BDBFC7;
+    --body-gray: #A7A9B4;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg);
+    font-family: 'Roboto', system-ui, sans-serif;
+    color: var(--body-gray);
+  }
+  body {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background-image: radial-gradient(circle, #1a1a1e 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .logo {
+    font-size: 15px; letter-spacing: 3px; font-weight: 700;
+    color: var(--blue); text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  h1 {
+    font-size: 56px; font-weight: 500; color: var(--title-gray);
+    margin: 0 0 12px 0; letter-spacing: -0.5px;
+  }
+  p.subtitle {
+    font-size: 20px; margin: 0 0 40px 0; color: var(--body-gray);
+  }
+  .estado {
+    display: flex; gap: 24px;
+  }
+  .cartao {
+    border: 1px solid #24242a; border-radius: 12px;
+    padding: 20px 28px; min-width: 140px; text-align: center;
+  }
+  .cartao .num {
+    font-size: 32px; font-weight: 700; color: var(--blue);
+  }
+  .cartao .rotulo {
+    font-size: 13px; margin-top: 6px; text-transform: uppercase;
+    letter-spacing: 1px; color: #7B7F8E;
+  }
+  footer {
+    position: absolute; bottom: 28px;
+    font-size: 13px; color: #7B7F8E;
+  }
+</style>
+</head>
+<body>
+  <div class="logo">Chef Caseiro</div>
+  <h1>Produto zerado</h1>
+  <p class="subtitle">Nenhuma sugestão ainda — pronto para o primeiro pedido</p>
+  <div class="estado">
+    <div class="cartao"><div class="num" id="n-estoque">0</div><div class="rotulo">itens no estoque</div></div>
+    <div class="cartao"><div class="num" id="n-prefs">0</div><div class="rotulo">preferências</div></div>
+    <div class="cartao"><div class="num" id="n-sugestoes">0</div><div class="rotulo">sugestões</div></div>
+  </div>
+  <footer>Aula 1 — Evals, observabilidade e conformidade</footer>
+  <script>
+    // Le o estado real do produto (GET puro, nunca escreve nada) e atualiza
+    // o titulo/subtitulo conforme o estoque deixa de estar zerado — a tela
+    // reflete o que aconteceu de verdade nas chamadas da aula.
+    async function contar(caminho) {
+      try {
+        const r = await fetch(caminho);
+        if (!r.ok) return 0;
+        const d = await r.json();
+        return Array.isArray(d) ? d.length : 0;
+      } catch (e) { return 0; }
+    }
+    async function atualizar() {
+      const [estoque, prefs, sugestoes] = await Promise.all([
+        contar('/api/estoque'), contar('/api/preferencias'), contar('/api/sugestoes'),
+      ]);
+      document.getElementById('n-estoque').textContent = estoque;
+      document.getElementById('n-prefs').textContent = prefs;
+      document.getElementById('n-sugestoes').textContent = sugestoes;
+      const h1 = document.querySelector('h1');
+      const sub = document.querySelector('.subtitle');
+      if (estoque > 0 || prefs > 0) {
+        h1.textContent = 'Produto em uso';
+        sub.textContent = sugestoes > 0
+          ? 'Já sugeriu ' + sugestoes + (sugestoes === 1 ? ' vez' : ' vezes') + ' — estoque e preferências reais abaixo'
+          : 'Estoque e preferências cadastrados — pronto para o primeiro pedido';
+      } else {
+        h1.textContent = 'Produto zerado';
+        sub.textContent = 'Nenhuma sugestão ainda — pronto para o primeiro pedido';
+      }
+    }
+    atualizar();
+    setInterval(atualizar, 4000);
+  </script>
+</body>
+</html>

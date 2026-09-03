@@ -1,6 +1,7 @@
 require('./instrumentation');
 
 const express = require('express');
+const path = require('path');
 const crypto = require('crypto');
 const { supabase, getHouseholdId } = require('./tools');
 const { sugerirReceita } = require('./agent');
@@ -25,6 +26,7 @@ function basicAuth(req, res, next) {
 
 app.use(basicAuth);
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 let currentConfig = {
   promptVersion: 'v1',

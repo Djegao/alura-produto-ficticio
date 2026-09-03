@@ -7,6 +7,9 @@ const pptxgen = require('pptxgenjs');
 
 const ART = process.argv[2];
 const OUT = process.argv[3];
+// LIVE_MODE=1 gera a variante pra gravar direto, sem parar nos divisores —
+// muda so a nota de apresentacao do addDivider, nada mais no deck.
+const LIVE_MODE = process.env.LIVE_MODE === '1';
 
 // linhas.json: quantas linhas cada bullet ocupa de fato (ver medir.py)
 const LINHAS_PATH = path.join(__dirname, 'linhas.json');
@@ -113,9 +116,14 @@ function addDivider(d) {
   // O divisor nao e so transicao: e a CLAQUETE do video. O editor corta por
   // ele. Azul chapado full-bleed justamente pra ser achavel na varredura da
   // timeline — nao mexer no fundo nem encher de elemento.
+  // LIVE_MODE troca so a nota de apresentacao (ritmo ao vivo, sem pausa) —
+  // o slide em si fica identico nas duas versoes, e-mesmo design.
   s.addNotes(
-    'CLAQUETE — inicio do video ' + d.number + '. Segure 2 segundos em silencio ' +
-    'antes de comecar a falar: e por esta tela que a edicao corta.'
+    LIVE_MODE
+      ? 'Início do vídeo ' + d.number + ' — continue falando, sem parar. ' +
+        'Esta versão é pra ritmo ao vivo; o corte de edição usa o outro deck.'
+      : 'CLAQUETE — inicio do video ' + d.number + '. Segure 2 segundos em silencio ' +
+        'antes de comecar a falar: e por esta tela que a edicao corta.'
   );
   return s;
 }
