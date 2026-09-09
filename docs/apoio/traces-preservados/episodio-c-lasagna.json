@@ -1,0 +1,253 @@
+{
+  "id": "41a4e5c75e3331cad95e7ffe8ba9932d",
+  "projectId": "cms3l9cmk049pad0dmurlfwck",
+  "name": "ingerir-relato",
+  "timestamp": "2026-08-22T14:38:52.065Z",
+  "environment": "default",
+  "tags": [],
+  "bookmarked": false,
+  "release": null,
+  "version": null,
+  "userId": null,
+  "sessionId": null,
+  "public": false,
+  "input": {
+    "texto": "Comemos 3 porções de lasagna, 1 e 1/2 para cada!",
+    "canal": "telegram",
+    "model": "claude-haiku-4-5"
+  },
+  "output": {
+    "tipo": "relato_refeicao",
+    "descricao": "Comeram 3 porções de lasagna ao total, 1 e 1/2 porção para cada pessoa",
+    "data": "2026-08-22",
+    "fonte_refeicao": "caseira",
+    "item_nome": "lasagna",
+    "item_quantidade": 3
+  },
+  "metadata": {
+    "resourceAttributes": {
+      "host.name": "35874e8dd50a",
+      "host.arch": "amd64",
+      "process.pid": 25,
+      "process.executable.name": "node",
+      "process.executable.path": "/mise/installs/node/24.19.0/bin/node",
+      "process.command_args": [
+        "/mise/installs/node/24.19.0/bin/node",
+        "/app/server.js"
+      ],
+      "process.runtime.version": "24.19.0",
+      "process.runtime.name": "nodejs",
+      "process.runtime.description": "Node.js",
+      "process.command": "/app/server.js",
+      "process.owner": "root",
+      "service.name": "unknown_service:node",
+      "telemetry.sdk.language": "nodejs",
+      "telemetry.sdk.name": "opentelemetry",
+      "telemetry.sdk.version": "2.10.0"
+    },
+    "scope": {
+      "name": "langfuse-sdk",
+      "version": "5.9.1",
+      "attributes": {}
+    }
+  },
+  "createdAt": "2026-08-22T14:39:16.000Z",
+  "updatedAt": "2026-08-22T14:39:15.343Z",
+  "externalId": null,
+  "scores": [],
+  "latency": 1.346,
+  "observations": [
+    {
+      "id": "5880900cfac35101",
+      "traceId": "41a4e5c75e3331cad95e7ffe8ba9932d",
+      "startTime": "2026-08-22T14:38:52.065Z",
+      "endTime": "2026-08-22T14:38:53.411Z",
+      "projectId": "cms3l9cmk049pad0dmurlfwck",
+      "parentObservationId": null,
+      "type": "AGENT",
+      "environment": "default",
+      "name": "ingerir-relato",
+      "level": "DEFAULT",
+      "statusMessage": null,
+      "version": null,
+      "createdAt": "2026-08-22T14:39:15.264Z",
+      "updatedAt": "2026-08-22T14:39:15.265Z",
+      "input": {
+        "texto": "Comemos 3 porções de lasagna, 1 e 1/2 para cada!",
+        "canal": "telegram",
+        "model": "claude-haiku-4-5"
+      },
+      "output": {
+        "tipo": "relato_refeicao",
+        "descricao": "Comeram 3 porções de lasagna ao total, 1 e 1/2 porção para cada pessoa",
+        "data": "2026-08-22",
+        "fonte_refeicao": "caseira",
+        "item_nome": "lasagna",
+        "item_quantidade": 3
+      },
+      "metadata": {
+        "resourceAttributes": {
+          "host.name": "35874e8dd50a",
+          "host.arch": "amd64",
+          "process.pid": 25,
+          "process.executable.name": "node",
+          "process.executable.path": "/mise/installs/node/24.19.0/bin/node",
+          "process.command_args": [
+            "/mise/installs/node/24.19.0/bin/node",
+            "/app/server.js"
+          ],
+          "process.runtime.version": "24.19.0",
+          "process.runtime.name": "nodejs",
+          "process.runtime.description": "Node.js",
+          "process.command": "/app/server.js",
+          "process.owner": "root",
+          "service.name": "unknown_service:node",
+          "telemetry.sdk.language": "nodejs",
+          "telemetry.sdk.name": "opentelemetry",
+          "telemetry.sdk.version": "2.10.0"
+        },
+        "scope": {
+          "name": "langfuse-sdk",
+          "version": "5.9.1",
+          "attributes": {}
+        }
+      },
+      "model": null,
+      "modelParameters": {},
+      "completionStartTime": null,
+      "promptId": null,
+      "promptName": null,
+      "promptVersion": null,
+      "latency": 1.346,
+      "timeToFirstToken": null,
+      "usageDetails": {},
+      "costDetails": {},
+      "usagePricingTierId": null,
+      "usagePricingTierName": null,
+      "inputPrice": 0,
+      "outputPrice": 0,
+      "totalPrice": 0,
+      "calculatedInputCost": null,
+      "calculatedOutputCost": null,
+      "calculatedTotalCost": null,
+      "unit": "TOKENS",
+      "promptTokens": 0,
+      "completionTokens": 0,
+      "totalTokens": 0,
+      "modelId": null,
+      "usage": {
+        "unit": "TOKENS",
+        "input": 0,
+        "output": 0,
+        "total": 0
+      }
+    },
+    {
+      "id": "dcca211ce83b5d7e",
+      "traceId": "41a4e5c75e3331cad95e7ffe8ba9932d",
+      "startTime": "2026-08-22T14:38:52.065Z",
+      "endTime": "2026-08-22T14:38:53.411Z",
+      "projectId": "cms3l9cmk049pad0dmurlfwck",
+      "parentObservationId": "5880900cfac35101",
+      "type": "GENERATION",
+      "environment": "default",
+      "name": "classificar-intencao",
+      "level": "DEFAULT",
+      "statusMessage": null,
+      "version": null,
+      "createdAt": "2026-08-22T14:39:15.264Z",
+      "updatedAt": "2026-08-22T14:39:15.265Z",
+      "input": "Comemos 3 porções de lasagna, 1 e 1/2 para cada!",
+      "output": [
+        {
+          "type": "tool_use",
+          "id": "toolu_0138UxNGed6fvg2LKRDFUsBS",
+          "name": "registrar_intencao",
+          "input": {
+            "tipo": "relato_refeicao",
+            "descricao": "Comeram 3 porções de lasagna ao total, 1 e 1/2 porção para cada pessoa",
+            "data": "2026-08-22",
+            "fonte_refeicao": "caseira",
+            "item_nome": "lasagna",
+            "item_quantidade": 3
+          },
+          "caller": {
+            "type": "direct"
+          }
+        }
+      ],
+      "metadata": {
+        "resourceAttributes": {
+          "host.name": "35874e8dd50a",
+          "host.arch": "amd64",
+          "process.pid": 25,
+          "process.executable.name": "node",
+          "process.executable.path": "/mise/installs/node/24.19.0/bin/node",
+          "process.command_args": [
+            "/mise/installs/node/24.19.0/bin/node",
+            "/app/server.js"
+          ],
+          "process.runtime.version": "24.19.0",
+          "process.runtime.name": "nodejs",
+          "process.runtime.description": "Node.js",
+          "process.command": "/app/server.js",
+          "process.owner": "root",
+          "service.name": "unknown_service:node",
+          "telemetry.sdk.language": "nodejs",
+          "telemetry.sdk.name": "opentelemetry",
+          "telemetry.sdk.version": "2.10.0"
+        },
+        "scope": {
+          "name": "langfuse-sdk",
+          "version": "5.9.1",
+          "attributes": {}
+        }
+      },
+      "model": "claude-haiku-4-5",
+      "modelParameters": {},
+      "completionStartTime": null,
+      "promptId": null,
+      "promptName": null,
+      "promptVersion": null,
+      "latency": 1.346,
+      "timeToFirstToken": null,
+      "usageDetails": {
+        "input": 2491,
+        "output": 169,
+        "total": 2660
+      },
+      "costDetails": {
+        "input": 0.002491,
+        "output": 0.000845,
+        "total": 0.003336
+      },
+      "usagePricingTierId": "cmgt5gnkv000104jx171tbq4e_tier_default",
+      "usagePricingTierName": "Standard",
+      "inputPrice": 0.000001,
+      "outputPrice": 0.000005,
+      "totalPrice": 0,
+      "calculatedInputCost": 0.002491,
+      "calculatedOutputCost": 0.000845,
+      "calculatedTotalCost": 0.003336,
+      "unit": "TOKENS",
+      "promptTokens": 2491,
+      "completionTokens": 169,
+      "totalTokens": 2660,
+      "modelId": "cmgt5gnkv000104jx171tbq4e",
+      "usage": {
+        "unit": "TOKENS",
+        "input": 2491,
+        "output": 169,
+        "total": 2660
+      }
+    }
+  ],
+  "htmlPath": "/project/cms3l9cmk049pad0dmurlfwck/traces/41a4e5c75e3331cad95e7ffe8ba9932d",
+  "totalCost": 0.003336,
+  "_deprecation": {
+    "message": "On Langfuse Cloud, Langfuse v3 is deprecated and this endpoint will be removed on November 16, 2026. In Langfuse v4, read span and trace data via GET /api/public/v2/observations?fromStartTime=<from>&toStartTime=<to>.",
+    "replacement": "GET /api/public/v2/observations?fromStartTime=<from>&toStartTime=<to>",
+    "docsUrl": "https://langfuse.com/docs/api-and-data-platform/features/observations-api",
+    "sunsetAt": "2026-11-16"
+  }
+}
