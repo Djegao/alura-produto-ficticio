@@ -1,5 +1,7 @@
 node_modules/
 .env
+.env.langfuse-guardado
+.env.backup
 interactions.db
 server.log
 .playwright-mcp/
