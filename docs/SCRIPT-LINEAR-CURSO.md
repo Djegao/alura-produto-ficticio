@@ -12,64 +12,77 @@ Aula 4) continuam válidos como referência de detalhe — este aqui é o fio
 condutor.
 
 ---
-
-## ⏳ ANTES DE TUDO: a janela tem prazo
-
-Verificado em 09/09: **o Langfuse Cloud está retendo ~30 dias de traces.**
-Os dados mais antigos já sumiram — a janela visível hoje começa em 12/08,
-quando o RUNBOOK falava em traces desde 27/07.
-
-Consequência direta para a gravação:
-
-| Trace | Data | Sustenta | Expira por volta de |
-|---|---|---|---|
-| `41a4e5c75e33...` (episódio C, lasagna) | 22/08 | Aulas 3.4 e 4.1 | **21/09** |
-| `57debf7a7153...` (truncamento) | 22/08 | Aulas 3.4 e 4.2 | **21/09** |
-
-Ambos **ainda estão presentes** (verificado hoje). Mas o dia 22/08 concentra
-21 dos traces mais ricos do curso, e ele sai da janela em cerca de doze
-dias.
-
-**Recomendação:** antes de gravar qualquer coisa, tire prints dos dois
-traces acima e salve em `docs/apoio/`. Leva cinco minutos e transforma um
-prazo em um não-problema. Se preferir, eu faço isso agora — é só pedir.
-
-E há um ganho didático aqui: a retenção **vira conteúdo** da Aula 3. O dado
-bruto é caro e some; o que sobrevive é o que você agregou. Está no script,
-no vídeo 3.3.
+> ✅ **Formato: gravação linear.** Decidido em 09/09. O produto vai para a
+> gravação **no estado final** — corrigido, com leitura de nota por foto — e
+> permanece assim do primeiro ao último vídeo. **Nenhum checkout, nenhum
+> deploy, nenhuma troca de branch durante a gravação.** As falhas e as
+> correções são contadas por slide, com a evidência real extraída do
+> Langfuse antes de ela expirar.
+>
+> Isso resolve o que travou as tentativas anteriores: a Aula 4 não exige
+> mais dois deploys ao vivo, nem ordem de branch, nem apaga a sua
+> documentação do disco no meio da gravação.
 
 ---
 
-## 🔧 Bloco 0 — preparação do ambiente (~20 min, sem gravar)
 
-Estado verificado em 09/09, todos verdes:
+## ✅ ANTES DE TUDO: a evidência já está salva
 
-- Produção no ar: `chef.workshopee.com.br` responde 401 (Basic Auth) ✅
-- Chave da Anthropic funcionando no `.env` **e** no Railway ✅
-- PRs #4 e #6 abertos, na ordem certa ✅
-- `return` mudo preservado em `master` ✅
-- Lasanha **5/5 porções** — episódio C intacto ✅
-- 43 Scores no Langfuse (a rodada de evals de 28/08 sobreviveu) ✅
+O Langfuse Cloud retém ~30 dias, e os dois traces que sustentam as Aulas 3 e
+4 estavam prestes a expirar — o do truncamento é de **12/08**, ou seja, sai
+da janela por volta de **11/09**.
+
+**Eles foram extraídos em 09/09 e estão versionados no repositório:**
+
+- [`apoio/evidencia-preservada.md`](./apoio/evidencia-preservada.md) — a
+  leitura pronta dos dois casos, já organizada para virar slide
+- [`apoio/traces-preservados/`](./apoio/traces-preservados/) — os JSONs
+  completos, como vieram da API
+- [`apoio/antes-depois-codigo.md`](./apoio/antes-depois-codigo.md) — o
+  código antes e depois das correções
+
+**Você não depende mais do painel do Langfuse para gravar.** Se os traces
+sumirem, a aula continua de pé.
+
+E a retenção virou conteúdo: ela é o argumento do vídeo 3.3 sobre dado bruto
+ter prazo de validade.
+
+
+## 🔧 Bloco 0 — preparação do ambiente (~15 min, sem gravar)
+
+**O produto está no estado final**: os PRs #4 e #6 foram mergeados em 09/09,
+então ele responde com honestidade ao que não sabe fazer **e** lê nota
+fiscal por foto. É esse estado que aparece nos cinco capítulos.
+
+Confirme antes de começar:
 
 ```bash
 curl.exe -s -o NUL -w "producao: HTTP %{http_code}\n" https://chef.workshopee.com.br
 ```
 
-**Novidade de estado que melhora a aula:** a faixa "vencendo" — que estava
-vazia em agosto — agora tem **três itens vencidos de verdade**: espinafre
-(9 dias vencido), vagem e couve-flor (5 dias cada). Isso enriquece a demo da
-Aula 1: o painel não mostra mais um estado idealizado, mostra uma cozinha
-real com comida esquecida na geladeira. Use isso.
+```bash
+git branch --show-current
+```
 
-**Abas para deixar abertas** (nesta ordem, da esquerda para a direita):
+Esperado: **401** (Basic Auth ativo) e branch **master**. E é só — não há
+mais nada para preparar em termos de versão.
+
+**Novidade de estado que melhora a Aula 1:** a faixa "vencendo", que estava
+vazia em agosto, agora tem **três itens vencidos de verdade** — espinafre há
+9 dias, vagem e couve-flor há 5. O painel deixou de mostrar uma cozinha
+idealizada e passou a mostrar uma cozinha real, com comida esquecida na
+geladeira. Use isso no 1.2.
+
+**Abas para deixar abertas:**
 
 1. `chef.workshopee.com.br` (autenticado)
 2. Langfuse Cloud — `us.cloud.langfuse.com`
 3. Telegram Web, no grupo da casa
-4. GitHub — `docs/PLANO-GRAVACAO-CURSO.md` **(obrigatório: some do disco na Aula 4)**
-5. VS Code no repositório, em `master`
+4. VS Code no repositório, em `master`
 
----
+> Note que a aba do GitHub com a documentação **não é mais necessária**: sem
+> troca de branch, nada some do disco durante a gravação.
+
 
 # AULA 1 — O produto lançou. E agora?
 
@@ -647,311 +660,397 @@ antes — ele monta o arquivo a partir das variáveis do Railway.
 
 # AULA 4 — Detectar, diagnosticar e corrigir
 
-**A aula mais complexa do curso.** É a única com deploy real, ordem de
-branch que importa e Telegram ao vivo.
+> ✅ **Formato linear.** Nenhum checkout, nenhum deploy, nenhuma troca de
+> branch. O produto está no estado final o tempo todo. As falhas são
+> contadas com a **evidência real** extraída do Langfuse, que está em
+> [`apoio/evidencia-preservada.md`](./apoio/evidencia-preservada.md), e as
+> correções aparecem como antes/depois em
+> [`apoio/antes-depois-codigo.md`](./apoio/antes-depois-codigo.md).
 
-> 🔴 **ANTES DE COMEÇAR — leia os três avisos:**
->
-> 1. **Deixe `PLANO-GRAVACAO-CURSO.md` e este script abertos no GitHub.** Os
->    checkouts abaixo **apagam todos os documentos do disco**. É o erro mais
->    provável do dia.
-> 2. **A ordem dos PRs é obrigatória: #4 antes do #6.** O #6 usa uma função
->    que o #4 introduz.
-> 3. **Tenha a foto do cupom pronta** no celular, para enviar três vezes ao
->    grupo do Telegram.
+**Por que contado em vez de reproduzido:** a falha central deste capítulo é
+uma **ausência** — nada acontece, nada aparece, nada é registrado. Ao vivo,
+isso é uma tela parada em que o espectador precisa acreditar em você. Em
+evidência, ele vê o número batendo no teto e a mensagem de erro nomeando a
+chamada órfã. O silêncio não tem imagem; o dado tem.
 
-**Mapa dos atos do runbook nos vídeos do CSV:**
+**Demos ao vivo desta aula (todas seguras, nenhuma exige deploy):**
 
-| Vídeo | Ato do runbook | O que acontece |
-|---|---|---|
-| 4.1 | Ato 1 | A falha: manda a foto, nada acontece |
-| 4.2 | Ato 2 | O diagnóstico por eliminação + os evals |
-| 4.3 | Ato 3 | Deploy do PR #4 — o remendo honesto |
-| 4.4 | Atos 4 e 5 | Deploy do PR #6 + a consequência |
-
-**Estado de partida (confirme antes de gravar):**
-
-```bash
-curl.exe -s -o NUL -w "producao: HTTP %{http_code}\n" https://chef.workshopee.com.br
-```
-
-```bash
-git branch --show-current
-```
-
-Precisa estar em `master`. Se não estiver: `git checkout master`.
+| Onde | O quê |
+|---|---|
+| 4.2 | Rodar os evals no terminal |
+| 4.3 | Mandar a foto do cupom no Telegram — **e o produto responde** |
+| 4.4 | Painel web mostrando o estoque com as 5 porções intactas |
 
 ---
 
 ## 4.1 — Detectando degradação
 
-**TELA:** Telegram Web + Langfuse + logs do Railway.
+**TELA:** slides com a evidência + Langfuse ao vivo.
 
 **FALA (abertura):**
 
-> Nos capítulos anteriores a gente montou o instrumental. Agora vamos usar,
-> num caso real que aconteceu com este produto em produção.
+> Nos capítulos anteriores a gente montou o instrumental. Agora vamos usar
+> ele em três falhas reais que aconteceram com este produto em produção — e
+> que eu não descobri por alerta nenhum. Descobri porque fui olhar.
 >
-> Eu vou mandar uma foto de um cupom fiscal no grupo da minha casa. É uma
-> coisa que eu, como usuário, acho absolutamente razoável fazer: tira foto do
-> cupom, manda pro bot, ele registra as compras.
+> E eu quero começar pela mais difícil de todas, que é a que **não deixa
+> rastro nenhum**.
 
-**[mandar a foto no Telegram]**
+**FALA (a falha silenciosa):**
 
-> Mandei. E agora a gente espera.
+> Em agosto eu fiz, como usuário, uma coisa completamente razoável: tirei
+> foto de um cupom fiscal e mandei no grupo da minha casa, esperando que o
+> bot registrasse as compras.
 >
-> ...
+> E não aconteceu nada. Nenhuma resposta, nenhuma reação na mensagem, nenhum
+> item novo no estoque.
 >
-> Nada. Nenhuma resposta, nenhuma reação na mensagem, nenhum item novo no
-> estoque. Do meu lado, como usuário, o produto simplesmente me ignorou.
+> Aí eu fui investigar com as ferramentas do capítulo anterior. E olha o que
+> eu encontrei:
+
+**[slide: a tabela dos quatro lugares]**
+
+> | Onde eu olhei | O que eu encontrei |
+> |---|---|
+> | Resposta no Telegram | nada |
+> | Log da aplicação | **nenhuma linha** |
+> | Trace no Langfuse | **nenhum trace** |
+> | Banco de dados | nada |
+> | `getWebhookInfo` do Telegram | **entrega confirmada**, zero pendentes |
 >
-> Vamos investigar com as ferramentas do capítulo anterior.
-
-**[abrir o Langfuse]**
-
-> Langfuse: **nenhum trace**. Não tem trace com erro. Não tem trace pela
-> metade. Não tem trace nenhum.
-
-**[abrir os logs do Railway]**
-
-```bash
-railway logs --deployment
-```
-
-> Logs: **nenhuma linha**. Nem erro, nem aviso, nem "recebi alguma coisa".
-
-**[mostrar o getWebhookInfo]**
-
-> E agora a parte que torna isso interessante. Vou perguntar pro próprio
-> Telegram se ele entregou a mensagem.
+> Repara na última linha, porque é ela que torna isso um problema
+> interessante em vez de um bug comum. Eu perguntei pro próprio Telegram se
+> ele tinha entregado a mensagem. E ele disse que sim: zero updates
+> pendentes, nenhum erro de entrega.
 >
-> Zero updates pendentes. Nenhum erro de entrega. **O Telegram entregou com
-> sucesso.**
+> Então junta tudo: **o canal confirma a entrega, e o sistema não tem log,
+> não tem trace, não tem escrita e não respondeu.**
 >
-> Então junta as três coisas: o canal confirma a entrega, o sistema não tem
-> log, não tem trace, não tem escrita e não respondeu.
->
-> A pergunta que abre este capítulo é essa: **se o canal confirma a entrega e
-> o sistema não registra absolutamente nada, onde está a mensagem?**
->
-> E repara numa coisa: essa é a falha mais difícil de detectar que existe.
-> Não é um erro vermelho na tela. É ausência. Se eu não estivesse procurando,
-> eu nunca saberia.
+> A pergunta que abre este capítulo é essa: se a mensagem chegou e o sistema
+> não registrou absolutamente nada, **onde ela está?**
 
-**CORTE:** após "eu nunca saberia".
+**FALA (por que esse tipo de falha é o pior):**
+
+> E aqui eu quero que você pare um segundo nessa categoria de falha, porque
+> ela é a mais perigosa que existe em produto.
+>
+> Um erro que grita é fácil: tem stack trace, tem alerta, alguém acorda. Uma
+> **ausência** não dispara nada. Não existe monitor que te avise que uma
+> coisa que deveria ter acontecido não aconteceu — a menos que você tenha
+> pensado nisso antes.
+>
+> Se eu não tivesse ido procurar, eu nunca saberia. E o usuário — que no
+> caso era eu mesmo — só teria concluído que o produto é ruim.
+
+**[Langfuse ao vivo — demo segura]**
+
+> Deixa eu mostrar o painel real. Olha a lista de traces desses dias. Cada
+> linha aqui é uma interação que **deixou rastro**. O que a gente está
+> procurando não está aqui — e é justamente esse o ponto.
+
+**CORTE:** após "esse é o ponto".
 
 ---
 
 ## 4.2 — Diagnosticando a causa
 
-**TELA:** VS Code em `telegram.js` + terminal com os evals.
+**TELA:** slides da evidência + VS Code + terminal (evals ao vivo).
 
 **FALA (diagnóstico por eliminação):**
 
-> Vamos raciocinar por eliminação, que é o que sobra quando não há evidência.
+> Sem evidência, sobra o raciocínio por eliminação.
 >
-> A mensagem chegou — o Telegram confirmou. Então o servidor recebeu. Se
-> recebeu e não deixou rastro nenhum, existe um caminho no código que sai sem
-> logar, sem gravar e sem responder.
+> A mensagem chegou — o Telegram confirmou. Então o servidor recebeu o
+> pacote. Se recebeu e não deixou rastro, existe um caminho no código que
+> **sai sem logar, sem gravar e sem responder**.
 >
-> Quantos caminhos assim podem existir? Vamos olhar.
+> Quantos caminhos assim podem existir? Fui procurar. E era um só.
 
-**[abrir `telegram.js`, achar a linha do return mudo]**
+**[slide: o antes, uma linha só]**
 
-> Aqui está. Uma linha:
+```js
+if (!message || !message.text) return; // foto/audio: fora do escopo desta fase
+```
+
+> Uma linha. Se a mensagem não tem texto — foto, áudio, documento — a função
+> retorna e pronto.
 >
-> `if (!message || !message.text) return;`
+> E olha o comentário ao lado: **estava documentado**. Eu sabia. Eu escrevi
+> isso conscientemente, achando que era uma limitação aceitável de escopo.
 >
-> Se a mensagem não tem texto — se é foto, áudio, documento — o código
-> simplesmente **retorna**. Sem log. Sem resposta. Sem nada.
->
-> E olha o comentário ao lado: "foto/áudio: fora do escopo desta fase". Ou
-> seja, eu sabia. Eu escrevi isso conscientemente. E mesmo assim, quando
-> aconteceu comigo, do outro lado da tela, eu levei um tempo até entender o
-> que estava havendo.
->
-> Aqui está a lição: o pecado não é não saber ler foto. Todo sistema tem
-> limite. **O pecado é não dizer que não sabe.**
+> A lição não é "faltou pensar". É outra: **o pecado não é não saber fazer.
+> É não dizer que não sabe.** Todo sistema tem limite. O problema é o limite
+> que se manifesta como silêncio.
 
 **FALA (o episódio irmão — os 8 microssegundos):**
 
-> E tem um segundo caso, do dia anterior, que fecha o raciocínio. Nesse
-> outro, apareceram **dois** erros no log, quase idênticos, com uma diferença
-> de **oito microssegundos** entre eles.
+> E tem um segundo caso, do dia anterior, que completa o quadro. Nesse
+> outro, apareceram **dois** erros no log, quase idênticos.
+
+**[slide: as duas linhas de log com os timestamps]**
+
+> Olha a diferença de tempo entre eles: **8 microssegundos**.
 >
-> Oito microssegundos. Nenhuma chamada de rede acontece nesse tempo. Então a
-> segunda falha não foi uma nova tentativa: foi o **aviso de erro falhando
-> dentro do tratamento do primeiro erro** — e, ao estourar, ele engoliu o
-> erro original.
+> Nenhuma chamada de rede acontece em 8 microssegundos. É fisicamente
+> impossível. Então a segunda linha não é uma nova tentativa que falhou: é o
+> **aviso de erro falhando dentro do tratamento do primeiro erro** — e, ao
+> estourar, ele engoliu o erro original.
 >
 > O tratamento de erro apagou a evidência do erro.
 >
-> Junta os dois casos e você tem os dois modos de cegueira: num, a informação
-> foi destruída; no outro, ela nunca existiu. A correção dos dois é da mesma
-> família: **nenhum caminho pode terminar em silêncio.**
+> Junta os dois casos e você tem os dois modos de cegueira: num, a
+> informação foi **destruída**; no outro, ela **nunca existiu**. E a correção
+> dos dois é da mesma família: nenhum caminho pode terminar em silêncio.
 
-**FALA (evals como instrumento de diagnóstico — objetivo do CSV):**
+**FALA (a terceira falha — o truncamento, com a evidência dura):**
 
-> E aqui eu quero conectar com o Capítulo 2, porque diagnóstico não é só ler
-> código: é medir.
+> A terceira é a minha favorita, porque ela tem a cadeia causal inteira
+> visível no trace. Deixa eu mostrar.
+
+**[slides da evidência — os quatro elos]**
+
+> **Elo um:** a saída do modelo tem exatamente **1.024 tokens**. Que é
+> exatamente o teto configurado. Saída batendo no teto na mosca não é
+> coincidência — é a assinatura do truncamento.
+>
+> **Elo dois:** onde ele cortou. A resposta termina assim: *"Vou registrar o
+> uso desses itens agora."* E o bloco seguinte era a chamada da ferramenta
+> que registra o uso. O modelo anunciou a ação e foi cortado **no meio de
+> executá-la**.
+>
+> **Elo três:** a chamada de ferramenta ficou órfã — emitida pela metade, sem
+> o resultado correspondente.
+>
+> **Elo quatro:** a requisição seguinte morre. E olha a mensagem literal da
+> API:
+>
+> ```
+> 400: tool_use ids were found without tool_result blocks
+> immediately after: toolu_01HgWZ8...
+> ```
+>
+> Agora a parte que eu acho mais instrutiva: **isso começou cosmético.** Por
+> semanas, o truncamento só cortava uma frase no fim da resposta. Feio, sem
+> gravidade.
+>
+> Aí a minha despensa cresceu. Mais itens, mais tokens de entrada, e o ponto
+> do corte se moveu — até cair dentro de uma chamada de ferramenta. Aí virou
+> crash.
+>
+> **Mesmo código. Mesma configuração. Só os dados mudaram de tamanho.** Isso
+> é degradação sem ninguém mexer em nada — exatamente o que eu prometi no
+> Capítulo 1.
+
+**FALA (evals como instrumento de diagnóstico):**
+
+> E aqui eu quero fechar o ciclo com o Capítulo 2, porque diagnóstico não é
+> só ler código. É medir.
+
+**COMANDOS (ao vivo, seguro):**
 
 ```bash
 node evals/run-evals.js --limit 3
 ```
 
-> Lembra que o critério de integridade de execução deu 0,33 nas operações de
-> geração? Aquilo é um diagnóstico quantitativo. Ele me diz que o problema
-> não é um caso isolado que eu tive azar de encontrar — são dois de cada três.
+> Lembra do critério de integridade de execução? Olha o número: **0,33** nas
+> duas operações de geração. Dois de cada três traces estruturalmente
+> quebrados.
 >
-> E aponta a causa: o truncamento por limite de tokens que a gente viu no
-> capítulo anterior. O eval não me deu a solução, mas me deu a **prevalência**
-> — e prevalência é o que separa "bug que eu vi uma vez" de "problema
-> sistêmico que precisa de decisão".
+> Esse número muda a natureza do problema. Sem ele, eu tenho "um bug que eu
+> vi uma vez". Com ele, eu tenho **prevalência** — e prevalência é o que
+> transforma uma anedota em decisão de produto.
+>
+> O eval não me deu a solução. Ele me deu a dimensão. E é isso que você
+> precisa para justificar prioridade numa reunião.
 
-**CORTE:** após "decisão".
+**CORTE:** após "numa reunião".
 
 ---
 
 ## 4.3 — Corrigindo antes do usuário
 
-**TELA:** terminal + Telegram.
+**TELA:** slide antes/depois + Telegram ao vivo.
 
 **FALA:**
 
-> Agora eu vou corrigir. E eu quero que você repare no **tipo** de correção,
-> porque ela é mais modesta do que você imagina — e mais valiosa.
+> Agora a correção. E eu quero que você repare no **tipo** dela, porque é
+> mais modesta do que você imagina — e é justamente por isso que ela é boa.
 >
-> Eu não vou ensinar o bot a ler foto. Ainda não. Eu vou fazer ele **dizer
-> que não sabe**.
+> Eu não ensinei o bot a ler foto. Não naquele momento. Eu fiz ele **dizer
+> que não sabia**.
 
-**COMANDOS:**
+**[slide: antes/depois lado a lado]**
 
-```bash
-git checkout aula4/fix-diagnostico-telegram
-```
-
-```bash
-railway up --service chef-caseiro --detach
-```
-
-**FALA (enquanto sobe):**
-
-> Enquanto sobe, o que tem nesse fix. Três mudanças, todas sobre não perder
-> informação.
+> Do lado esquerdo, o antes: uma linha, um return, silêncio.
 >
-> A primeira: o erro passa a ser desembrulhado. Aquele `fetch failed`
-> genérico vira `fetch failed` mais a causa real e o host envolvido.
+> Do lado direito, o depois: o produto identifica que tipo de coisa chegou,
+> **registra isso no log** — então agora existe rastro — e responde:
 >
-> A segunda: avisar o usuário nunca mais pode derrubar o fluxo. O envio da
-> mensagem de erro ganhou o próprio tratamento — então o erro original
-> sobrevive no log, em vez de ser substituído pelo erro do aviso. É a
-> correção direta dos oito microssegundos.
+> *"Ainda não sei ler foto de cupom — leitura por imagem é a próxima camada.
+> Por enquanto me manda o link do QR code da nota, ou o texto dela."*
 >
-> A terceira: os caminhos silenciosos passam a falar. Link que não é nota
-> fiscal válida? O bot diz. Formato que ele não sabe ler? O bot diz.
+> A capacidade técnica é **exatamente a mesma** nos dois lados. O produto
+> continua sem saber ler a foto. Mas olha o que mudou para quem usa:
 
-**[mandar a mesma foto de novo]**
+**[slide: a tabela de comparação]**
 
-> Mesma foto, segunda vez. E agora:
->
-> *"ainda não sei ler foto de cupom, me manda o link do QR ou o texto"*
->
-> Olha o que mudou na experiência. O produto continua **sem saber** ler a
-> foto. A capacidade é exatamente a mesma. Mas a experiência é radicalmente
-> diferente — porque agora eu sei o que aconteceu e sei o que fazer.
+> | | Antes | Depois |
+> |---|---|---|
+> | O usuário sabe o que houve? | não | sim |
+> | Deixa rastro no log? | não | sim |
+> | Sabe o que fazer em seguida? | não | sim |
+> | É mensurável? | impossível | contável |
 >
 > **Admitir a limitação já é uma correção.**
 >
-> E tem um ganho operacional junto: a partir de agora, essa situação deixa
-> rastro. Ela vira log, vira trace, vira dado. O que era invisível virou
-> mensurável.
+> E tem um ganho que não é de experiência, é operacional: o que era
+> invisível virou **dado**. Antes, eu não tinha como saber quantas pessoas
+> tentaram mandar foto. Agora eu tenho — e é assim que eu decido se vale
+> construir a leitura de imagem.
+>
+> A correção honesta não é só mais gentil. Ela é o que gera a informação
+> para a decisão seguinte.
 
-**CORTE:** após "virou mensurável".
+**FALA (as outras duas correções do mesmo pacote):**
+
+> Junto com essa, mais duas mudanças, ambas sobre não perder informação.
+>
+> A primeira: o erro passou a ser desembrulhado. Aquele `fetch failed`
+> genérico, que não dizia nada, agora vem com a causa real e o host
+> envolvido.
+>
+> A segunda: **avisar o usuário nunca mais pode derrubar o fluxo.** O envio
+> da mensagem de erro ganhou tratamento próprio, isolado. É a correção
+> direta dos 8 microssegundos — agora o erro original sobrevive no log em
+> vez de ser substituído pelo erro do aviso.
+
+**[DEMO AO VIVO — mandar a foto do cupom no Telegram]**
+
+> E aqui está o produto hoje, com tudo isso já no ar. Vou mandar a mesma
+> foto de cupom que em agosto não produzia reação nenhuma.
+>
+> *(mandar a foto)*
+>
+> Olha a diferença. Ele responde. Ele diz o que está fazendo. E — porque a
+> gente foi além da correção honesta — ele agora **lê o cupom de verdade**,
+> que é o assunto do próximo vídeo.
+
+**CORTE:** após a resposta do bot aparecer.
+
+**SE DER ERRADO:** se o Telegram não responder ao vivo, siga com o slide do
+antes/depois — a lição está completa nele. Mostre o painel web com o item
+tendo entrado no estoque como prova alternativa.
 
 ---
 
 ## 4.4 — Simulando o ciclo completo
 
-**TELA:** terminal + Telegram + painel web.
+**TELA:** painel web + slides.
 
-**FALA:**
+**FALA (a capacidade nova):**
 
-> Fechado o ciclo de detectar, diagnosticar e corrigir, vamos rodar ele
-> inteiro mais uma vez — agora com uma capacidade nova. Porque dizer "não
-> sei" é honesto, mas em algum momento é melhor saber.
-
-**COMANDOS:**
-
-```bash
-git checkout aula4/nota-por-foto
-```
-
-```bash
-railway up --service chef-caseiro --detach
-```
-
-**FALA (enquanto sobe — a história do desenho derrubado):**
-
-> E aqui tem uma história de produto que eu acho que vale mais que a feature.
+> Dizer "não sei" é honesto. Mas em algum momento é melhor saber. E aí veio
+> a camada seguinte: ler a nota fiscal a partir da foto.
 >
-> O desenho original era: o modelo de visão lê a foto do cupom e extrai os
-> quarenta e quatro dígitos da chave da nota. Óbvio, direto, e é o tipo de
-> coisa que a gente promete numa reunião sem testar.
->
-> **Esse desenho foi derrubado por teste.** A SEFAZ exige um código de
-> segurança que só existe dentro do QR code — não está impresso em lugar
-> nenhum do cupom. Nenhum modelo de visão do mundo consegue ler o que não
-> está escrito.
->
-> A solução real ficou outra: ler o QR code, e usar a visão só como degrau de
-> recuo. Menos elegante, e funciona.
+> E aqui tem uma história de produto que eu acho que vale mais do que a
+> funcionalidade.
 
-**[mandar a foto pela terceira vez]**
+**[slide: o desenho derrubado]**
 
-> Terceira vez, mesma foto. E agora os itens entram no estoque — com dado
-> oficial da SEFAZ, não com o que um modelo achou que estava escrito no papel.
+> O desenho original era óbvio: o modelo de visão olha a foto do cupom e lê
+> os quarenta e quatro dígitos da chave da nota. Direto. É o tipo de coisa
+> que a gente promete numa reunião sem ter testado.
+>
+> **Esse desenho foi derrubado por teste.** A SEFAZ exige, junto com a
+> chave, um código de segurança que **só existe dentro do QR code** — não
+> está impresso em lugar nenhum do papel.
+>
+> Nenhum modelo de visão do mundo lê o que não está escrito.
+>
+> A solução real ficou outra: ler o QR code, e usar a visão apenas como
+> degrau de recuo quando o QR não for legível. Menos elegante do que a
+> promessa, e funciona.
+>
+> Guarda essa história, porque ela é o padrão mais comum de produto com IA:
+> **a demo mental funciona sempre; o teste é que decide.**
 
-**FALA (a consequência — Ato 5):**
+**[DEMO AO VIVO — painel web]**
 
-> E agora a parte que fecha o curso, que é a consequência de ter dado esse
-> poder ao produto.
+> Olha o painel agora, com os itens que entraram pela foto — com dado
+> oficial da SEFAZ, não com o que um modelo achou que estava escrito no
+> papel.
+
+**FALA (a consequência — o ciclo se fechando):**
+
+> E agora a parte que fecha o curso.
 >
-> Com foto, a taxa de erro **sobe**. Cupom amassado, foto tremida, iluminação
-> ruim. Antes, o produto não errava porque não fazia. Agora ele faz — e
-> erra às vezes.
+> Com a leitura por foto, a taxa de erro **sobe**. Cupom amassado, foto
+> tremida, luz ruim. Antes o produto não errava nisso — porque não fazia.
+> Agora ele faz, e às vezes erra.
 >
-> Ou seja: toda capacidade nova traz superfície de erro nova. E é aí que a
-> tela de revisão, que eu venho adiando desde o começo do projeto, deixa de
-> ser luxo e vira necessidade.
+> Toda capacidade nova traz superfície de erro nova. É por isso que a tela
+> de revisão, que eu venho adiando desde o começo do projeto, deixou de ser
+> luxo e virou necessidade.
 >
-> Repara no ciclo completo: eu detectei uma falha, diagnostiquei a causa,
+> Repara no ciclo completo: detectei uma falha, diagnostiquei a causa,
 > corrigi com honestidade, entreguei a capacidade — e a capacidade gerou um
-> novo risco, que volta pro começo do ciclo.
+> risco novo, que volta pro começo.
 >
-> Isso não é o processo dando errado. **Isso é o processo.**
+> **Isso não é o processo dando errado. Isso é o processo.**
 
-**FALA (o que ficou preservado — honestidade):**
+**FALA (a confissão — o bug preservado):**
 
-> E eu quero terminar com uma confissão, porque seria fácil editar isso fora.
+> E eu quero terminar este capítulo com uma confissão, porque seria muito
+> fácil editar isso fora e fingir que está tudo resolvido.
 >
-> Aquele bug do "lasagna" com "gn" que eu mostrei no capítulo passado?
-> Continua lá. As cinco porções continuam intactas no meu estoque, semanas
-> depois.
->
-> Eu escolhi não corrigir. Não por preguiça: porque eu ainda não sei qual é a
-> correção certa. Fazer a busca mais esperta resolve esse caso e cria outros.
-> A saída provável não é um algoritmo melhor — é o sistema **perguntar**
-> quando estiver em dúvida, que é o que ele já faz em outra parte do produto.
->
-> Operar produto em produção é também isso: saber distinguir o bug que você
-> corrige hoje do bug que você ainda precisa entender. Os dois são decisões.
-> Fingir que o segundo não existe é que não é opção.
+> Tem uma falha que eu **não** corrigi. E ela é a mais interessante das
+> quatro.
 
-**COMANDOS (voltar ao estado inicial, ainda gravando ou logo após):**
+**[slide: o episódio C, entrada e saída]**
 
-```bash
-git checkout master
-```
+> Alguém em casa mandou: *"Comemos 3 porções de lasagna, 1 e 1/2 para cada!"*
+>
+> E o modelo classificou isso **perfeitamente**. Olha a saída: tipo relato
+> de refeição, fonte caseira, item "lasagna", quantidade 3. Ele até resolveu
+> que "um e meio para cada", com duas pessoas, dá três.
+>
+> Zero erro do modelo.
+
+**[DEMO AO VIVO — o painel]**
+
+> E agora olha o estoque no painel, hoje, dezoito dias depois: **cinco
+> porções de cinco**. Nenhuma foi baixada.
+>
+> A causa? O prato está gravado como "lasanha", com "nh". O relato veio
+> "lasagna", com "gn". A busca não casou. Não é acento, não é maiúscula — é
+> grafia mesmo.
+>
+> E tudo "funcionou": o relato foi gravado, o registro da refeição foi
+> gravado, o bot reagiu com joinha na mensagem. Estado errado, zero alarme.
+>
+> **O modelo acertou e o código errou.** É o caso mais importante do curso,
+> porque contraria a intuição de todo mundo: a gente monitora o modelo
+> achando que ele é a parte frágil, e o erro veio do código determinístico,
+> que é a parte em que a gente confia.
+>
+> A única forma de detectar isso era **cruzar o trace com o estado
+> resultante**. Nenhum log, nenhum alerta, nenhum eval de resposta pegaria.
+
+**FALA (por que não corrigi):**
+
+> E por que eu não corrigi?
+>
+> Não é preguiça. É que eu ainda não sei qual é a correção certa. Fazer a
+> busca mais tolerante resolve esse caso e cria outros — "arroz" casando com
+> "arroz doce", por exemplo, e aí o erro fica pior e mais difícil de ver.
+>
+> A saída provável não é um algoritmo mais esperto. É o sistema
+> **perguntar** quando estiver em dúvida — que é o que ele já faz em outra
+> parte do produto, quando alguém porciona sem dizer a quantidade.
+>
+> Operar produto em produção é também isso: distinguir o bug que você
+> corrige hoje do bug que você ainda precisa entender. Os dois são decisões
+> legítimas. Fingir que o segundo não existe é que não é opção.
 
 **CORTE:** após "não é opção".
 
@@ -960,15 +1059,17 @@ git checkout master
 ## 4.5 — O que aprendemos? (texto)
 
 - Detectar é a parte mais difícil: a pior falha não é a que grita, é a que
-  não deixa rastro.
-- Diagnóstico por eliminação funciona quando não há evidência — e o
-  timestamp pode entregar o mecanismo.
-- Evals dão a **prevalência** do problema, que é o que separa caso isolado de
-  problema sistêmico.
-- Admitir a limitação já é uma correção — e transforma o invisível em
-  mensurável.
-- Toda capacidade nova traz superfície de erro nova; o ciclo não termina.
-- Nem todo bug deve ser corrigido agora — mas todo bug deve ser decidido.
+  não deixa rastro — e nenhum monitor avisa sobre uma ausência.
+- Diagnóstico por eliminação funciona quando não há evidência; e às vezes o
+  próprio timestamp entrega o mecanismo (8 microssegundos).
+- Uma falha pode começar cosmética e virar crash sem ninguém mexer no
+  código — basta os dados crescerem.
+- Evals dão a **prevalência**, que é o que transforma anedota em decisão.
+- Admitir a limitação já é uma correção — e converte o invisível em dado
+  mensurável, que alimenta a decisão seguinte.
+- O modelo pode acertar e o código errar: monitorar só o modelo não basta.
+- Toda capacidade nova traz superfície de erro nova. O ciclo não termina.
+- Nem todo bug deve ser corrigido agora — mas todo bug deve ser **decidido**.
 
 ---
 
@@ -1041,7 +1142,7 @@ git checkout master
 
 ## 5.2 — Transparência com o usuário
 
-**TELA:** `telegram.js` em `master` (sem o fix) + slide antes/depois.
+**TELA:** slide antes/depois (de `apoio/antes-depois-codigo.md`).
 
 **FALA:**
 
@@ -1051,7 +1152,7 @@ git checkout master
 > E o exemplo mais concreto do curso inteiro é o que a gente viveu no
 > capítulo passado.
 
-**[mostrar o `return` mudo em `master`]**
+**[slide: o antes e o depois lado a lado]**
 
 > Antes: essa linha. Foto chega, o produto retorna, silêncio absoluto. O
 > usuário fica sem saber se o sistema caiu, se a mensagem não chegou, ou se
@@ -1205,24 +1306,40 @@ git checkout master
 
 ---
 
-# Apêndice — restauração pós-gravação
+# Apêndice — depois da gravação
 
-Depois de tudo gravado, para devolver o ambiente ao estado de referência:
+**Não há nada a restaurar.** O formato linear não altera o produto durante a
+gravação: nenhum checkout, nenhum deploy, nenhuma troca de branch. O estado
+em que você terminar é o mesmo em que começou.
 
-```bash
-git checkout master
-```
-
-```bash
-railway up --service chef-caseiro --detach
-```
-
-Confirme que produção voltou ao estado com as falhas preservadas:
+Só confirme, por hábito, que produção continua no ar:
 
 ```bash
-curl.exe -s -o NUL -w "producao: HTTP %{http_code}\n" https://chef.workshopee.com.br
+curl.exe -s -o NUL -w "producao: HTTP %{http_code}
+" https://chef.workshopee.com.br
 ```
 
-Os PRs #4 e #6 podem permanecer abertos — eles continuam sendo a
-documentação viva do que foi demonstrado. Mergeie apenas se decidir que o
-produto deve seguir com as correções.
+## O que ficou preservado de propósito
+
+Duas coisas continuam sem correção, e **as duas são conteúdo**, não dívida
+esquecida:
+
+- **O match de nome** (`lasanha` × `lasagna`) — as 5 porções seguem
+  intactas no estoque. É o caso do modelo acertando e o código errando, que
+  fecha a Aula 4.
+- **O truncamento por `max_tokens`** — a evidência está em
+  `apoio/evidencia-preservada.md`. Corrigir agora tiraria da Aula 3 o
+  exemplo mais limpo de degradação sem mudança de código.
+
+Se em algum momento você decidir corrigir qualquer um dos dois, avise antes:
+o truncamento aparece em três vídeos (3.4, 4.2 e o fechamento do 4.4) e o
+match de nome em dois (3.4 e 4.4).
+
+## Histórico das versões do produto
+
+Os PRs mergeados em 09/09 continuam sendo o registro do antes:
+
+- [PR #4](https://github.com/Djegao/alura-produto-ficticio/pull/4) — a
+  resposta honesta ao que não sabe fazer
+- [PR #6](https://github.com/Djegao/alura-produto-ficticio/pull/6) — a
+  leitura de nota fiscal por foto
