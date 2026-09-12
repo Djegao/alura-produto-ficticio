@@ -24,6 +24,52 @@ condutor.
 > documentação do disco no meio da gravação.
 
 ---
+## 🔴 REGRAS OPERACIONAIS (do QA de 12/09)
+
+### 1. Não mande relato de lasanha no Telegram até terminar de gravar
+
+As **5 de 5 porções** são a prova visual do episódio C no vídeo 4.4. Até
+11/09 elas estavam protegidas por acidente: produção rodava código antigo,
+sem a lógica de baixa de estoque.
+
+**Isso acabou.** Produção agora tem o código correto, e qualquer relato de
+refeição caseira que nomeie a lasanha **vai baixar as porções**. Inclusive
+escrito errado — o modelo passou a normalizar "lasagna" para "lasanha"
+sozinho.
+
+Se baixar por acidente, dá para restaurar no banco — mas é melhor não
+precisar.
+
+### 2. Nunca rode `railway up` de dentro do worktree
+
+Ele empacota a **raiz do repositório**, não o diretório atual. Em 12/09 isso
+subiu para produção um commit de 13/08 e derrubou três rotas, entre elas a
+faixa de estado do painel. O deploy correto é:
+
+```bash
+cd C:/Users/Usuario/alura-produto-ficticio
+git checkout master && git pull
+railway up --service chef-caseiro --detach
+```
+
+E confira depois, porque o sintoma é silencioso — **200 é bom, 404 significa
+que subiu código antigo**:
+
+```bash
+curl.exe -s -o NUL -w "%{http_code}\n" -u USUARIO:SENHA https://chef.workshopee.com.br/api/estado-cozinha
+```
+
+### 3. A gaveta de Configurações mostra dois eixos, não três
+
+O eixo de **visão** existe na API mas não tem seletor na tela. Se for falar
+de eixos trocáveis ao vivo, fale de **dois** (geração e ingestão) — ou peça
+para eu adicionar o terceiro à interface antes de gravar.
+
+Relatório completo em [`apoio/qa-12-09.md`](./apoio/qa-12-09.md).
+
+
+---
+
 
 
 ## ✅ ANTES DE TUDO: a evidência já está salva
@@ -1303,6 +1349,204 @@ tendo entrado no estoque como prova alternativa.
 > Agora pega o seu, e roda esse ciclo nele. Valeu!
 
 **CORTE:** fim do curso.
+
+---
+
+
+---
+
+# Especificação dos slides — para gerar os decks
+
+Um bloco por vídeo, na ordem. Cada item é **um slide**: título em negrito,
+seguido do que precisa estar nele. Os números vêm de
+[`apoio/evidencia-preservada.md`](./apoio/evidencia-preservada.md) e
+[`apoio/qa-12-09.md`](./apoio/qa-12-09.md) — não invente dado.
+
+Paleta e tipografia: usar `slides/tema-alura.js`, já com as cores oficiais.
+
+## Aula 1 — O produto lançou. E agora?
+
+**1.2 Lançar é o começo**
+1. *Deploy não é a linha de chegada* — software comum degrada quando alguém
+   mexe; produto com IA degrada sozinho (modelo muda, contexto cresce,
+   usuário escreve diferente).
+2. *Chef Caseiro em produção* — assistente de cozinha real, uso doméstico
+   real, dado real; screenshot do painel com a faixa de estado.
+3. *O loop da operação* — diagrama circular: Avaliar → Observar → Proteger →
+   volta ao início. Cada seta é uma aula.
+
+**1.3 Os três pilares**
+1. *Três pilares* — três colunas (Evals / Observabilidade / Conformidade),
+   cada uma com sua pergunta-chave.
+2. *Eles se alimentam* — o mesmo diagrama circular, mostrando que não é
+   sequência: eval fraco não detecta o que a observabilidade acha tarde;
+   falha sem guardrail vira incidente; guardrail sem eval é fé.
+
+**1.4 Mapeando riscos**
+1. *Mapa de riscos* — matriz impacto × probabilidade com os quatro riscos
+   como pontos, **sem** revelar desfecho.
+2. *Risco: custo concentrado* — um agente responde por fatia pequena das
+   chamadas e enorme da conta.
+3. *Risco: silêncio como falha* — dado errado sem alarme; canal que não
+   confirma nem nega. "Não aconteceu nada" é o pior sintoma.
+4. *Risco: modelo fazendo conta* — por que é tentador; por que a regra do
+   projeto é matemática sempre em código.
+
+## Aula 2 — Evals
+
+**2.1 O que são evals**
+1. *Teste de qualidade, não de correção* — não existe verde/vermelho,
+   existe critério.
+2. *Por que não dá para revisar à mão* — dezenas de interações em um mês, de
+   **uma casa só**; multiplique por usuários reais.
+
+**2.2 Critérios de qualidade**
+1. *O que faz um critério ser mensurável* — binário ou escalar; qualquer
+   pessoa julga igual; ligado a requisito real.
+2. *Critério ruim → critério bom* — "a resposta é boa" contra "usa apenas
+   ingredientes que existem no estoque hoje".
+3. *Critério nasce de cicatriz* — o critério de registrar consumo veio de um
+   bug real do produto.
+
+**2.3 Claude como avaliador**
+1. *Claude como juiz* — segundo agente lê pedido + resposta + estado e julga.
+2. *Pedir não garante, forçar garante* — a lição do `tool_choice`, com as
+   três aplicações no projeto (agente, nota fiscal, juiz).
+3. *Do julgamento ao dado* — diagrama: interação → juiz → Score → Langfuse.
+
+**2.4 Primeiro conjunto**
+1. *Priorize o que mais custa* — os três cenários escolhidos.
+2. *Rode contra dado real* — por que exemplo sintético vale pouco.
+3. *O lag de ~45s* — esperado, não bug; muda como você automatiza.
+
+## Aula 3 — Observabilidade
+
+**3.1 O que é**
+1. *Log × observabilidade* — evento isolado contra reconstrução de causa.
+2. *A invariante* — nenhuma chamada ao modelo fora de uma observação.
+3. *O que quebra sem instrumentação* — não o produto: a sua visão dele.
+
+**3.2 Conhecendo o Langfuse**
+1. *Trace → observation → generation* — hierarquia com exemplo real.
+2. *Antes e depois* — painel vazio contra painel com o trace, lado a lado.
+
+**3.3 Lendo dados de produção**
+1. *O agregado inverte a intuição* — a operação mais frequente não é a mais
+   cara; o mediador é fatia pequena das chamadas e a maior da conta.
+2. *Mesmo agente, dois modelos* — o modelo leve saiu ~2× mais barato e ~2,5×
+   mais rápido na mesma tarefa.
+3. *Dado bruto tem prazo* — a retenção de ~30 dias; o trace do truncamento
+   **expirou em 11/09**, dois dias depois de ser capturado. Sobrevive o que
+   você agregou.
+
+**3.4 Padrões de falha**
+1. *Quatro padrões* — lista curta, um bullet cada, **sem** solução ainda.
+2. *Truncamento* — diagrama dos quatro elos (ver Aula 4).
+3. *O padrão comum* — nenhuma delas gritou sozinha.
+
+## Aula 4 — Detectar, diagnosticar e corrigir
+
+> Este deck mudou por completo com o formato linear. É o mais importante de
+> refazer.
+
+**4.1 Detectando**
+1. *Onde eu olhei* — tabela de cinco linhas: resposta no Telegram (nada),
+   log (nenhuma linha), trace (nenhum), banco (nada), e `getWebhookInfo`
+   (**entrega confirmada, zero pendentes**). Destaque na última.
+2. *A pergunta* — "se o canal confirma a entrega e o sistema não registra
+   nada, onde está a mensagem?"
+3. *Ausência não dispara alerta* — erro que grita tem stack trace e acorda
+   alguém; ausência não tem monitor, a menos que você tenha previsto.
+
+**4.2 Diagnosticando**
+1. *O antes, uma linha* — o `return` mudo, com o comentário
+   "foto/audio: fora do escopo desta fase" destacado. Estava documentado.
+2. *Os 8 microssegundos* — as duas linhas de log com os timestamps; nenhuma
+   chamada de rede acontece nesse tempo, logo o segundo erro é o aviso do
+   primeiro falhando e engolindo a evidência.
+3. *Truncamento — elo 1* — tabela de tokens: entrada 7.448, **saída 1.024 =
+   o teto exato**. Saída batendo no teto é assinatura, não coincidência.
+4. *Truncamento — elo 2* — a frase final *"Vou registrar o uso desses itens
+   agora."* seguida do bloco `tool_use` cortado.
+5. *Truncamento — elos 3 e 4* — chamada órfã e o erro literal:
+   `400: tool_use ids were found without tool_result blocks immediately
+   after: toolu_01HgWZ8...`
+6. *De cosmético a crash* — mesmo código, mesma configuração, só os dados
+   cresceram. O ponto do corte se moveu para dentro da chamada.
+7. *Prevalência* — `execucao_integra` em **0,33** nas duas operações de
+   geração: dois de cada três traces quebrados. É o que separa anedota de
+   decisão.
+
+**4.3 Corrigindo**
+1. *Antes e depois* — os dois trechos de código lado a lado.
+2. *O que mudou para quem usa* — tabela de quatro linhas: usuário sabe o que
+   houve / deixa rastro / sabe o que fazer / é mensurável — não, não, não,
+   impossível → sim, sim, sim, contável.
+3. *Admitir já é corrigir* — frase de destaque, tela cheia.
+4. *O ganho operacional* — o invisível virou dado; é assim que se decide se
+   vale construir a capacidade.
+
+**4.4 Ciclo completo**
+1. *O desenho derrubado por teste* — visão lendo os 44 dígitos parecia
+   óbvio; a SEFAZ exige um código que **só existe dentro do QR**. Nenhum
+   modelo lê o que não está escrito.
+2. *Toda capacidade nova traz erro novo* — com foto, a taxa de erro sobe;
+   a tela de revisão deixa de ser luxo.
+3. *O ciclo* — detectar → diagnosticar → corrigir → entregar → **novo
+   risco** → volta ao início. Isso é o processo, não uma falha dele.
+4. *O modelo acertou, o código errou* — a entrada
+   *"Comemos 3 porções de lasagna, 1 e 1/2 para cada!"* ao lado do JSON
+   perfeito (`item_nome: "lasagna"`, `quantidade: 3`).
+5. *E o estado* — `5/5` porções, com a data de hoje. Nada baixou.
+6. *A causa* — `lasanha` × `lasagna`, com `nh` e `gn` em destaque. Não é
+   acento, é grafia.
+7. *Por que monitorar só o modelo não basta* — a gente desconfia da parte
+   probabilística e o erro veio da determinística. Só dava para detectar
+   cruzando trace com estado.
+8. *O bug que eu não corrigi* — busca mais tolerante resolveria este caso e
+   criaria outros ("arroz" casando com "arroz doce"). A saída provável é o
+   sistema **perguntar** quando estiver em dúvida.
+
+## Aula 5 — Guardrails, transparência e LGPD
+
+**5.1 Guardrails**
+1. *O que é um guardrail* — limite operacional em código; não é feature, não
+   é intenção.
+2. *Cinco guardrails reais* — um bullet por item, com o nome do arquivo.
+3. *Validação que resiste a truque* — o guardrail da SEFAZ rejeita
+   `fazenda.gov.br.evil.com`: confere o domínio de verdade, não o sufixo do
+   texto. E a chave é validada por **dígito verificador**, não por tamanho.
+4. *O fio comum* — nenhum deles confia em pedir.
+
+**5.2 Transparência**
+1. *Não é aviso legal* — é comportamento, no momento da limitação.
+2. *O caso real* — silêncio total contra *"ainda não sei ler foto de
+   cupom..."*, lado a lado.
+3. *Admitir já é corrigir* — retomada da frase da Aula 4.
+
+**5.3 LGPD**
+1. *Dado sensível não é só CPF* — rotina familiar, hábito de consumo,
+   identidade em conversa privada.
+2. *O que o produto coleta* — identificadores do Telegram, o log cru das
+   conversas sobre comida, itens ligados à casa.
+3. *Onde a proteção está e onde não está* — segurança de linha desligada
+   (decisão documentada, aceitável só neste escopo) contra chave de serviço
+   nunca exposta ao navegador e gate de acesso por senha.
+
+**5.4 Checklist**
+1. *O checklist* — a tabela resumida.
+2. *O que falta, sem rodeio* — sem política de retenção, sem tela de
+   revisão, sem mecanismo de exclusão a pedido, RLS desligado.
+
+**5.6 Conclusão**
+1. *Os três pilares, agora preenchidos* — o diagrama da Aula 1 com o que
+   cada capítulo mostrou de concreto.
+2. *O que este produto provou* — bug real corrigido, bug real preservado por
+   decisão, custo real medido, e um dado que expirou no meio da preparação.
+3. *Nenhum funciona sozinho* — eval que não vira dado não ensina;
+   observabilidade sem guardrail é relatório de incidente; guardrail sem
+   eval é fé.
+
 
 ---
 
