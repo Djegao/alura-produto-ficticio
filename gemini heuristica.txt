@@ -1,0 +1,153 @@
+Análise Heurística & Guia de Padronização para Criação em Escala
+
+Material Analisado: Deck de Slides do Curso AI Product Builder (Instrutor: Diego Rosales)
+
+Escopo da Análise: Slides de Instrução (01–13), Slides Ativos da Aula 1 (14–68) e Cemitério de Templates (69–86).
+
+1. Resumo Executivo & Visão Geral
+
+O deck de slides analisado não é um mero suporte visual passivo; é uma ferramenta pedagógica síncrona projetada para apoiar uma aula altamente dinâmica e instrucional sobre produto e inteligência artificial.
+
+A estrutura combina um Design System rigoroso (definido nos slides 01 a 09) com uma técnica narrativa de Revelação Progressiva (Progressive Disclosure) em nível de slide. O material transforma conceitos complexos e abstratos de engenharia/produto de IA (Evals, Observabilidade, Conformidade, LLM as a Judge) em frameworks práticos, ancorados na realidade do aluno.
+
+2. Definição de Voz & Tom (Voice & Tone)
+
+A persona do comunicador é o "Peer Specialist / Mentor Prático" (Diego Rosales): alguém com bagagem sênior (+8 anos como PM, professor e palestrante), mas que conversa na horizontal, sem pedantismo acadêmico.
+
+Matriz de Atributos da Voz
+
+Pragmática e Orientada a Produto: Foco constante no valor entregue ao usuário e na viabilidade do negócio ("Produto é o que acontece nos outros dias").
+
+Provocativa e Friccional: Usa perguntas retóricas para desestabilizar certezas do aluno antes de apresentar a solução ("Se eu mudar o produto amanhã, como vou saber se ele continua fazendo o que deveria?").
+
+Didática por Ancoragem: Traduz jargões técnicos para metáforas e situações cotidianas ("Pote vazio + gato miando", "Mediação de cardápio do casal").
+
+Direta e Acionável: Prefere frases curtas, imperativas e convites à ação ("Bora pra prática?", "Transformar qualidade em evidência").
+
+Tonalidade por Momento Pedagógico
+
+Introdução / Conceituação: Empática, alinhada com as dores reais do Product Manager.
+
+Demonstração do Problema: Alertas pragmáticos, levantando riscos realistas de sistemas não determinísticos.
+
+Apresentação de Frameworks: Assertiva, estruturada e categórica (uso de listas numeradas e 3 pilares).
+
+3. Padrão de Comunicação & Arquitetura Pedagógica
+
+Ao analisar os slides de 14 a 68, destacam-se 3 padrões fundamentais de comunicação:
+
+A. Revelação Progressiva (Micro-Stacking por Slide)
+
+Em vez de utilizar animações internas do software de apresentação (como cliques que revelam texto), o instrutor cria uma sequência de slides em cadeia.
+
+Mecanismo: Cada frase ou elemento novo adicionado ganha um slide dedicado, mantendo o histórico anterior visível.
+
+Exemplo (Slides 44 ao 49):
+
+Slide 44: Pergunta inicial ("Se eu mudar o produto amanhã...").
+
+Slide 45: Mantém a frase do slide 44 + insere a 2ª linha ("Uma mudança pode melhorar uma resposta e piorar outra.").
+
+Slide 46 ao 49: Continua acumulando até fechar a tese completa.
+
+Objetivo Pedagógico: Controlar o ritmo de atenção do aluno e garantir que a leitura acompanhe exatamente a fala do professor.
+
+B. Camada Dupla de Conteúdo (Visual do Aluno vs. Script do Professor)
+
+Design de Tela: A parte superior da tela traz destaques resumidos, perguntas provocativas e esquemas visuais simples (cards, diagramas, listas curtas).
+
+Script Embutido (Verbatim Script): Em slides conceituais (como os de 42 a 56 e 65 a 67), a base do slide contém o texto exato entre aspas ("Acabamos de fazer o nosso primeiro mapa de riscos...").
+
+Função: Serve como guia de navegação e roteiro direto para o instrutor durante a aula gravada ou ao vivo, assegurando que nenhum ponto de transição seja omitido.
+
+C. Transição "Opinião → Critério Verificável"
+
+O método de ensino substitui impressões subjetivas por evidências mensuráveis:
+
+Fórmula: Cenário → Critério → Resposta → Evidência.
+
+Padrão Visual: Tabelas comparativas ou cards lado a lado contrastando OPINIÃO (subjetiva/frágil) com CRITÉRIO VERIFICÁVEL (objetivo/checável por código ou LLM).
+
+4. Análise Heurística Visual & Sistema de Design
+
+Com base nas diretrizes contidas nos slides 01 a 09 e nos templates do cemitério (69 a 86), o sistema visual possui as seguintes regras rigorosas:
+
+4.1 Paleta de Cores (Instrução 02)
+
+Dominante (Fundo): #0C0C0E (New Black) / #010C53 (Blue Universe) - Estética Dark Mode corporativa e futurista.
+
+Secundárias (Texto e Estrutura): #F4F5F6 (White Snow) e #011676 (Deep Blue).
+
+Acentos & Destaques (Tech Accents): #0429BC (Tech Blue) e #1F53E5 (Dev Blue) - Utilizados em cards, ícones, números e bordas ativas.
+
+4.2 Regras de Imagens e Direção de Arte Generativa (Instrução 04 e 05)
+
+Regra de Substituição: Nunca excluir a imagem anterior diretamente; usar o recurso "Substituir imagem" para manter o bounding box, alinhamento e proporções pré-configuradas.
+
+Prompt Padrão para IAs Generativas (Gemini):
+
+"Fotografia editorial cinematográfica, estética minimalista escura, paleta em preto, branco e grafite com iluminação de destaque em azul elétrico, sombras e silhuetas suaves, iluminação volumétrica, profundidade de campo reduzida, brilho sutil, atmosfera sofisticada e futurista, tecnologia centrada nas pessoas, ambiente corporativo contemporâneo, composição limpa, texturas realistas, identidade visual premium de marca de tecnologia, fotografia realista, alta qualidade, direção de arte refinada."
+
+4.3 Sistema de Ícones & Grafismos (Instrução 06)
+
+Usar a galeria predefinida mantendo a cor de acento.
+
+Em caso de ausência de ícones no repositório, usar a plataforma Napkin.AI para geração ágil mantendo a linguagem vetorial limpa.
+
+5. Anatomia dos Tipos de Slide (Tipologia do Deck)
+
+Slide de Abertura / Capítulo:
+
+Título grande + Tag de Módulo/Aula (Ex: "1.1 Apresentação", "2.1 O que são evals...").
+
+Fundo contrastante com nome do instrutor e cargo.
+
+Slide da Tríade / Pilares (Ex: Slides 29-32):
+
+Disposição em 3 colunas ou cards horizontais.
+
+Destaque progressivo: o pilar em foco recebe iluminação/borda colorida, enquanto os outros permanecem neutros.
+
+Slide de Construção de Conceito (Micro-Stacking):
+
+Pergunta no topo em destaque (Tech Blue/White).
+
+Bullets curtos acumulativos no centro.
+
+Transcrição/Script de apoio na base.
+
+Slide "Bora pra prática?" (Ex: Slides 59 e 66):
+
+Slide de transição direta, minimalista, centralizado, funcionando como quebra de ritmo pedagógico.
+
+6. Guia Prático para Criação de Slides em Escala
+
+Para produzir novos módulos ou aulas mantendo a exata identidade e padrão do projeto, siga as diretrizes abaixo:
+
+Checklist do Criador de Conteúdo
+
+[ ] Respeite o Fundo e Paleta: O slide segue a estética Dark Mode (#0C0C0E ou #010C53) com acentos em azul dev/tech?
+
+[ ] Uma Ideia Principal por Slide: Se um conceito possui 4 pontos encadeados, crie 4 slides acumulativos (técnica de Micro-Stacking) em vez de 1 slide com texto denso.
+
+[ ] Script de Apoio na Base: Inseriu a transcrição sintetizada do instrutor entre aspas na parte inferior para os slides conceituais?
+
+[ ] Substituição de Imagem Correta: As fotos foram trocadas via "Substituir Imagem" e seguem o prompt padrão do Gemini?
+
+[ ] Metáfora do Mundo Real: O conceito teórico foi ancorado em um exemplo prático de produto de IA (ex: e-commerce, saúde, suporte)?
+
+[ ] Contraste Opinião vs. Critério: Há clareza sobre o que é aceitável (pass) vs. inaceitável (fail)?
+
+[ ] Verificação no Cemitério: O layout utilizado foi clonado diretamente da seção de templates limpos (slides 69 a 86)?
+
+7. Fórmulas de Prompt para Expansão da Base de Slides
+
+Quando for necessário gerar novos conteúdos em texto ou layouts utilizando modelos de IA (Gemini/ChatGPT/Napkin), utilize as estruturas abaixo:
+
+Prompt para Redação de Novos Slides
+
+"Atue como Instructional Designer para o curso AI Product Builder. Crie uma sequência de 5 a 8 slides sobre o tópico [INSERIR TÓPICO]. Siga o padrão de comunicação do Diego Rosales: tom pragmático, horizontal e direto. Use a técnica de revelação progressiva (micro-stacking), onde cada slide adiciona uma nova linha de raciocínio. Inclua na base de cada slide o script do instrutor entre aspas."
+
+Prompt para Imagens de Apoio (Gemini)
+
+"Fotografia editorial cinematográfica, estética minimalista escura, paleta em preto, branco e grafite com iluminação de destaque em azul elétrico [DESCREVER ELEMENTO ESPECÍFICO AQUI], iluminação volumétrica, ambiente corporativo contemporâneo, identidade visual premium de tecnologia."

@@ -7,6 +7,9 @@ const pptxgen = require('pptxgenjs');
 
 const ART = process.argv[2];
 const OUT = process.argv[3];
+// LIVE_MODE=1 gera a variante pra gravar direto, sem parar nos divisores —
+// muda so a nota de apresentacao do addDivider, nada mais no deck.
+const LIVE_MODE = process.env.LIVE_MODE === '1';
 
 // linhas.json: quantas linhas cada bullet ocupa de fato (ver medir.py)
 const LINHAS_PATH = path.join(__dirname, 'linhas.json');
@@ -32,6 +35,7 @@ const C = {
   lightBg: 'EEEFF1',
   darkInk: '0C0C0E',
   subInk: '7B7F8E',
+  vermelho: 'E8455A',   // par de contraste do azul (card OPINIAO do mestre)
 };
 
 // Tipografia da marca, igual ao template: Encode Sans nos titulos, Roboto no
@@ -113,58 +117,197 @@ function addDivider(d) {
   // O divisor nao e so transicao: e a CLAQUETE do video. O editor corta por
   // ele. Azul chapado full-bleed justamente pra ser achavel na varredura da
   // timeline — nao mexer no fundo nem encher de elemento.
+  // LIVE_MODE troca so a nota de apresentacao (ritmo ao vivo, sem pausa) —
+  // o slide em si fica identico nas duas versoes, e-mesmo design.
   s.addNotes(
-    'CLAQUETE — inicio do video ' + d.number + '. Segure 2 segundos em silencio ' +
-    'antes de comecar a falar: e por esta tela que a edicao corta.'
+    LIVE_MODE
+      ? 'Início do vídeo ' + d.number + ' — continue falando, sem parar. ' +
+        'Esta versão é pra ritmo ao vivo; o corte de edição usa o outro deck.'
+      : 'CLAQUETE — inicio do video ' + d.number + '. Segure 2 segundos em silencio ' +
+        'antes de comecar a falar: e por esta tela que a edicao corta.'
   );
   return s;
 }
 
 // ------------------------------------------------- conteudo (fundo escuro)
+// Titulo com palavra destacada: no conteudo, marque com *asteriscos* o trecho
+// que recebe a cor de enfase (padrao do deck mestre — "De *opiniao* a
+// *criterio verificavel*", cada trecho colorido). Sem asterisco, titulo chapado.
+function tituloRico(t, corBase, corEnfase, extra) {
+  const base = Object.assign({ color: corBase }, extra || {});
+  if (!t.includes('*')) return [{ text: t, options: base }];
+  return t.split(/(\*[^*]+\*)/).filter(Boolean).map((p) =>
+    p.startsWith('*') && p.endsWith('*')
+      ? { text: p.slice(1, -1), options: Object.assign({}, base, { color: corEnfase, bold: true }) }
+      : { text: p, options: base }
+  );
+}
+
+// A medicao de linhas (medir.py) trabalha com o texto cru; os asteriscos de
+// enfase nao devem contar como caractere nem vazar pra tela.
+const semMarca = (t) => t.replace(/\*/g, '');
+
 function addBullets(d) {
   const s = pres.addSlide();
   s.background = { color: C.newBlack };
   malha(s);
   logo(s);
 
+  // Bloco de titulo sobe pro alto do canvas (o mestre ancora em y~0.65). O
+  // layout antigo comecava em 2.35 e deixava um terco da tela vazio embaixo.
   s.addText(d.eyebrow.toUpperCase(), {
-    x: M, y: 2.35, w: COLW, h: 0.65,
+    x: M, y: 1.15, w: COLW, h: 0.65,
     fontSize: 21, color: C.devBlue, bold: true, charSpacing: 2.5,
     fontFace: FONT, isTextBox: true, margin: 0, valign: 'middle',
   });
-  s.addText(d.title, {
-    x: M, y: 3.15, w: 20.5, h: 2.6,
-    fontSize: 66, color: C.titleGray, fontFace: FONT,
+  s.addText(tituloRico(d.title, C.titleGray, C.devBlue), {
+    x: M, y: 1.95, w: 21.4, h: 2.6,
+    fontSize: 66, fontFace: FONT,
     isTextBox: true, margin: 0, valign: 'top', lineSpacingMultiple: 1.05,
   });
 
-  // Linhas com seta em Dev Blue (padrao do template). Seta e texto ambos
-  // ancorados no TOPO: a seta tem que acompanhar a primeira linha, nao o
-  // centro do bloco — senao ela flutua nos itens que quebram em duas linhas.
-  // A contagem de linhas vem medida da Arial real (medir.py), nao estimada.
-  const LINE = 0.60;         // altura de uma linha
-  const GAP = 0.55;          // respiro entre itens
-  let y = 5.85;
-  d.bullets.forEach((b) => {
+  // Regua de enfase sob o titulo — ancora o bloco e da um respiro que o
+  // layout antigo nao tinha.
+  s.addShape(pres.ShapeType.rect, {
+    x: M, y: 4.95, w: 2.2, h: 0.075, fill: { color: C.devBlue },
+  });
+
+  // Linhas com a seta OFICIAL do deck mestre (art/seta.png), nao o glifo de
+  // texto. Seta e texto ancorados no TOPO: a seta acompanha a primeira linha,
+  // nao o centro do bloco. A contagem de linhas vem medida da Roboto real
+  // (medir.py), nao estimada.
+  const LINE = 0.60;
+  const TOPO = 5.75;   // inicio da area de conteudo
+  const BASE = 13.0;   // fim util — o rodape vive em 14.2, precisa de folga
+  const alturas = d.bullets.map((b) => (LINHAS[semMarca(typeof b === 'string' ? b : b.text)] || 1) * LINE);
+  const somaH = alturas.reduce((a, b) => a + b, 0);
+  const n = d.bullets.length;
+
+  // O respiro entre itens estica pra ocupar a altura util — assim um slide de
+  // 3 linhas nao fica boiando no meio da tela. Mas com teto: passando de ~1.1
+  // as linhas param de ler como uma lista e viram itens soltos.
+  const GAP = n > 1
+    ? Math.min(1.1, Math.max(0.55, (BASE - TOPO - somaH) / (n - 1)))
+    : 0;
+  const alturaBloco = somaH + GAP * (n - 1);
+  let y = TOPO + Math.max(0, (BASE - TOPO - alturaBloco) / 2);
+
+  d.bullets.forEach((b, i) => {
     const texto = typeof b === 'string' ? b : b.text;
     const forte = typeof b !== 'string' && b.bold;
-    const linhas = LINHAS[texto] || 1;
-    const h = linhas * LINE;
+    const h = alturas[i];
 
-    s.addText('→', {
-      x: M, y: y + 0.02, w: 0.85, h: LINE,
-      fontSize: 30, color: C.devBlue, bold: true, fontFace: FONT_CORPO,
-      isTextBox: true, margin: 0, valign: 'top',
-    });
-    s.addText(texto, {
+    s.addImage({ path: img('seta.png'), x: M, y: y + 0.14, w: 0.52, h: 0.45 });
+    s.addText(tituloRico(texto, forte ? C.whiteSnow : C.bodyGray, C.devBlue, { bold: !!forte }), {
       x: M + 1.0, y: y, w: 19.6, h: h,
-      fontSize: 28, color: forte ? C.titleGray : C.bodyGray, bold: !!forte,
-      fontFace: FONT_CORPO, isTextBox: true, margin: 0, valign: 'top',
+      fontSize: 28, fontFace: FONT_CORPO, isTextBox: true, margin: 0, valign: 'top',
       lineSpacingMultiple: 1.18,
     });
     y += h + GAP;
   });
 
+  // Nota de apresentacao: e a fala do Diego, nao o resumo do slide (ver a
+  // skill narrativa-diego). Num build progressivo a MESMA nota se repete em
+  // todas as copias — quem apresenta le a nota inteira na primeira copia e
+  // vai revelando as linhas; o texto nao muda entre elas.
+  if (d.notas) s.addNotes(d.notas);
+
+  footer(s);
+  return s;
+}
+
+// --------------------------------------------- contraste (duas colunas)
+// Layout de assinatura do deck mestre (slide 61): a esquerda, dois cards em
+// contraste — o ruim em vermelho com X, o bom em azul com check, ligados por
+// uma seta pra baixo. A direita, a lista que decorre disso. Ensina pelo
+// contraste visual, nao so pelo texto.
+//
+// Campos: eyebrow, title (aceita *enfase*), sub, ruim{rotulo,texto},
+//         bom{rotulo,texto}, bullets[], notas
+function addContraste(d) {
+  const s = pres.addSlide();
+  s.background = { color: C.newBlack };
+  malha(s);
+  logo(s);
+
+  s.addText(d.eyebrow.toUpperCase(), {
+    x: M, y: 1.15, w: COLW, h: 0.65,
+    fontSize: 21, color: C.devBlue, bold: true, charSpacing: 2.5,
+    fontFace: FONT, isTextBox: true, margin: 0, valign: 'middle',
+  });
+  s.addText(tituloRico(d.title, C.whiteSnow, C.devBlue), {
+    x: M, y: 1.95, w: 21.4, h: 1.7,
+    fontSize: 62, fontFace: FONT,
+    isTextBox: true, margin: 0, valign: 'top', lineSpacingMultiple: 1.05,
+  });
+  if (d.sub) {
+    s.addText(d.sub, {
+      x: M, y: 3.75, w: 18.5, h: 0.7,
+      fontSize: 25, color: C.subInk, fontFace: FONT_CORPO,
+      isTextBox: true, margin: 0, valign: 'top',
+    });
+  }
+
+  // ---- coluna esquerda: os dois cards ----
+  const CX = M, CW = 8.1;
+  const card = (y, h, cor, glifo, rotulo, texto) => {
+    s.addShape(pres.ShapeType.roundRect, {
+      x: CX, y, w: CW, h, rectRadius: 0.22,
+      fill: { type: 'none' }, line: { color: cor, width: 2 },
+    });
+    s.addShape(pres.ShapeType.ellipse, {
+      x: CX + 0.55, y: y + 0.5, w: 0.82, h: 0.82, fill: { color: cor },
+    });
+    s.addText(glifo, {
+      x: CX + 0.55, y: y + 0.5, w: 0.82, h: 0.82,
+      fontSize: 26, color: C.white, bold: true, fontFace: FONT_CORPO,
+      align: 'center', valign: 'middle', isTextBox: true, margin: 0,
+    });
+    s.addText(rotulo, {
+      x: CX + 1.65, y: y + 0.5, w: CW - 2.2, h: 0.82,
+      fontSize: 27, color: cor, fontFace: FONT,
+      isTextBox: true, margin: 0, valign: 'middle',
+    });
+    s.addShape(pres.ShapeType.rect, {
+      x: CX + 0.55, y: y + 1.55, w: CW - 1.1, h: 0.02, fill: { color: cor },
+    });
+    s.addText(texto, {
+      x: CX + 0.55, y: y + 1.9, w: CW - 1.1, h: h - 2.3,
+      fontSize: 25, color: C.bodyGray, fontFace: FONT_CORPO, italic: true,
+      isTextBox: true, margin: 0, valign: 'top', lineSpacingMultiple: 1.2,
+    });
+  };
+
+  card(4.9, 3.55, C.vermelho, '✕', d.ruim.rotulo, d.ruim.texto);
+  s.addText('↓', {
+    x: CX, y: 8.5, w: CW, h: 0.85,
+    fontSize: 40, color: C.bodyGray, fontFace: FONT_CORPO,
+    align: 'center', valign: 'middle', isTextBox: true, margin: 0,
+  });
+  card(9.45, 3.55, C.devBlue, '✓', d.bom.rotulo, d.bom.texto);
+
+  // ---- coluna direita: a lista ----
+  const LX = M + CW + 1.5;
+  const LINE = 0.60, TOPO = 4.9, BASE = 13.0;
+  const alturas = d.bullets.map((b) => (LINHAS[semMarca(typeof b === 'string' ? b : b.text)] || 1) * LINE);
+  const somaH = alturas.reduce((a, b) => a + b, 0);
+  const n = d.bullets.length;
+  const GAP = n > 1 ? Math.min(1.1, Math.max(0.5, (BASE - TOPO - somaH) / (n - 1))) : 0;
+  let y = TOPO + Math.max(0, (BASE - TOPO - (somaH + GAP * (n - 1))) / 2);
+
+  d.bullets.forEach((b, i) => {
+    const texto = typeof b === 'string' ? b : b.text;
+    const forte = typeof b !== 'string' && b.bold;
+    s.addImage({ path: img('seta.png'), x: LX, y: y + 0.14, w: 0.46, h: 0.4 });
+    s.addText(tituloRico(texto, forte ? C.whiteSnow : C.bodyGray, C.devBlue, { bold: !!forte }), {
+      x: LX + 0.85, y, w: W - LX - 0.85 - M * 0.55, h: alturas[i],
+      fontSize: 26, fontFace: FONT_CORPO, isTextBox: true, margin: 0, valign: 'top',
+      lineSpacingMultiple: 1.18,
+    });
+    y += alturas[i] + GAP;
+  });
+
+  if (d.notas) s.addNotes(d.notas);
   footer(s);
   return s;
 }
@@ -234,6 +377,7 @@ function addClosing(d) {
     fontSize: 78, color: C.whiteSnow, fontFace: FONT,
     isTextBox: true, margin: 0, valign: 'top', lineSpacingMultiple: 1.12,
   });
+  if (d.notas) s.addNotes(d.notas);
   return s;
 }
 
@@ -343,15 +487,19 @@ const MODO = process.argv[4] || 'gerar';
 
 if (MODO === 'dump') {
   const itens = [];
-  SLIDES.filter((d) => d.type === 'bullets').forEach((d) =>
+  SLIDES.filter((d) => d.type === 'bullets' || d.type === 'contraste').forEach((d) =>
     d.bullets.forEach((b) =>
-      itens.push(typeof b === 'string' ? { text: b, bold: false } : { text: b.text, bold: !!b.bold })
+      // semMarca: os asteriscos de enfase nao existem na tela, entao nao
+      // podem contar na medicao de largura — senao a chave nem casa na volta.
+      itens.push(typeof b === 'string'
+        ? { text: semMarca(b), bold: false }
+        : { text: semMarca(b.text), bold: !!b.bold })
     )
   );
   fs.writeFileSync(process.argv[5], JSON.stringify(itens, null, 1), 'utf8');
   console.log('dump:', itens.length, 'bullets ->', process.argv[5]);
 } else {
-  const construtor = { cover: addCover, divider: addDivider, bullets: addBullets, table: addTable, closing: addClosing };
+  const construtor = { cover: addCover, divider: addDivider, bullets: addBullets, contraste: addContraste, table: addTable, closing: addClosing };
   SLIDES.forEach((d) => construtor[d.type](d));
   pres.writeFile({ fileName: OUT }).then(() => {
     console.log('gerado:', OUT, '-', SLIDES.length, 'slides');

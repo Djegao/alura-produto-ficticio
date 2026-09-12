@@ -1,0 +1,162 @@
+[
+ {
+  "text": "Você monta uma funcionalidade com IA. Testa três vezes, três vezes funciona. Você entrega.",
+  "bold": false
+ },
+ {
+  "text": "Uma semana depois, alguém pergunta: \"aquela mudança que você fez ajudou ou atrapalhou?\"",
+  "bold": false
+ },
+ {
+  "text": "E você não sabe responder. Não porque não trabalhou — porque não tinha como medir.",
+  "bold": true
+ },
+ {
+  "text": "A tentação é focar no que dá pra controlar: qual modelo usar, qual framework, qual banco de dados.",
+  "bold": false
+ },
+ {
+  "text": "Só que builders que dão certo raramente falam de ferramenta. Eles falam de medição.",
+  "bold": true
+ },
+ {
+  "text": "Eles sabem, a cada mudança, se o produto ficou melhor ou pior. O resto do trabalho fica mais fácil por causa disso.",
+  "bold": false
+ },
+ {
+  "text": "Evals: como eu sei que a resposta é boa, sem reler cada uma à mão?",
+  "bold": true
+ },
+ {
+  "text": "Observabilidade: como eu enxergo o que está acontecendo, sem estar olhando o tempo todo?",
+  "bold": true
+ },
+ {
+  "text": "Conformidade: como eu garanto que o produto não passa de limites que protegem quem usa?",
+  "bold": true
+ },
+ {
+  "text": "Não são etapas separadas — um eval mal feito deixa passar a falha que só a observabilidade encontra depois.",
+  "bold": false
+ },
+ {
+  "text": "E uma falha sem guardrail vira o tipo de incidente que a conformidade deveria ter barrado antes.",
+  "bold": false
+ },
+ {
+  "text": "Esta aula começa pela primeira pergunta. É onde tudo o mais se apoia.",
+  "bold": true
+ },
+ {
+  "text": "O Chef Caseiro sugere o que cozinhar com o que a casa já tem — sem inventar ingrediente, sem ignorar restrição.",
+  "bold": false
+ },
+ {
+  "text": "Não é protótipo de slide: está no ar, com dado real, e a minha casa usa ele de verdade.",
+  "bold": false
+ },
+ {
+  "text": "É por isso que ele serve pra este curso. Produto que ninguém usa nunca falha de um jeito interessante.",
+  "bold": true
+ },
+ {
+  "text": "Ela pode consultar o que está no estoque, antes de sugerir qualquer prato.",
+  "bold": false
+ },
+ {
+  "text": "Ela pode consultar as restrições da casa — alergia, dieta, o que a família não come.",
+  "bold": false
+ },
+ {
+  "text": "E ela decide, sozinha, quando usar cada uma dessas capacidades. Ninguém escreveu um roteiro fixo para ela seguir.",
+  "bold": true
+ },
+ {
+  "text": "Na despensa, agora: 41 itens. \"Arroz\" aparece em quatro registros diferentes — e um deles está zerado.",
+  "bold": false
+ },
+ {
+  "text": "\"Feijão carioca\" e \"feijao\". \"Macarrão espaguete\" e \"macarrao\". Três molhos de tomate, um deles vazio.",
+  "bold": false
+ },
+ {
+  "text": "Guarda essa imagem. Ela é o motivo de \"ela usou só o que eu tenho?\" ser uma pergunta difícil de responder.",
+  "bold": true
+ },
+ {
+  "text": "Sem prompt especial, sem truque de engenharia: um pedido de jantar em português, como qualquer um da casa faria.",
+  "bold": false
+ },
+ {
+  "text": "As restrições da casa já estão cadastradas há semanas — evitar carne de porco, preferência por vinho tinto seco.",
+  "bold": false
+ },
+ {
+  "text": "Presta atenção no que ela faz antes de responder: ela para pra consultar, ou já sai sugerindo?",
+  "bold": true
+ },
+ {
+  "text": "A sugestão parece boa. Mas \"parece boa\" é uma opinião minha, no momento em que eu li — nada mais que isso.",
+  "bold": true
+ },
+ {
+  "text": "Ela respeitou mesmo as restrições? Usou só o que eu realmente tenho — inclusive o arroz que está zerado?",
+  "bold": false
+ },
+ {
+  "text": "E essa é exatamente a cena do começo desta aula, acontecendo comigo, no meu próprio produto, agora.",
+  "bold": false
+ },
+ {
+  "text": "O modelo que gera a resposta é um eixo. A instrução que orienta o modelo é outro. Os dados que ele consulta são o terceiro.",
+  "bold": false
+ },
+ {
+  "text": "Neste produto eu giro o eixo do modelo ao vivo, na própria barra de configuração — sem deploy, sem tocar em código.",
+  "bold": false
+ },
+ {
+  "text": "Vou girar um eixo só: mesmo pedido, mesmo estoque, mesmas restrições — outro modelo.",
+  "bold": true
+ },
+ {
+  "text": "Mudou o prato, mudou o jeito de escrever, mudaram os ingredientes escolhidos, mudou o tamanho da resposta.",
+  "bold": false
+ },
+ {
+  "text": "Agora responde rápido: qual das duas é melhor? E na próxima pergunta, vai continuar sendo a mesma?",
+  "bold": false
+ },
+ {
+  "text": "Eu girei um eixo e não sei dizer se melhorei ou piorei o produto. É esse buraco que o curso inteiro fecha.",
+  "bold": true
+ },
+ {
+  "text": "Todo produto de IA que evolui rápido gira o mesmo ciclo: avaliar a qualidade, entender o que saiu errado, mudar o comportamento.",
+  "bold": false
+ },
+ {
+  "text": "Quanto mais rápido e barato for avaliar, mais vezes esse ciclo gira — e mais rápido o produto melhora.",
+  "bold": true
+ },
+ {
+  "text": "Hoje eu girei o ciclo pela metade: mudei o comportamento, mas não avaliei nada. Só senti.",
+  "bold": false
+ },
+ {
+  "text": "O problema não é ter dúvida se uma mudança ajudou — é não ter como responder essa dúvida.",
+  "bold": false
+ },
+ {
+  "text": "Conheci um produto agêntico real, no ar, e o estoque bagunçado que ele consulta de verdade.",
+  "bold": false
+ },
+ {
+  "text": "Girei um eixo, vi a resposta mudar na minha frente, e não soube dizer se ficou melhor.",
+  "bold": false
+ },
+ {
+  "text": "Na próxima aula, eu paro de sentir se a sugestão foi boa e começo a construir uma forma de saber.",
+  "bold": true
+ }
+]

@@ -1,0 +1,69 @@
+AÇÃO — demo no terminal. DRY-RUN, nada é gravado. Não abrir Langfuse.
+Terminal JÁ na pasta do projeto antes de gravar (senão: Cannot find module).
+
+AO COLAR O COMANDO — explique as três partes
+
+"Deixa eu explicar o que eu tô rodando, porque cada pedaço importa."
+
+run-evals.js  → é o pipeline de evals. Ele busca a interação, monta o material e chama o juiz.
+--dry-run     → ele julga, mas NÃO grava a nota de volta. Eu quero te mostrar o juiz trabalhando, sem sujar o histórico.
+--trace <id>  → em vez de pegar as últimas interações, eu fixo uma. Essa aqui, de agosto. Assim você vê exatamente a mesma que eu.
+
+LEITURA DO RELATÓRIO — de cima para baixo, na ordem que ele imprime
+
+1) Cabeçalho
+"Olha o que ele anuncia: interações reais do Langfuse, um juiz, e os Scores voltando pro trace. É o caminho inteiro em uma linha."
+
+2) Modo
+"Modo dry-run, não grava. Está escrito ali."
+
+3) Trace pinado
+"É aquele id que eu colei."
+
+4) mediar-cardapio
+"A operação. Então os critérios que vêm agora são os do Mediador."
+
+5) [1/1] — 22 de agosto
+"Uma interação só. De agosto."
+
+6) pedido
+"Fazer risoto de camarão neste sábado."
+
+7) ! sinal em codigo: truncamento por max_tokens   <- PARE AQUI, é o slide 27 acontecendo
+"Repara: essa linha aparece ANTES de qualquer nota. E não é o juiz falando."
+"É o código. Ele mediu os tokens de saída, comparou com o teto e marcou como fato."
+"Aritmética é trabalho de código. O juiz vai receber isso pronto e não recalcular."
+
+8) execucao_integra — X, zero, barra vazia
+"Integridade: zero. A resposta foi cortada no meio da frase. Termina em 'nenhum delivery/restaur' e para."
+
+9) trade_off_com_numeros — til, barra pela metade   (NÃO diga o número antes de ver: varia 0,5–0,6)
+"Aqui ficou no meio termo. Números reais existem — um quilo de camarão, duzentos gramas de manteiga."
+"Mas a mediação central, o vinho, não tem custo numérico associado. Ficou como observação de gosto."
+
+10) numeros_de_tool — OK, um, barra cheia
+"Números de ferramenta: um. Tudo que ele citou aparece literalmente no retorno das ferramentas. O juiz conferiu um por um."
+
+11) mediou_sem_decidir — OK, um, barra cheia
+"Mediou sem decidir: um. A receita pede branco, a casa prefere tinto. Ele não escolheu — perguntou: 'querem manter o branco ou preferem adaptar a receita?'"
+
+12) falta_virou_trade_off — X, zero   <- A LINHA QUE VALE A AULA. PAUSA.
+"E essa é a linha que vale a aula."
+"O texto diz que o alho já foi para a lista de compras. O sinal do código diz que a ferramenta de lista nunca foi chamada."
+"A falta foi resolvida na frase. Não foi resolvida no sistema."
+
+13) juiz: 11268 tokens entrada / 782 saída
+"E esse é o custo de julgar uma interação. Onze mil tokens de entrada."
+
+14) RESUMO — média 0,50
+"Metade. E metade aqui não é o produto mais ou menos: são dois critérios reprovados, com nome e evidência."
+
+15) Última linha
+"Dry-run: nenhum Score foi gravado. Nada do que você viu foi pro Langfuse."
+
+EMENDA direto no slide 30.
+
+ATENÇÃO
+• A redação das justificativas MUDA a cada rodada. Leia da tela, parafraseie, nunca prometa a frase exata.
+• trade_off_com_numeros oscila 0,5–0,6. Os quatro binários são estáveis (0,1,1,0) em 4 rodadas.
+• Rede: rode uma vez antes de gravar. Deu ConnectTimeout hoje e voltou sozinho.

@@ -1,0 +1,83 @@
+SLIDE 34 — reescrito para ser agnóstico e reaplicável
+=====================================================
+
+TÍTULO (troca "O conjunto do Mediador")
+
+Três perguntas pro seu conjunto
+
+
+BULLET 1 (troca "Trade-off com números: expôs o custo real de cada opção?")
+
+A promessa: ele entregou o que essa operação existe pra fazer?
+
+
+BULLET 2 (troca "Números vieram de ferramenta: todo número saiu de uma
+consulta, ou o modelo estimou? Binário.")
+
+A verossimilhança: todo número veio de ferramenta, ou o modelo chutou?
+
+
+BULLET 3 (troca "Mediou sem decidir: apresentou o conflito e deixou a escolha
+com o casal?")
+
+O papel: ele decidiu no lugar de quem devia decidir?
+
+
+Tamanhos: 47, 70 e 51 caracteres — todos menores que os atuais, então cabem
+nos mesmos campos sem mexer em fonte nem em caixa.
+
+A tríade que o aluno leva embora: PROMESSA · VEROSSIMILHANÇA · PAPEL.
+
+⚠ Grafia: verossimilhanca com I no meio (nao "verossimelhanca").
+
+
+=====================================================
+NOTAS DO APRESENTADOR — slide 34
+=====================================================
+
+IDEIA DO SLIDE: parar de listar os MEUS critérios e entregar as três perguntas
+que geram critério em QUALQUER produto. O aluno anota três, não cinco nomes que
+só existem aqui.
+
+FALA
+
+"Esse slide não é sobre o meu produto. É a parte que você leva pro seu."
+
+"Quando eu fui montar o conjunto, eu não comecei escrevendo critério. Eu comecei
+fazendo três perguntas sobre a operação. E elas funcionam pra qualquer coisa que
+você esteja construindo."
+
+1) A PROMESSA
+"Primeira: o que essa operação existe pra fazer? Qual é a promessa dela pro
+usuário?"
+"Porque o primeiro critério é sempre esse — ela cumpriu a promessa, ou entregou
+outra coisa?"
+"Se você não consegue dizer a promessa em uma frase, você ainda não tem
+critério. Tem funcionalidade."
+
+2) A VEROSSIMILHANÇA   <- dome a palavra na primeira frase
+"Segunda: a verossimilhança. É uma palavra grande pra uma ideia simples — onde
+é que esse produto pode chutar de um jeito que parece certo?"
+"Todo produto com IA tem esse lugar. Número, prazo, valor, nome de pessoa."
+"E é a pior classe de erro que existe, porque ninguém desconfia. Um número
+inventado é indistinguível de um número certo até alguém ir conferir."
+
+3) O PAPEL
+"Terceira: qual é o papel que essa operação não pode abandonar?"
+"Todo produto tem um limite que, se ele cruzar, deixa de ser aquele produto."
+"Um assistente que decide sozinho virou outra coisa. Um resumidor que opina
+virou outra coisa."
+"É um requisito de posicionamento, e ele degrada em silêncio quando alguém troca
+o modelo ou melhora o prompt."
+
+ATERRISSA NO PRODUTO (rápido, sem ler nome por nome)
+"No meu caso essas três viraram: expôs o custo com número, todo número veio de
+ferramenta, e deixou a escolha com o casal."
+"Mas repara que os nomes são meus. As três perguntas são suas."
+
+CONVITE
+"Pausa o vídeo aqui se quiser. Pega a operação principal do seu produto e
+responde as três. Sai daqui com três critérios escritos."
+
+EMENDA no slide 35: "E tem uma quarta, que é específica demais pra ser pergunta
+— é regra de produto virada critério."
