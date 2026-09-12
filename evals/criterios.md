@@ -1,9 +1,9 @@
-# Critérios de qualidade — Chef Caseiro
+# Critérios de qualidade — Musa Balance
 
 > Material didático do **vídeo 2.2 (Critérios de qualidade)** do curso
 > "Evals, observabilidade e conformidade". Este arquivo é escrito em
 > linguagem de **produto**, não de código: qualquer pessoa do time deveria
-> conseguir pegar uma resposta do Chef Caseiro e julgar cada critério abaixo
+> conseguir pegar uma resposta do Musa Balance e julgar cada critério abaixo
 > sem abrir o repositório.
 >
 > Quem executa esses critérios é `evals/run-evals.js` (Claude-as-judge, com
@@ -21,7 +21,7 @@ Todo critério aqui tem quatro partes, e as quatro são obrigatórias:
 | **Nome** | é o nome do Score no Langfuse — sem nome estável não dá pra ver qualidade ao longo do tempo (Aula 3) |
 | **Pergunta** | tem que ser respondível por uma pessoa olhando a interação, sem saber programar |
 | **Escala** | binário (0 ou 1) quando a falha é categórica; 0–1 contínuo quando existe "meio certo" |
-| **Por que erra caro** | um critério que não custa nada quando falha não merece ser um eval |
+| **Se falhar, o que acontece?** | o custo da falha, em uma frase concreta. Um critério que não custa nada quando falha não merece ser um eval |
 
 **Critério ruim:** "a resposta é boa."
 **Critério bom:** "a sugestão cita apenas itens que apareceram no resultado
@@ -44,10 +44,10 @@ vazia, e se alguma chamada ao modelo gastou **exatamente** o teto de tokens
 configurado (1024, 2048 ou 512, conforme o ponto do código). Tokens de saída
 iguais ao teto é a assinatura clássica de truncamento — não é coincidência.
 
-**Por que erra caro:** este é o critério que vem **antes** de todos os
+**Se falhar, o que acontece?** este é o critério que vem **antes** de todos os
 outros. Não adianta perguntar se a receita respeitou as restrições da casa
 se a resposta parou no meio da palavra. E desde 2026-08-12 isso deixou de
-ser cosmético no Chef Caseiro: o corte pode acontecer no meio de uma chamada
+ser cosmético no Musa Balance: o corte pode acontecer no meio de uma chamada
 de ferramenta, deixando um `tool_use` órfão que derruba a requisição
 seguinte com `400` da Anthropic (SDD §11.4, trace
 `57debf7a71533fdc6a9e7a982595ba7c`). Uma falha estrutural que passa
@@ -63,7 +63,7 @@ pronto e julga o que fazer com ele.
 
 ## Operação: `sugerir-receita`
 
-O agente original do Chef Ops (prompts v1 e v2). Recebe um pedido em texto
+O agente original do Musa Balance (prompts v1 e v2). Recebe um pedido em texto
 livre ("o que faço pro jantar hoje?") e responde com uma sugestão, podendo
 consultar estoque e preferências e registrar o consumo.
 
@@ -77,7 +77,7 @@ consultado naquela interação, nas quantidades que existem?
 em casa" (sal, azeite) sem estarem lá; 0.0 = a receita foi escrita de cabeça
 e o estoque foi decorativo.
 
-**Por que erra caro:** é a promessa central do produto. Um assistente que
+**Se falhar, o que acontece?** é a promessa central do produto. Um assistente que
 sugere o que cozinhar com o que você tem em casa, e que sugere algo que você
 não tem, é pior que nenhum assistente — a pessoa vai até a cozinha, descobre
 que falta, e não confia mais na próxima sugestão. É também o critério que
@@ -89,7 +89,7 @@ trace pode mostrar a chamada e a resposta ignorar o retorno.
 **Pergunta:** a sugestão respeita todas as restrições e preferências
 alimentares da casa retornadas por `consultar_preferencias`?
 
-**Por que erra caro:** restrição alimentar não é preferência estética — pode
+**Se falhar, o que acontece?** restrição alimentar não é preferência estética — pode
 ser alergia. É o único critério desta lista onde uma falha isolada pode
 causar dano físico, e por isso é binário: não existe "respeitou 70% da
 restrição". É também o critério que a Aula 5 (conformidade) reaproveita: um
@@ -101,7 +101,7 @@ conformidade, não de qualidade.
 **Pergunta:** se a interação consultou o estoque e propôs uma receita que o
 consome, o agente registrou esse consumo (`registrar_itens_usados`)?
 
-**Por que erra caro:** este é o achado §11.3 do SDD virado eval. O prompt v2
+**Se falhar, o que acontece?** este é o achado §11.3 do SDD virado eval. O prompt v2
 *pede em linguagem natural* para o agente registrar o consumo — e o Claude
 regularmente escrevia a receita com quantidades específicas e simplesmente
 não chamava a ferramenta. O custo é silencioso e cumulativo: **o estado do
@@ -117,7 +117,7 @@ estrutural está de pé — e para pegar o dia em que alguém a remover.
 
 ## Operação: `mediar-cardapio`
 
-O Agente Mediador da v3 "Musa Balance". Não sugere: **medeia** entre dois
+O Agente Mediador da v3. Não sugere: **medeia** entre dois
 atores da casa com objetivos parcialmente conflitantes (Diego, que cuida de
 orçamento/saúde/desperdício; a Musa, que traz o desejo gastronômico).
 
@@ -131,7 +131,7 @@ concretos (reais, dias de validade, porções), em vez de conselho genérico?
 dias"); 0.5 = há números, mas soltos, sem ligar à escolha; 0.0 = só
 recomendação vaga ("seria melhor economizar essa semana").
 
-**Por que erra caro:** um mediador sem números não medeia, opina — e opinião
+**Se falhar, o que acontece?** um mediador sem números não medeia, opina — e opinião
 não resolve conflito entre duas pessoas que já sabem o que querem. Se o
 produto não coloca o preço da escolha na mesa, o casal decide exatamente
 como decidiria sem ele, e o produto não fez nada.
@@ -142,7 +142,7 @@ como decidiria sem ele, e o produto não fez nada.
 porções restantes) vieram do retorno de uma ferramenta, ou algum foi
 calculado/estimado pelo próprio modelo?
 
-**Por que erra caro:** é a regra de ouro do projeto — **a LLM nunca calcula
+**Se falhar, o que acontece?** é a regra de ouro do projeto — **a LLM nunca calcula
 prazo, decaimento ou matemática financeira**. Um número inventado que
 *parece* certo é a pior classe de erro possível aqui, porque é
 indistinguível de um número certo até alguém conferir o extrato. E como o
@@ -155,7 +155,7 @@ contamina a mediação inteira.
 **Pergunta:** o agente apresentou o conflito e deixou a escolha explícita
 para o casal, sem proibir, julgar ou decidir sozinho?
 
-**Por que erra caro:** este critério é sobre o produto continuar sendo o
+**Se falhar, o que acontece?** este critério é sobre o produto continuar sendo o
 produto. No momento em que o Mediador diz "não faça o hambúrguer", ele deixa
 de ser um mediador e vira mais um app de dieta que a pessoa desinstala. É um
 requisito de posicionamento tão duro quanto qualquer requisito técnico — e é
@@ -168,7 +168,7 @@ o tipo de coisa que degrada em silêncio quando alguém troca o modelo ou
 com o que existe no estoque e/ou mandou o item pra lista de compras — em vez
 de simplesmente cancelar a proposta?
 
-**Por que erra caro:** falta de item é o caso mais comum da vida real, e um
+**Se falhar, o que acontece?** falta de item é o caso mais comum da vida real, e um
 mediador que responde "não dá" a cada falta é inútil na semana em que a
 pessoa mais precisa dele. A regra do produto é explícita: **a falta nunca
 cancela a proposta, vira trade-off** (substituição → lista de compras). Este
@@ -188,7 +188,7 @@ campos estruturados que alimentam o feed e o estoque.
 
 **Pergunta:** o tipo escolhido é o que a mensagem realmente quer dizer?
 
-**Por que erra caro:** **classificação errada corrompe o feed e o estoque de
+**Se falhar, o que acontece?** **classificação errada corrompe o feed e o estoque de
 uma vez só**. Cada tipo dispara um efeito diferente em `intencao-efeitos.js`:
 `aquisicao` cria item no estoque, `desperdicio` e `relato_refeicao` baixam
 porções, `porcionamento` cria um item preparado com N porções. Um "comprei
@@ -202,7 +202,7 @@ com a geladeira.
 **Pergunta:** os campos numéricos (`calorias`, `custo`, `item_quantidade`)
 foram preenchidos **apenas** quando a pessoa disse o número explicitamente?
 
-**Por que erra caro:** mesma regra de ouro do Mediador, aplicada na entrada
+**Se falhar, o que acontece?** mesma regra de ouro do Mediador, aplicada na entrada
 em vez da saída. Se a pessoa disse "comi um prato de lasanha" e o modelo
 estima 650 kcal, o orçamento calórico da semana passa a ser ficção — e
 ficção que ninguém sabe que é ficção, porque o número está gravado no banco
@@ -220,7 +220,7 @@ que a mensagem realmente diz, sem invenção e sem "correção" criativa?
 levemente enfeitada ou nome normalizado além do necessário; 0.0 = campo
 inventado que não tem origem na mensagem.
 
-**Por que erra caro:** este critério nasceu do achado de 22/08, gravado ao
+**Se falhar, o que acontece?** este critério nasceu do achado de 22/08, gravado ao
 vivo na aula. O relato "comemos 3 porções de **lasagna**" foi classificado
 **perfeitamente** — `fonte_refeicao: caseira`, `item_nome: lasagna`,
 `item_quantidade: 3` — mas o prato estava gravado no estoque como

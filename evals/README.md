@@ -33,6 +33,7 @@ node evals/run-evals.js --limit 5             # 5 traces por operação
 node evals/run-evals.js --operacao ingerir-relato
 node evals/run-evals.js --operacao sugerir-receita,mediar-cardapio --limit 4
 node evals/run-evals.js --sem-cor             # saída sem ANSI (log/CI)
+node evals/run-evals.js --trace 9f8bb3c520bc  # julga traces específicos (id ou prefixo ≥ 12 chars)
 node evals/run-evals.js --help
 ```
 
