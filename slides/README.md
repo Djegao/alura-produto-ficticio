@@ -1,8 +1,22 @@
 # Slides do curso — Evals, observabilidade e conformidade
 
-5 decks `.pptx` das 5 aulas, gerados a partir dos outlines slide-a-slide dos
-roteiros em `docs/`. Paleta e layout são os oficiais da Alura, reaproveitados
-de `../generate-slides.js` (não alterado).
+5 decks `.pptx` das 5 aulas, gerados a partir da **especificação de slides**
+no fim de [`../docs/SCRIPT-LINEAR-CURSO.md`](../docs/SCRIPT-LINEAR-CURSO.md).
+Paleta e layout são os oficiais da Alura, reaproveitados de
+`../generate-slides.js` (não alterado).
+
+> **Estado em 12/09:** os cinco decks estão gerados e atualizados para o
+> formato de gravação linear. O da **Aula 4 foi refeito por completo** (26
+> slides), porque aquele capítulo deixou de ter deploys ao vivo e passou a
+> ser contado com a evidência preservada. A **Aula 3** ganhou dois slides
+> novos: a retenção do Langfuse e a mudança de comportamento do modelo entre
+> 22 e 29/08.
+>
+> Para regerar (idempotente — sobrescreve os cinco):
+>
+> ```bash
+> node slides/generate-slides-curso.js
+> ```
 
 ## Arquivos
 
