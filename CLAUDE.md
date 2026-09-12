@@ -1,45 +1,27 @@
-# Chef Caseiro — produto fictício de referência
+# Musa Balance — produto fictício de referência
 
-> **📹 HOJE É O DIA DA GRAVAÇÃO (29/08) — Aulas 1–5.**
-> **Sessão nova? Comece por `docs/RETOMADA-MAQUINA-ESCOLA.md`** — ele tem
-> os cinco sinais de estado (todos verificados verdes às 10h39 de 29/08), o
-> que já está pronto, as decisões vigentes e o erro mais provável do dia.
+> **Sessão nova? Comece por `docs/RETOMADA-15-09.md`.**
 >
-> **📹 O curso inteiro está pré-preparado.**
-> Comece por **`docs/PLANO-GRAVACAO-CURSO.md`** (mapa mestre: aula → vídeo →
-> versão do produto → comandos → slides) e por
-> **`docs/SETUP-MAQUINA-ESCOLA.md`** (checklist da máquina da escola).
-> Material criado em 28/08: roteiros por aula (`docs/aula{1,2,3,5}-roteiro.md`),
-> checklist de conformidade, pipeline de evals real em `evals/`, decks em
-> `slides/*.pptx` e o script `scripts/observabilidade.ps1` (liga/desliga o
-> Langfuse para a demo da Aula 3). Nada disso altera o produto — é tudo
-> aditivo, e os quatro achados preservados continuam intactos.
+> **Estado em 12/09:** a **Aula 2 foi gravada por completo**. A branch de
+> trabalho é `gravacao/aulas-3-e-4-material`. Produção está no ar (401), com o
+> deploy de 12/09 — os PRs #4 e #6 já foram mergeados. O próximo passo é a
+> **Aula 3 (observabilidade)**.
 >
-> ✅ **Credenciais trocadas em 28/08.** A `ANTHROPIC_API_KEY` antiga estava
-> revogada (nenhuma chamada de modelo funcionou entre ~24/08 e 28/08). A
-> chave nova é *identity-linked*, então o produto agora exige também
-> `ANTHROPIC_WORKSPACE_ID` — presente no `.env` e no Railway. O SDK envia o
-> header sozinho a partir da variável; **nenhuma linha de código mudou**.
-> Produção redeployada e verificada, e o pipeline de evals gravou 39 Scores
-> reais no Langfuse.
+> **O nome canônico do produto é "Musa Balance"** (decidido em 12/09). O repo
+> ainda está majoritariamente com os nomes antigos — "Chef Caseiro" (~69
+> ocorrências) e "Chef Ops" (~10) — em `SDD.md`, `prompts.js`, `agent.js`,
+> `server.js` e nos geradores de slide. Já uniformizados: `evals/criterios.md`
+> e a saída do terminal do pipeline de evals. O `SYSTEM_JUIZ` em
+> `evals/run-evals.js` ficou de fora **de propósito**: trocar altera o material
+> que o modelo recebe e invalidaria as demos de aula já congeladas.
 >
-> **Achado novo de 28/08, ainda não corrigido (convenção: perguntar antes):**
-> o truncamento do §11.4 **não é só do v1/v2** — o `mediar-cardapio` também
-> está batendo nos tetos (2048 e 1024) com ~18,5 mil tokens de entrada.
-> Evidência em `docs/apoio/aula2-saida-evals.md`.
+> **A Aula 2 não usa o Langfuse.** Todas as demos rodam em `--dry-run`, no
+> terminal. A ferramenta só é apresentada na Aula 3.
 >
-> Dois avisos operacionais de 28/08: (a) o pre-flight do runbook que espera
-> o hash `b876e2c` **está desatualizado** — use o comando corrigido em
-> `docs/SETUP-MAQUINA-ESCOLA.md` §5, que compara só os arquivos de código;
-> (b) produção caiu de manhã (fim do período gratuito do Railway) e voltou
-> às 10h34 — confira sempre com `curl.exe`, esperando **401**, não 404.
-
-> **A Aula 4 continua regida por `docs/RUNBOOK-gravacao-29-08.md`.**
-> Produção está com **falhas preservadas de propósito** para demonstração ao
-> vivo. Há dois PRs abertos que **não devem ser mergeados nem deployados
-> antes da gravação**, e a ordem entre eles importa: **#4 antes do #6**.
-> Se você é uma sessão nova dando suporte à aula, o runbook tem o estado
-> atual, a sequência dos atos e os comandos de cada momento.
+> ⚠️ **Os avisos antigos sobre a gravação de 29/08 estão superados** — aquele
+> formato (não-linear, com deploy ao vivo e ordem de PRs) foi abandonado em
+> 09/09. `docs/RETOMADA-MAQUINA-ESCOLA.md` e `docs/RUNBOOK-gravacao-29-08.md`
+> valem como registro histórico, não como instrução.
 
 Produto fictício construído para o curso Alura **"Evals, observabilidade e
 conformidade"** (parte da formação AI Product Builder). Não é um produto real
