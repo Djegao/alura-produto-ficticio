@@ -1,4 +1,17 @@
-# Retomada — continuar de onde parou, na máquina da escola
+# Retomada — máquina da escola (SUPERADO)
+
+> ## ⛔ Este documento descreve o método antigo
+>
+> Em **09/09** o formato mudou para **gravação linear**: o produto fica no
+> estado final do primeiro ao último vídeo, sem checkout, sem deploy e sem
+> troca de branch. Tudo o que está abaixo pressupõe o método anterior.
+>
+> **Use [`RETOMADA-ESCRITORIO.md`](./RETOMADA-ESCRITORIO.md).**
+>
+> Mantido só como registro do que foi tentado.
+
+---
+
 
 ## Prompt para colar no Claude Code da escola
 

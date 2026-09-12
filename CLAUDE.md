@@ -1,45 +1,65 @@
 # Chef Caseiro — produto fictício de referência
 
-> **📹 HOJE É O DIA DA GRAVAÇÃO (29/08) — Aulas 1–5.**
-> **Sessão nova? Comece por `docs/RETOMADA-MAQUINA-ESCOLA.md`** — ele tem
-> os cinco sinais de estado (todos verificados verdes às 10h39 de 29/08), o
-> que já está pronto, as decisões vigentes e o erro mais provável do dia.
+> ## 📹 Estado do curso — atualizado 12/09/2026
 >
-> **📹 O curso inteiro está pré-preparado.**
-> Comece por **`docs/PLANO-GRAVACAO-CURSO.md`** (mapa mestre: aula → vídeo →
-> versão do produto → comandos → slides) e por
-> **`docs/SETUP-MAQUINA-ESCOLA.md`** (checklist da máquina da escola).
-> Material criado em 28/08: roteiros por aula (`docs/aula{1,2,3,5}-roteiro.md`),
-> checklist de conformidade, pipeline de evals real em `evals/`, decks em
-> `slides/*.pptx` e o script `scripts/observabilidade.ps1` (liga/desliga o
-> Langfuse para a demo da Aula 3). Nada disso altera o produto — é tudo
-> aditivo, e os quatro achados preservados continuam intactos.
+> **Formato decidido: gravação LINEAR.** O produto vai para a gravação no
+> **estado final** e permanece assim do primeiro ao último vídeo — nenhum
+> checkout, nenhum deploy, nenhuma troca de branch durante a gravação. As
+> quatro tentativas anteriores travaram justamente no método não-linear.
 >
-> ✅ **Credenciais trocadas em 28/08.** A `ANTHROPIC_API_KEY` antiga estava
-> revogada (nenhuma chamada de modelo funcionou entre ~24/08 e 28/08). A
-> chave nova é *identity-linked*, então o produto agora exige também
-> `ANTHROPIC_WORKSPACE_ID` — presente no `.env` e no Railway. O SDK envia o
-> header sozinho a partir da variável; **nenhuma linha de código mudou**.
-> Produção redeployada e verificada, e o pipeline de evals gravou 39 Scores
-> reais no Langfuse.
+> **Comece por [`docs/RETOMADA-ESCRITORIO.md`](docs/RETOMADA-ESCRITORIO.md)** —
+> tem o estado verificado, o que falta e o prompt pronto para colar.
 >
-> **Achado novo de 28/08, ainda não corrigido (convenção: perguntar antes):**
-> o truncamento do §11.4 **não é só do v1/v2** — o `mediar-cardapio` também
-> está batendo nos tetos (2048 e 1024) com ~18,5 mil tokens de entrada.
-> Evidência em `docs/apoio/aula2-saida-evals.md`.
+> O roteiro de gravação é [`docs/SCRIPT-LINEAR-CURSO.md`](docs/SCRIPT-LINEAR-CURSO.md):
+> documento único, do vídeo 1.1 ao 5.6, com TELA / FALA / COMANDOS / CORTE
+> por vídeo. Os roteiros por aula (`docs/aula{1,2,3,5}-roteiro.md`) e o
+> `RUNBOOK-gravacao-29-08.md` continuam válidos como referência de detalhe,
+> **mas o runbook descreve o método antigo** (deploys ao vivo) e foi
+> superado pelo script linear.
 >
-> Dois avisos operacionais de 28/08: (a) o pre-flight do runbook que espera
-> o hash `b876e2c` **está desatualizado** — use o comando corrigido em
-> `docs/SETUP-MAQUINA-ESCOLA.md` §5, que compara só os arquivos de código;
-> (b) produção caiu de manhã (fim do período gratuito do Railway) e voltou
-> às 10h34 — confira sempre com `curl.exe`, esperando **401**, não 404.
+> ### ⚠️ Pendências antes de gravar
+>
+> 1. **[PR #6](https://github.com/Djegao/alura-produto-ficticio/pull/6)
+>    precisa ser mergeado** (só o Diego pode). Está `MERGEABLE` — o conflito
+>    com master foi resolvido em 09/09. O [PR #4](https://github.com/Djegao/alura-produto-ficticio/pull/4)
+>    já entrou.
+> 2. **Produção está desatualizada**: o último deploy é de **29/08**, anterior
+>    ao merge do #4. Depois do #6, rodar
+>    `railway up --service chef-caseiro --detach` para produção refletir o
+>    estado final.
+>
+> ### Evidência preservada (não depende mais do Langfuse)
+>
+> O Langfuse Cloud retém ~30 dias. Os traces que sustentam as Aulas 3 e 4
+> foram extraídos em 09/09 e versionados — **e o do truncamento expirou do
+> painel em 11/09**, dois dias depois da captura:
+>
+> - [`docs/apoio/evidencia-preservada.md`](docs/apoio/evidencia-preservada.md) —
+>   leitura pronta para slide dos dois casos
+> - [`docs/apoio/traces-preservados/`](docs/apoio/traces-preservados/) — JSONs completos
+> - [`docs/apoio/antes-depois-codigo.md`](docs/apoio/antes-depois-codigo.md) —
+>   o `return` mudo antes do PR #4 (removido de `master` pelo merge)
+>
+> O trace do **episódio C** (lasagna, 22/08) ainda está no painel, mas sai
+> por volta de **21/09**.
+>
+> ### Credenciais
+>
+> A `ANTHROPIC_API_KEY` é *identity-linked*, então o produto exige também
+> `ANTHROPIC_WORKSPACE_ID` (presente no `.env` e no Railway; nenhuma linha
+> de código mudou por causa disso). Verificada funcionando em 12/09. Se
+> precisar trocar, **não use `--stdin`** no PowerShell — anexa quebra de
+> linha e corrompe o segredo em silêncio. Detalhes em
+> `docs/SETUP-MAQUINA-ESCOLA.md` §0.
+>
+> ### Achados preservados — continuam intactos
+>
+> Os quatro achados seguem sem correção, por decisão explícita e reafirmada
+> em 09/09. No formato linear eles são **contados por slide**, não
+> reproduzidos ao vivo. O truncamento aparece em três vídeos (3.4, 4.2 e o
+> fechamento do 4.4) e o match de nome em dois (3.4 e 4.4) — corrigir
+> qualquer um exige refazer esses trechos.
 
-> **A Aula 4 continua regida por `docs/RUNBOOK-gravacao-29-08.md`.**
-> Produção está com **falhas preservadas de propósito** para demonstração ao
-> vivo. Há dois PRs abertos que **não devem ser mergeados nem deployados
-> antes da gravação**, e a ordem entre eles importa: **#4 antes do #6**.
-> Se você é uma sessão nova dando suporte à aula, o runbook tem o estado
-> atual, a sequência dos atos e os comandos de cada momento.
 
 Produto fictício construído para o curso Alura **"Evals, observabilidade e
 conformidade"** (parte da formação AI Product Builder). Não é um produto real
@@ -335,22 +355,30 @@ explicitamente). Detalhados com evidência completa em `SDD.md` §11:
    maior, o corte pode acontecer no meio de uma chamada de ferramenta
    (`registrar_itens_usados`, v2), deixando um `tool_use` órfão que
    derruba a chamada seguinte com 400 da Anthropic. Decisão explícita do
-   instrutor: manter como está, usar a reprodução ao vivo como conteúdo
-   de aula (ver SDD.md §11.4 pra causa raiz completa e trace de exemplo).
+   instrutor: manter como está. **Desde 09/09 o formato é contar por
+   slide, não reproduzir ao vivo** — a evidência completa (1024 tokens no
+   teto, o corte logo após "Vou registrar o uso desses itens agora", o
+   `tool_use` órfão e o 400 literal) está em
+   `docs/apoio/evidencia-preservada.md`. O trace original expirou do
+   Langfuse em 11/09; a cópia versionada é a fonte agora.
 
 ## O que falta (próximas camadas)
 
-- Ingestão de nota fiscal por **imagem** (Claude Vision) — hoje só ingere
-  texto/markdown. É o terceiro eixo trocável (fable-5/haiku-4-5 pra visão)
-  que ainda não foi construído.
+- Ingestão de nota fiscal por **imagem** — construída no
+  [PR #6](https://github.com/Djegao/alura-produto-ficticio/pull/6), que
+  **ainda não foi mergeado**. Lê o QR code e busca o dado oficial na SEFAZ,
+  com visão como degrau de recuo: o desenho original (visão lendo os 44
+  dígitos) foi derrubado por teste, porque a SEFAZ exige um código que só
+  existe dentro do QR.
 - Tela de revisão de nota fiscal — `receipt_items.confirmed` já existe no
   schema, mas hoje é gravado direto como `true`, sem revisão humana.
-- Pipeline de evals da Aula 2: Claude-as-judge avaliando interações logadas e
-  escrevendo Score de volta no Langfuse via `trace_id`/`meal_suggestions.trace_id`
-  — dependência dura pra ter dado real de "qualidade ao longo do tempo" na
-  Aula 3 e conteúdo de diagnóstico na Aula 4.
-- Roteiros de aula ainda não escritos: Aulas 1, 4, 5 completas; Aula 3 falta
-  "Lendo os dados de produção" e "Padrões de falha".
+- ~~Pipeline de evals da Aula 2~~ — **construído em 28/08** (`evals/`),
+  rodou contra produção e gravou Scores reais no Langfuse. Os resultados
+  viraram conteúdo: `execucao_integra` em 0,33 nas operações de geração
+  confirma que o truncamento alcançou também o `mediar-cardapio`.
+- ~~Roteiros de aula~~ — **escritos**. Consolidados no
+  `docs/SCRIPT-LINEAR-CURSO.md` (do 1.1 ao 5.6), com os roteiros por aula
+  como referência de detalhe.
 - **Atualização em tempo real do painel web** — hoje o feed e a faixa de
   estado só refletem escritas do Telegram quando a página é recarregada.
   Decisão explícita do instrutor (2026-08-21): **não construir agora** —
