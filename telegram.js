@@ -8,11 +8,12 @@
 // webhook (tipo de update diferente de mensagem de texto), tratado abaixo.
 // /eusou_chef e /eusou_musa continuam funcionando tambem, como atalho.
 
-const { supabase, getHouseholdId, getActorByRole } = require('./tools');
+const { supabase, getHouseholdId, getActorByRole, marcarCompradoNaLista } = require('./tools');
 const { ingerirRelato } = require('./relato-ingestao');
 const { aplicarIntencao } = require('./intencao-efeitos');
 const { extrairUrlNfce, ingerirNotaSefaz } = require('./sefaz');
 const { estocarItensDaNota } = require('./nota-fiscal');
+const { ingerirNotaImagem } = require('./nota-imagem');
 
 const TELEGRAM_API = 'https://api.telegram.org/bot' + process.env.TELEGRAM_BOT_TOKEN;
 
@@ -127,6 +128,18 @@ async function reagir(chatId, messageId, emoji) {
   }
 }
 
+// Baixa a foto do Telegram: getFile devolve um file_path temporario e o
+// binario vem de um host separado do da API. Pega o MAIOR tamanho enviado —
+// em foto reduzida o QR do cupom perde modulos e deixa de decodificar.
+async function baixarFoto(photoSizes) {
+  const maior = [...photoSizes].sort((a, b) => (b.file_size || b.width || 0) - (a.file_size || a.width || 0))[0];
+  const info = await (await fetch(`${TELEGRAM_API}/getFile?file_id=${maior.file_id}`)).json();
+  if (!info.ok) throw new Error('getFile falhou: ' + JSON.stringify(info).slice(0, 120));
+  const res = await fetch(`https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${info.result.file_path}`);
+  if (!res.ok) throw new Error('download da foto falhou: HTTP ' + res.status);
+  return Buffer.from(await res.arrayBuffer());
+}
+
 async function getActorByTelegramId(telegramUserId) {
   const { data, error } = await supabase
     .from('actors')
@@ -156,7 +169,7 @@ async function identificarAtor(telegramUserId, role) {
 // modelIngestao (eixo de custo, v4): a classificacao conversacional roda no
 // modelo barato; `model` continua sendo o modelo de geracao (nota fiscal via
 // link SEFAZ e /premium, que sao tarefas de extracao/escolha, nao roteamento).
-async function processarUpdate(update, { model, modelIngestao }) {
+async function processarUpdate(update, { model, modelIngestao, modelVisao }) {
   // Toque num botao do teclado inline (resposta a perguntarIdentidade) —
   // update diferente de mensagem de texto, tratado a parte.
   if (update.callback_query) {
@@ -186,24 +199,75 @@ async function processarUpdate(update, { model, modelIngestao }) {
 
   const message = update.message;
 
-  // Foto/audio ainda nao sao lidos — mas ANTES isso era um `return` mudo, e
-  // quem mandava a foto do cupom nao recebia sinal nenhum de que o bot tinha
-  // desistido (nem reacao, nem mensagem, nem log). Falhar em silencio e' o
-  // unico pecado capital deste projeto; agora diz que nao sabe ler ainda.
-  if (message && !message.text) {
-    const tipo = message.photo ? 'foto' : message.voice || message.audio ? 'audio' : message.document ? 'documento' : 'esse formato';
-    console.warn('Update ignorado — formato nao suportado:', tipo, '| chat:', message.chat?.id);
-    if (message.chat?.id) {
-      await avisar(
-        message.chat.id,
-        tipo === 'foto'
-          ? '📷 Ainda não sei ler foto de cupom — leitura por imagem é a próxima camada. Por enquanto me manda o link do QR code da nota, ou o texto dela.'
-          : `Ainda não sei processar ${tipo}. Por texto eu entendo tudo: relato, compra, desperdício, porcionamento e link de nota fiscal.`
-      );
+  if (!message) return;
+
+  // FOTO DE CUPOM (2026-08-23) — o caminho que era esperado desde o inicio.
+  //
+  // A regra critica deste bloco: quando ha nota, ELA e' a verdade sobre o
+  // estoque e a legenda e' conversa. Sem isso, "peguei um cacho imenso de
+  // bananas" viraria uma aquisicao no estoque ALEM das bananas da propria
+  // nota — o mesmo item duas vezes, e em silencio. Entao a legenda vira
+  // pensamento (a conversa do casal fica registrada, que e' o ponto do
+  // produto) com o efeito de estoque suprimido.
+  if (Array.isArray(message.photo) && message.photo.length) {
+    const chatId = message.chat.id;
+    const autor = await getActorByTelegramId(message.from.id);
+    if (!autor) { await perguntarIdentidade(chatId); return; }
+
+    await reagir(chatId, message.message_id, '👍');
+    const legenda = (message.caption || '').trim();
+
+    try {
+      const foto = await baixarFoto(message.photo);
+      const r = await ingerirNotaImagem({ buffer: foto, model, modelVisao });
+      const { itemsAdded } = await estocarItensDaNota({
+        itens: r.itens,
+        traceId: r.traceId,
+        model,
+        origem: r.chave ? `foto-sefaz:${r.chave}` : 'foto-visao',
+      });
+
+      // A legenda cruza com a lista de compras — e' o que captura o "sabao em
+      // po que a gente sempre esquece", que a nota descarta por nao ser
+      // comida. Cruzar so RISCA item pendente; nunca cria estoque.
+      let riscados = 0;
+      if (legenda) {
+        for (const trecho of legenda.split(/[,.;!?\n]/).map((s) => s.trim()).filter((s) => s.length > 3)) {
+          const { atualizados } = await marcarCompradoNaLista(trecho).catch(() => ({ atualizados: 0 }));
+          riscados += atualizados;
+        }
+        await supabase.from('pensamentos').insert({
+          actor_id: autor.id,
+          tipo: 'aquisicao',
+          descricao: legenda,
+          data: new Date().toISOString().slice(0, 10),
+          status: 'completo', // nao pergunta orcamento aqui: o foco e' a nota
+          trace_id: r.traceId,
+        });
+      }
+
+      // Resposta curta de proposito: o casal esta conversando entre si, nao
+      // com o bot. Despejar 20 itens seria o bot se metendo na conversa.
+      const partes = [`🧾 ${itemsAdded.length} ${itemsAdded.length === 1 ? 'item' : 'itens'} no estoque`];
+      if (riscados) partes.push(`${riscados} riscado(s) da lista`);
+      if (r.via === 'visao') partes.push('lido da imagem, não da SEFAZ');
+      await avisar(chatId, partes.join(' · ') + (r.aviso ? `\n\n⚠️ ${r.aviso}` : ''));
+    } catch (err) {
+      console.error('Erro ingerindo nota por foto:', detalharErro(err));
+      await avisar(chatId, '⚠️ ' + err.message);
     }
     return;
   }
-  if (!message) return;
+
+  if (!message.text) {
+    // Audio/documento seguem sem leitura — mas nunca em silencio.
+    const tipo = message.voice || message.audio ? 'áudio' : message.document ? 'documento' : 'esse formato';
+    console.warn('Update ignorado — formato nao suportado:', tipo, '| chat:', message.chat?.id);
+    if (message.chat?.id) {
+      await avisar(message.chat.id, `Ainda não sei processar ${tipo}. Foto de cupom eu já leio; o resto, por texto.`);
+    }
+    return;
+  }
 
   const telegramUserId = message.from.id;
   const chatId = message.chat.id;
