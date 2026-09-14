@@ -16,10 +16,42 @@ ou variável de ambiente — e a fala também não deve.
 
 | Item | Como deixar |
 |---|---|
-| Branch | **`master`** — o deck e o script só existem aqui |
+| Branch | **`gravacao/aulas-3-e-4-material`** — única branch de trabalho desde 14/09 |
 | `.env` | **não existe nesta máquina** — o passo `preparar` cria |
-| Produção | está com o código da nota por foto (herdado da Aula 4). Não atrapalha: esta aula lê dados, não depende das falhas |
-| Langfuse | `us.cloud.langfuse.com`, projeto do Chef Caseiro, autenticado |
+| Produção | com os PRs #4 e #6 mergeados (Telegram honesto + nota por foto). Não atrapalha: esta aula lê dados, não depende das falhas |
+| Langfuse | `us.cloud.langfuse.com`, projeto do produto (nome interno ainda "Chef Caseiro" no Langfuse — a troca pra "Musa Balance" foi só no repo), autenticado |
+
+### ⚠️ Números revalidados em 14/09 — leia antes de escrever a fala dos slides 11–13
+
+O Langfuse retém ~30 dias. A janela visível **hoje começa em 22/08**, não
+mais em 27/07 como quando este rascunho foi escrito (29/08) — dado mais
+antigo já saiu. Rode de novo perto da gravação; o painel muda a cada dia que
+passa.
+
+**Estado em 14/09** (38 traces, janela 22/08 → 13/09, custo acumulado
+US$ 1,53):
+
+| Operação | n | % das chamadas | custo médio | latência média | % do custo |
+|---|---|---|---|---|---|
+| `mediar-cardapio` | 10 | 26,3% | US$ 0,1381 | 55,9 s | **90,3%** |
+| `ingerir-relato` | 17 | 44,7% | US$ 0,0032 | 1,6 s | 3,6% |
+| `receita-premium-semanal` | 6 | 15,8% | US$ 0,0115 | 7,3 s | 4,5% |
+
+A assimetria ficou **mais forte** que a versão de 29/08 (era 20%/76%,
+agora é 26%/90%) — dado antigo e mais barato saiu da janela primeiro,
+concentrando o que sobrou no operação cara. Isso é coerente com o ponto do
+slide 3.3 da versão nova da Aula 3 sobre retenção: **o que sobrevive não é
+uma amostra neutra**.
+
+**A comparação de modelos (slide 13) não tem mais par ao vivo.** Hoje,
+**16 dos 17** traces de `ingerir-relato` na janela visível rodaram em
+`claude-haiku-4-5` — o trace em `sonnet` que sustentava "mesma tarefa, dois
+modelos" saiu da retenção. **Recomendação: não cite número histórico como se
+fosse atual.** Troque o eixo `model` pra `claude-sonnet-5` no painel, mande
+uma aquisição de teste (*"comprei tomate"*) e compare ao vivo contra
+qualquer trace recente em haiku — é mais forte que citar um número velho, e
+é exatamente o tipo de "trocar o eixo ao vivo" que a aula promete. Slide 13
+foi reescrito abaixo pra isso.
 
 ### Preparação — rode antes de gravar, não no ar
 
@@ -77,7 +109,7 @@ parece erro.
 > primeiros evals. Só que evals você roda quando quer. Hoje o assunto é o que
 > acontece quando você não está olhando — porque o produto está no ar, e ele
 > continua trabalhando enquanto você dorme. Eu vou abrir os dados reais do
-> Chef Caseiro: quanto ele custou, quanto ele demora, e o que já deu errado
+> meu produto: quanto ele custou, quanto ele demora, e o que já deu errado
 > sem ninguém perceber."
 
 ### Slide 2 — Divisor 3.1
@@ -216,36 +248,62 @@ npm start
 
 **Claquete**: segure 2 s em silêncio antes de falar.
 
-### Slide 11 — 61 interações, US$ 1,88 acumulado
+### Slide 11 — 38 interações, US$ 1,53 acumulado
+
+> Números de 14/09. Revalide perto da gravação (`node evals/run-evals.js`
+> não serve pra isso — é leitura direta do Langfuse; peça pro Claude rodar
+> de novo se passar mais de um ou dois dias).
 
 **Tela**: slide da tabela. Se quiser, Langfuse com o painel de custos aberto.
 
 **Dizer**:
-> "Isso aqui não é exemplo inventado: é o meu produto, no ar, de trinta e um
-> de julho a vinte e oito de agosto. Sessenta e uma interações, um dólar e
-> oitenta e oito centavos no total. Parece pouco — e é pouco, porque é uma
-> casa só. Mas repara na primeira linha: mediar o cardápio aconteceu doze
-> vezes e custou doze centavos por vez. E demora cinquenta e um segundos. As
+> "Isso aqui não é exemplo inventado: é o meu produto, no ar, num recorte de
+> pouco mais de três semanas. Trinta e oito interações, um dólar e cinquenta
+> e três centavos no total. Parece pouco — e é pouco, porque é uma casa só.
+> Mas repara na primeira linha: mediar o cardápio aconteceu dez vezes e
+> custou quatorze centavos por vez. E demora cinquenta e seis segundos. As
 > outras linhas custam centavos de centavo."
 
-### Slide 12 — 20% das chamadas, 76% da conta
+### Slide 12 — 26% das chamadas, 90% da conta
 
 **Dizer**:
-> "E aí aparece a conclusão que eu não teria de outro jeito. O Mediador é um
-> quinto das chamadas do meu produto — e três quartos de tudo que eu pago. Ele
-> não é o mais usado. Ele é o mais caro por uso. Isso muda decisão de produto:
-> se eu quiser baratear, não adianta mexer na parte que roda trinta e quatro
-> vezes, porque ela é quase de graça. E olha que tipo de conclusão é essa: eu
-> nunca chegaria nela olhando uma conversa por vez. Só olhando o conjunto."
+> "E aí aparece a conclusão que eu não teria de outro jeito. O Mediador é
+> pouco mais de um quarto das chamadas do meu produto — e nove de cada dez
+> dólares que eu pago. Ele não é o mais usado. Ele é o mais caro por uso, de
+> longe. Isso muda decisão de produto: se eu quiser baratear, não adianta
+> mexer na parte que roda quase metade das vezes, porque ela é quase de
+> graça. E olha que tipo de conclusão é essa: eu nunca chegaria nela olhando
+> uma conversa por vez. Só olhando o conjunto."
 
-### Slide 13 — Mesma tarefa, dois modelos
+### Slide 13 — Trocando o eixo, ao vivo
 
-**Dizer**:
-> "E tem uma decisão que fica fácil quando você tem o dado. A mesma tarefa,
-> exatamente a mesma, rodou nos dois modelos. O mais caro custa quase o dobro
-> e demora quase três vezes mais. Para essa tarefa específica — que é só
-> entender uma frase curta — o resultado é o mesmo. Então é escolha óbvia. Mas
-> repara: ela só é óbvia **porque eu tenho a medição**. Sem isso, é palpite."
+> ⚠️ **Reescrito em 14/09.** A comparação antiga citava um trace específico
+> em `sonnet` que já saiu da retenção de 30 dias do Langfuse — hoje quase
+> todo o tráfego visível de `ingerir-relato` está em `haiku`. Em vez de
+> citar um número velho, isto vira **demo ao vivo**: é segura (painel local,
+> sem Telegram, sem deploy) e mostra exatamente o que a aula promete —
+> trocar o eixo e ver o custo mudar na hora.
+
+**Tela**: painel do produto, gaveta de Configurações aberta.
+**Fazer**:
+1. Troque o eixo **modelIngestao** de `claude-haiku-4-5` para
+   `claude-sonnet-5`. Salve.
+2. No composer, mande uma aquisição de teste: *"comprei tomate"*.
+3. Espere o trace aparecer no Langfuse (~45 s) — mostre custo e latência.
+4. Compare com qualquer trace recente em `haiku` da mesma operação (já
+   está na lista, não precisa mandar de novo).
+5. **Depois da demo, volte o eixo pra `claude-haiku-4-5`** — é o que
+   produção deve rodar por padrão.
+
+**Dizer** (antes de trocar o eixo):
+> "Agora eu vou fazer uma coisa que só faz sentido porque eu tenho o dado:
+> trocar o modelo que classifica cada mensagem, ao vivo, e comparar."
+
+**Dizer** (depois do trace aparecer):
+> "Olha a diferença. Mesma tarefa — entender uma frase curta — outro modelo,
+> outro custo, outra latência. Pra essa tarefa específica, eu não preciso do
+> modelo mais caro. Mas repara: essa decisão só é óbvia porque eu tenho a
+> medição. Sem isso, é palpite."
 
 ---
 
