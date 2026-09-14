@@ -1,7 +1,8 @@
 # Aula 3 — script de ensaio: o que fazer e o que dizer, slide a slide
 
 Documento de ensaio casado com [`slides/aula3-alura.pptx`](../slides/aula3-alura.pptx)
-(20 slides). Mesma estrutura do ensaio da Aula 4: **Tela** (o que está à
+(21 slides — o 5º padrão de falha, achado em 14/09, entrou como slide 17).
+Mesma estrutura do ensaio da Aula 4: **Tela** (o que está à
 vista), **Fazer** (ação concreta) e **Dizer** (fala sugerida).
 
 **Voz desta aula**: você é product builder, não engenheiro. Você observa,
@@ -313,17 +314,18 @@ npm start
 
 **Claquete**: segure 2 s em silêncio antes de falar.
 
-### Slide 15 — Quatro falhas que eu achei olhando
+### Slide 15 — Cinco falhas que eu achei olhando
 
 **Dizer**:
 > "Agora a parte que eu mais gosto, porque é onde a observabilidade deixa de
-> ser bonita e vira útil. Eu encontrei quatro falhas reais no meu produto — e
+> ser bonita e vira útil. Eu encontrei cinco falhas reais no meu produto — e
 > encontrei todas olhando, não porque alguém reclamou. Uma resposta cortada no
 > meio de uma palavra. Um erro engolido, em que o produto teve problema,
 > devolveu uma lista vazia e seguiu como se nada tivesse acontecido. Duas
 > falhas no canal do Telegram: uma que apagou a própria evidência, e outra que
-> não deixou evidência nenhuma. E a quarta, que é a mais perturbadora: uma em
-> que a inteligência acertou tudo, e mesmo assim o estoque ficou errado."
+> não deixou evidência nenhuma. Uma em que a inteligência acertou tudo, e
+> mesmo assim o estoque ficou errado. E a quinta eu encontrei ontem à noite,
+> sem querer, cozinhando de verdade — e essa é diferente de todas as outras."
 
 ### Slide 16 — A resposta cortada no meio
 
@@ -337,38 +339,69 @@ npm start
 > era menor. E eu deixei sem corrigir de propósito, porque reproduzir isso ao
 > vivo é o conteúdo da próxima aula."
 
-### Slide 17 — O que as quatro têm em comum
+### Slide 17 — O hambúrguer que sumiu
+
+> Achado em **14/09**, ao vivo, sem ensaio nenhum. Evidência completa em
+> [`apoio/evidencia-porcionamento-patinho.md`](./apoio/evidencia-porcionamento-patinho.md).
+
+**Tela**: slide com os quatro balões de conversa (a sequência real do
+Telegram) — não é print, é reconstrução fiel dos 4 traces.
 
 **Dizer**:
-> "E o que essas quatro têm em comum é o que eu quero que fique desta aula.
-> Nenhuma delas gritou. Nenhum usuário reclamou de nenhuma. Não teve alarme,
-> não teve tela vermelha. Cada uma precisou de alguém olhando o dado certo,
-> com a pergunta certa. E esse alguém, no seu produto, é você — não tem outra
-> pessoa para fazer isso."
+> "Essa quinta é diferente de todas as outras quatro, porque nas outras quatro
+> teve um erro em algum lugar. Nessa, não teve nenhum. Deixa eu te mostrar.
+>
+> Eu preparei um hambúrguer, contei pro bot: nome do prato, peso de cada
+> porção, quantas porções. Ele fez uma pergunta razoável — quantas porções
+> rendeu. Eu respondi, no formato que ele mesmo sugeriu. Ele perguntou nome e
+> quantidade de novo, como se eu não tivesse acabado de responder. Eu tentei
+> mais uma vez, só o nome do prato. E ele desistiu — virou um emoji, silêncio,
+> fim.
+>
+> Fui direto no Langfuse checar os quatro traces dessa conversa. E aqui está o
+> que me surpreendeu: **os quatro estão perfeitos.** Cada classificação,
+> isolada, certa. Zero erro, zero exceção, zero log vermelho.
+>
+> O hambúrguer que eu de fato cozinhei e porcionei? Nunca entrou no estoque.
+> Quatro mensagens reais, uma ação física de verdade — e o resultado líquido
+> foi zero, sem uma única falha visível em lugar nenhum."
+
+### Slide 18 — O que as cinco têm em comum
+
+**Dizer**:
+> "E o que essas cinco têm em comum é o que eu quero que fique desta aula.
+> Nenhuma delas gritou. Nenhum usuário reclamou de nenhuma — inclusive a
+> última, que era eu mesmo tentando usar meu próprio produto e ficando na
+> dúvida se eu que estava fazendo besteira. Não teve alarme, não teve tela
+> vermelha. Cada uma precisou de alguém olhando o dado certo, com a pergunta
+> certa. E esse alguém, no seu produto, é você — não tem outra pessoa para
+> fazer isso."
 
 ---
 
 ## Vídeo 3.5 — O que aprendemos
 
-### Slide 18 — Divisor 3.5
+### Slide 19 — Divisor 3.5
 
 **Claquete**: segure 2 s em silêncio antes de falar.
 
-### Slide 19 — O que aprendemos
+### Slide 20 — O que aprendemos
 
 **Dizer**:
 > "Recapitulando. Observabilidade é reconstruir a causa, não só registrar o
 > evento. Interação e passo são o vocabulário que você precisa para navegar o
 > painel sozinha. Com dado real dá para ver para onde o dinheiro está indo — e
-> onde trocar de modelo compensa. E quatro falhas documentadas, nenhuma
-> descoberta por reclamação de usuário."
+> onde trocar de modelo compensa. E cinco falhas documentadas, nenhuma
+> descoberta por reclamação de usuário — a última, eu nem tinha ido atrás:
+> aconteceu comigo, usando o produto pra valer."
 
-### Slide 20 — Fechamento
+### Slide 21 — Fechamento
 
 **Dizer**:
 > "Ver o dado não é abstrato: vira uma conta que fecha. Na próxima aula a
-> gente pega essas falhas e faz o ciclo completo — detectar, diagnosticar e
-> corrigir, com o produto no ar. Até lá."
+> gente pega essas falhas — inclusive a última, que quebra o próprio jeito
+> que eu costumava diagnosticar — e faz o ciclo completo: detectar,
+> diagnosticar e corrigir, com o produto no ar. Até lá."
 
 ---
 

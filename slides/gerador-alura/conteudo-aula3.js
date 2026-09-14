@@ -77,12 +77,13 @@ module.exports.slides = [
     ] },
 
   { type: 'divider', number: '3.4', title: 'Padrões de falha' },
-  { type: 'bullets', eyebrow: 'Vídeo 3.4', title: 'Quatro falhas que eu achei olhando',
+  { type: 'bullets', eyebrow: 'Vídeo 3.4', title: 'Cinco falhas que eu achei olhando',
     bullets: [
       'Uma resposta cortada no meio de uma palavra, porque bateu num limite que eu mesmo configurei.',
       'Um erro engolido: o produto teve problema, devolveu uma lista vazia e seguiu como se nada fosse.',
       'Duas falhas no canal do Telegram: uma apagou a própria evidência, a outra não deixou evidência nenhuma.',
-      { text: 'E uma em que a inteligência acertou tudo, e mesmo assim o estoque ficou errado.', bold: true },
+      'Uma em que a inteligência acertou tudo, e mesmo assim o estoque ficou errado.',
+      { text: 'E uma quinta, achada ontem à noite, cozinhando de verdade — diferente de todas as outras.', bold: true },
     ] },
   { type: 'bullets', eyebrow: 'Vídeo 3.4', title: 'A resposta cortada no meio',
     bullets: [
@@ -90,10 +91,16 @@ module.exports.slides = [
       'Acontece quando o pedido cresce e a resposta não cabe mais no limite configurado.',
       { text: 'Deixei sem corrigir de propósito — reproduzir isso ao vivo é o conteúdo da próxima aula.', bold: true },
     ] },
-  { type: 'bullets', eyebrow: 'Vídeo 3.4', title: 'O que as quatro têm em comum',
+  { type: 'bullets', eyebrow: 'Vídeo 3.4 — 14/09, ao vivo', title: 'O hambúrguer que sumiu',
+    bullets: [
+      'Preparei um prato, contei pro bot, respondi a pergunta dele — três vezes, de jeitos diferentes.',
+      { text: 'Fui checar os quatro traces: os quatro estão perfeitos. Zero erro.', bold: true },
+      'E mesmo assim, o prato nunca entrou no estoque. Resultado líquido zero, sem uma falha visível.',
+    ] },
+  { type: 'bullets', eyebrow: 'Vídeo 3.4', title: 'O que as cinco têm em comum',
     bullets: [
       { text: 'Nenhuma delas gritou.', bold: true },
-      'Nenhum usuário reclamou de nenhuma das quatro.',
+      'Nenhum usuário reclamou de nenhuma — a última, nem eu tinha certeza se o erro era meu.',
       'Cada uma precisou de alguém olhando o dado certo, com a pergunta certa — e esse alguém é você.',
     ] },
 
