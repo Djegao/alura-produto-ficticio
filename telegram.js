@@ -8,24 +8,50 @@
 // webhook (tipo de update diferente de mensagem de texto), tratado abaixo.
 // /eusou_chef e /eusou_musa continuam funcionando tambem, como atalho.
 
-const { supabase, getHouseholdId, getActorByRole } = require('./tools');
+const { supabase, getHouseholdId, getActorByRole, marcarCompradoNaLista } = require('./tools');
 const { ingerirRelato } = require('./relato-ingestao');
 const { aplicarIntencao } = require('./intencao-efeitos');
 const { extrairUrlNfce, ingerirNotaSefaz } = require('./sefaz');
 const { estocarItensDaNota } = require('./nota-fiscal');
+const { ingerirNotaImagem } = require('./nota-imagem');
 
 const TELEGRAM_API = 'https://api.telegram.org/bot' + process.env.TELEGRAM_BOT_TOKEN;
+
+// `fetch failed` do Node esconde a causa real (DNS, TLS, conexao recusada)
+// numa mensagem generica — sem isso o log de producao nao diz nada util.
+function detalharErro(err) {
+  const causa = err?.cause;
+  if (!causa) return err?.message || String(err);
+  return `${err.message} (causa: ${causa.code || causa.message || causa})`;
+}
 
 async function enviarMensagem(chatId, text, replyMarkup) {
   if (!process.env.TELEGRAM_BOT_TOKEN) {
     console.warn('TELEGRAM_BOT_TOKEN nao configurado — mensagem nao enviada:', text);
     return;
   }
-  await fetch(`${TELEGRAM_API}/sendMessage`, {
+  const res = await fetch(`${TELEGRAM_API}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ chat_id: chatId, text, reply_markup: replyMarkup }),
   });
+  // A API do Telegram responde 200 com {ok:false} pra varios erros (chat
+  // errado, texto vazio, markup invalido) — sem checar isso, uma mensagem
+  // que nunca chegou parecia enviada com sucesso.
+  if (!res.ok) {
+    console.warn('Telegram recusou a mensagem:', res.status, (await res.text()).slice(0, 200));
+  }
+}
+
+// Avisar o usuario NUNCA pode derrubar o fluxo: se o proprio aviso de erro
+// falhar (rede caida), o erro original se perdia e o log so mostrava o
+// segundo "fetch failed" — foi o que cegou o diagnostico em 2026-08-21.
+async function avisar(chatId, text) {
+  try {
+    await enviarMensagem(chatId, text);
+  } catch (err) {
+    console.error('Nao consegui nem avisar o usuario no Telegram:', detalharErro(err));
+  }
 }
 
 async function perguntarIdentidade(chatId) {
@@ -102,6 +128,18 @@ async function reagir(chatId, messageId, emoji) {
   }
 }
 
+// Baixa a foto do Telegram: getFile devolve um file_path temporario e o
+// binario vem de um host separado do da API. Pega o MAIOR tamanho enviado —
+// em foto reduzida o QR do cupom perde modulos e deixa de decodificar.
+async function baixarFoto(photoSizes) {
+  const maior = [...photoSizes].sort((a, b) => (b.file_size || b.width || 0) - (a.file_size || a.width || 0))[0];
+  const info = await (await fetch(`${TELEGRAM_API}/getFile?file_id=${maior.file_id}`)).json();
+  if (!info.ok) throw new Error('getFile falhou: ' + JSON.stringify(info).slice(0, 120));
+  const res = await fetch(`https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${info.result.file_path}`);
+  if (!res.ok) throw new Error('download da foto falhou: HTTP ' + res.status);
+  return Buffer.from(await res.arrayBuffer());
+}
+
 async function getActorByTelegramId(telegramUserId) {
   const { data, error } = await supabase
     .from('actors')
@@ -131,7 +169,7 @@ async function identificarAtor(telegramUserId, role) {
 // modelIngestao (eixo de custo, v4): a classificacao conversacional roda no
 // modelo barato; `model` continua sendo o modelo de geracao (nota fiscal via
 // link SEFAZ e /premium, que sao tarefas de extracao/escolha, nao roteamento).
-async function processarUpdate(update, { model, modelIngestao }) {
+async function processarUpdate(update, { model, modelIngestao, modelVisao }) {
   // Toque num botao do teclado inline (resposta a perguntarIdentidade) —
   // update diferente de mensagem de texto, tratado a parte.
   if (update.callback_query) {
@@ -160,7 +198,76 @@ async function processarUpdate(update, { model, modelIngestao }) {
   }
 
   const message = update.message;
-  if (!message || !message.text) return; // foto/audio: fora do escopo desta fase
+
+  if (!message) return;
+
+  // FOTO DE CUPOM (2026-08-23) — o caminho que era esperado desde o inicio.
+  //
+  // A regra critica deste bloco: quando ha nota, ELA e' a verdade sobre o
+  // estoque e a legenda e' conversa. Sem isso, "peguei um cacho imenso de
+  // bananas" viraria uma aquisicao no estoque ALEM das bananas da propria
+  // nota — o mesmo item duas vezes, e em silencio. Entao a legenda vira
+  // pensamento (a conversa do casal fica registrada, que e' o ponto do
+  // produto) com o efeito de estoque suprimido.
+  if (Array.isArray(message.photo) && message.photo.length) {
+    const chatId = message.chat.id;
+    const autor = await getActorByTelegramId(message.from.id);
+    if (!autor) { await perguntarIdentidade(chatId); return; }
+
+    await reagir(chatId, message.message_id, '👍');
+    const legenda = (message.caption || '').trim();
+
+    try {
+      const foto = await baixarFoto(message.photo);
+      const r = await ingerirNotaImagem({ buffer: foto, model, modelVisao });
+      const { itemsAdded } = await estocarItensDaNota({
+        itens: r.itens,
+        traceId: r.traceId,
+        model,
+        origem: r.chave ? `foto-sefaz:${r.chave}` : 'foto-visao',
+      });
+
+      // A legenda cruza com a lista de compras — e' o que captura o "sabao em
+      // po que a gente sempre esquece", que a nota descarta por nao ser
+      // comida. Cruzar so RISCA item pendente; nunca cria estoque.
+      let riscados = 0;
+      if (legenda) {
+        for (const trecho of legenda.split(/[,.;!?\n]/).map((s) => s.trim()).filter((s) => s.length > 3)) {
+          const { atualizados } = await marcarCompradoNaLista(trecho).catch(() => ({ atualizados: 0 }));
+          riscados += atualizados;
+        }
+        await supabase.from('pensamentos').insert({
+          actor_id: autor.id,
+          tipo: 'aquisicao',
+          descricao: legenda,
+          data: new Date().toISOString().slice(0, 10),
+          status: 'completo', // nao pergunta orcamento aqui: o foco e' a nota
+          trace_id: r.traceId,
+        });
+      }
+
+      // Resposta curta de proposito: o casal esta conversando entre si, nao
+      // com o bot. Despejar 20 itens seria o bot se metendo na conversa.
+      const partes = [`🧾 ${itemsAdded.length} ${itemsAdded.length === 1 ? 'item' : 'itens'} no estoque`];
+      if (riscados) partes.push(`${riscados} riscado(s) da lista`);
+      if (r.via === 'visao') partes.push('lido da imagem, não da SEFAZ');
+      await avisar(chatId, partes.join(' · ') + (r.aviso ? `\n\n⚠️ ${r.aviso}` : ''));
+    } catch (err) {
+      console.error('Erro ingerindo nota por foto:', detalharErro(err));
+      await avisar(chatId, '⚠️ ' + err.message);
+    }
+    return;
+  }
+
+  if (!message.text) {
+    // Audio/documento seguem sem leitura — mas nunca em silencio.
+    const tipo = message.voice || message.audio ? 'áudio' : message.document ? 'documento' : 'esse formato';
+    console.warn('Update ignorado — formato nao suportado:', tipo, '| chat:', message.chat?.id);
+    if (message.chat?.id) {
+      await avisar(message.chat.id, `Ainda não sei processar ${tipo}. Foto de cupom eu já leio; o resto, por texto.`);
+    }
+    return;
+  }
 
   const telegramUserId = message.from.id;
   const chatId = message.chat.id;
@@ -229,7 +336,7 @@ async function processarUpdate(update, { model, modelIngestao }) {
       // A propria sugerirReceitaPremium posta o resultado no grupo.
     } catch (err) {
       console.error('Erro na receita premium via /premium:', err.message);
-      await enviarMensagem(chatId, '⚠️ Nao consegui fechar a receita premium agora: ' + err.message);
+      await avisar(chatId, "⚠️ Nao consegui fechar a receita premium agora: " + err.message);
     }
     return;
   }
@@ -239,6 +346,23 @@ async function processarUpdate(update, { model, modelIngestao }) {
   // estoca. Resposta com o resumo do que entrou (aqui a resposta em texto se
   // justifica: e' resultado de acao pedida, nao comentario de conversa).
   const urlNfce = extrairUrlNfce(texto);
+
+  // Se veio link mas nao e' NFC-e reconhecida, dizer isso em voz alta. Antes
+  // a mensagem caia calada no classificador de relato e virava um "desejo"
+  // sem sentido — o usuario mandava a nota e nao entendia por que nada
+  // acontecia (episodio de 2026-08-21).
+  if (!urlNfce && /https?:\/\//i.test(texto)) {
+    const link = (texto.match(/https?:\/\/\S+/i) || [''])[0];
+    console.warn('Link recebido mas nao reconhecido como NFC-e:', link.slice(0, 120));
+    await avisar(
+      chatId,
+      'Recebi um link, mas não reconheci como consulta de NFC-e. Espero o endereço do QR code do cupom ' +
+        '(domínio .gov.br com a chave de acesso de 44 dígitos). Se o seu veio encurtado, abre ele no navegador ' +
+        'e me manda o endereço final.'
+    );
+    return;
+  }
+
   if (urlNfce) {
     await reagir(chatId, message.message_id, '👍');
     try {
@@ -250,10 +374,10 @@ async function processarUpdate(update, { model, modelIngestao }) {
         origem: `sefaz:${chave}`,
       });
       const resumo = itemsAdded.map((i) => `• ${i.name} (${i.quantity} ${i.unit})`).join('\n');
-      await enviarMensagem(chatId, `🧾 Nota da SEFAZ ingerida — ${itemsAdded.length} itens no estoque:\n${resumo}`);
+      await avisar(chatId, `🧾 Nota da SEFAZ ingerida — ${itemsAdded.length} itens no estoque:\n${resumo}`);
     } catch (err) {
-      console.error('Erro ingerindo NFC-e via Telegram:', err.message);
-      await enviarMensagem(chatId, '⚠️ Nao consegui ler essa nota na SEFAZ: ' + err.message);
+      console.error('Erro ingerindo NFC-e via Telegram:', detalharErro(err), '| url:', urlNfce.url.slice(0, 120));
+      await avisar(chatId, '⚠️ Nao consegui ler essa nota na SEFAZ: ' + err.message);
     }
     return;
   }
@@ -283,8 +407,8 @@ async function processarUpdate(update, { model, modelIngestao }) {
       await perguntarOrcamento(chatId, pensamento.id);
     }
   } catch (err) {
-    console.error('Erro capturando relato/desejo/aquisicao via Telegram:', err.message);
-    await enviarMensagem(chatId, '⚠️ Não consegui registrar essa — tenta de novo em instantes.');
+    console.error('Erro capturando relato/desejo/aquisicao via Telegram:', detalharErro(err));
+    await avisar(chatId, '⚠️ Não consegui registrar essa — tenta de novo em instantes.');
   }
 }
 

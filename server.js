@@ -50,6 +50,10 @@ let currentConfig = {
   // (agente de ingestao) roda num modelo barato por padrao; o modelo de
   // geracao (mediador, receita, nota) continua sendo o eixo `model`.
   modelIngestao: 'claude-haiku-4-5',
+  // Eixo de visao (2026-08-23): so entra em acao quando o QR da foto nao
+  // decodifica. E' a tarefa mais dificil do produto (ler itens de pixel),
+  // por isso o padrao e o modelo forte, nao o barato.
+  modelVisao: 'claude-sonnet-5',
 };
 
 const AVAILABLE_MODELS = ['claude-sonnet-5', 'claude-haiku-4-5', 'claude-opus-5'];
@@ -59,10 +63,11 @@ app.get('/api/config', (req, res) => {
 });
 
 app.post('/api/config', (req, res) => {
-  const { promptVersion, model, modelIngestao } = req.body;
+  const { promptVersion, model, modelIngestao, modelVisao } = req.body;
   if (promptVersion === 'v1' || promptVersion === 'v2') currentConfig.promptVersion = promptVersion;
   if (AVAILABLE_MODELS.includes(model)) currentConfig.model = model;
   if (AVAILABLE_MODELS.includes(modelIngestao)) currentConfig.modelIngestao = modelIngestao;
+  if (AVAILABLE_MODELS.includes(modelVisao)) currentConfig.modelVisao = modelVisao;
   res.json(currentConfig);
 });
 
@@ -640,7 +645,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
   res.sendStatus(200);
 
   try {
-    await processarUpdate(req.body, { model: currentConfig.model, modelIngestao: currentConfig.modelIngestao });
+    await processarUpdate(req.body, { model: currentConfig.model, modelIngestao: currentConfig.modelIngestao, modelVisao: currentConfig.modelVisao });
   } catch (err) {
     console.error('Erro processando update do Telegram:', err.message);
   }

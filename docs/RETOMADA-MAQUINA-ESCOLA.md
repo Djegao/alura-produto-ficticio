@@ -1,3 +1,17 @@
+# Retomada — máquina da escola (SUPERADO)
+
+> ## ⛔ Este documento descreve um método já duas vezes superado
+>
+> Descrevia o plano de gravação não-linear de 29/08 (checkout de branch,
+> deploy ao vivo). Em 09/09 o formato virou **linear**. Em 12/09, depois da
+> Aula 2 ser gravada com sucesso, o método evoluiu de novo: **observar de
+> fora, evidência congelada, sem código em tela**.
+>
+> **Use [`RETOMADA-15-09.md`](./RETOMADA-15-09.md).**
+>
+> Mantido só como registro histórico do que foi tentado.
+
+---
 # Retomada — continuar de onde parou, na máquina da escola
 
 ## Prompt para colar no Claude Code da escola
