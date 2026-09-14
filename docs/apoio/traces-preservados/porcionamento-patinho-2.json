@@ -1,0 +1,244 @@
+{
+  "id": "240ad5bb32448de739c6ae5f4ee8d88a",
+  "projectId": "cms3l9cmk049pad0dmurlfwck",
+  "name": "ingerir-relato",
+  "timestamp": "2026-09-14T21:18:05.135Z",
+  "environment": "default",
+  "tags": [],
+  "bookmarked": false,
+  "release": null,
+  "version": null,
+  "userId": null,
+  "sessionId": null,
+  "public": false,
+  "input": {
+    "texto": "Preparei hambúrguer de patinho, 220g pra mim e 160g pra esposa. Tá pronto no congelador, dois de cada. Adicionar ao estoque da geladeira",
+    "canal": "telegram",
+    "model": "claude-haiku-4-5"
+  },
+  "output": {
+    "tipo": "porcionamento",
+    "descricao": "Preparou hambúrguer de patinho em duas porções (220g e 160g), dois de cada. Pronto no congelador, adicionar ao estoque da geladeira.",
+    "item_nome": "hambúrguer de patinho"
+  },
+  "metadata": {
+    "resourceAttributes": {
+      "host.name": "5d3c4718b1a8",
+      "host.arch": "amd64",
+      "process.pid": 25,
+      "process.executable.name": "node",
+      "process.executable.path": "/mise/installs/node/24.20.0/bin/node",
+      "process.command_args": [
+        "/mise/installs/node/24.20.0/bin/node",
+        "/app/server.js"
+      ],
+      "process.runtime.version": "24.20.0",
+      "process.runtime.name": "nodejs",
+      "process.runtime.description": "Node.js",
+      "process.command": "/app/server.js",
+      "process.owner": "root",
+      "service.name": "unknown_service:node",
+      "telemetry.sdk.language": "nodejs",
+      "telemetry.sdk.name": "opentelemetry",
+      "telemetry.sdk.version": "2.10.0"
+    },
+    "scope": {
+      "name": "langfuse-sdk",
+      "version": "5.9.1",
+      "attributes": {}
+    }
+  },
+  "createdAt": "2026-09-14T21:18:12.000Z",
+  "updatedAt": "2026-09-14T21:18:11.470Z",
+  "externalId": null,
+  "scores": [],
+  "latency": 1.18,
+  "observations": [
+    {
+      "id": "1c23a08ae5baf375",
+      "traceId": "240ad5bb32448de739c6ae5f4ee8d88a",
+      "startTime": "2026-09-14T21:18:05.135Z",
+      "endTime": "2026-09-14T21:18:06.315Z",
+      "projectId": "cms3l9cmk049pad0dmurlfwck",
+      "parentObservationId": null,
+      "type": "AGENT",
+      "environment": "default",
+      "name": "ingerir-relato",
+      "level": "DEFAULT",
+      "statusMessage": null,
+      "version": null,
+      "createdAt": "2026-09-14T21:18:11.395Z",
+      "updatedAt": "2026-09-14T21:18:11.395Z",
+      "input": {
+        "texto": "Preparei hambúrguer de patinho, 220g pra mim e 160g pra esposa. Tá pronto no congelador, dois de cada. Adicionar ao estoque da geladeira",
+        "canal": "telegram",
+        "model": "claude-haiku-4-5"
+      },
+      "output": {
+        "tipo": "porcionamento",
+        "descricao": "Preparou hambúrguer de patinho em duas porções (220g e 160g), dois de cada. Pronto no congelador, adicionar ao estoque da geladeira.",
+        "item_nome": "hambúrguer de patinho"
+      },
+      "metadata": {
+        "resourceAttributes": {
+          "host.name": "5d3c4718b1a8",
+          "host.arch": "amd64",
+          "process.pid": 25,
+          "process.executable.name": "node",
+          "process.executable.path": "/mise/installs/node/24.20.0/bin/node",
+          "process.command_args": [
+            "/mise/installs/node/24.20.0/bin/node",
+            "/app/server.js"
+          ],
+          "process.runtime.version": "24.20.0",
+          "process.runtime.name": "nodejs",
+          "process.runtime.description": "Node.js",
+          "process.command": "/app/server.js",
+          "process.owner": "root",
+          "service.name": "unknown_service:node",
+          "telemetry.sdk.language": "nodejs",
+          "telemetry.sdk.name": "opentelemetry",
+          "telemetry.sdk.version": "2.10.0"
+        },
+        "scope": {
+          "name": "langfuse-sdk",
+          "version": "5.9.1",
+          "attributes": {}
+        }
+      },
+      "model": null,
+      "modelParameters": {},
+      "completionStartTime": null,
+      "promptId": null,
+      "promptName": null,
+      "promptVersion": null,
+      "latency": 1.18,
+      "timeToFirstToken": null,
+      "usageDetails": {},
+      "costDetails": {},
+      "usagePricingTierId": null,
+      "usagePricingTierName": null,
+      "inputPrice": 0,
+      "outputPrice": 0,
+      "totalPrice": 0,
+      "calculatedInputCost": null,
+      "calculatedOutputCost": null,
+      "calculatedTotalCost": null,
+      "unit": "TOKENS",
+      "promptTokens": 0,
+      "completionTokens": 0,
+      "totalTokens": 0,
+      "modelId": null,
+      "usage": {
+        "unit": "TOKENS",
+        "input": 0,
+        "output": 0,
+        "total": 0
+      }
+    },
+    {
+      "id": "96a841c3d4d31c19",
+      "traceId": "240ad5bb32448de739c6ae5f4ee8d88a",
+      "startTime": "2026-09-14T21:18:05.135Z",
+      "endTime": "2026-09-14T21:18:06.315Z",
+      "projectId": "cms3l9cmk049pad0dmurlfwck",
+      "parentObservationId": "1c23a08ae5baf375",
+      "type": "GENERATION",
+      "environment": "default",
+      "name": "classificar-intencao",
+      "level": "DEFAULT",
+      "statusMessage": null,
+      "version": null,
+      "createdAt": "2026-09-14T21:18:11.395Z",
+      "updatedAt": "2026-09-14T21:18:11.395Z",
+      "input": "Preparei hambúrguer de patinho, 220g pra mim e 160g pra esposa. Tá pronto no congelador, dois de cada. Adicionar ao estoque da geladeira",
+      "output": [
+        {
+          "type": "tool_use",
+          "id": "toolu_01R1qjs2DEA8oTBd29m2YzEn",
+          "name": "registrar_intencao",
+          "input": {
+            "tipo": "porcionamento",
+            "descricao": "Preparou hambúrguer de patinho em duas porções (220g e 160g), dois de cada. Pronto no congelador, adicionar ao estoque da geladeira.",
+            "item_nome": "hambúrguer de patinho"
+          },
+          "caller": {
+            "type": "direct"
+          }
+        }
+      ],
+      "metadata": {
+        "resourceAttributes": {
+          "host.name": "5d3c4718b1a8",
+          "host.arch": "amd64",
+          "process.pid": 25,
+          "process.executable.name": "node",
+          "process.executable.path": "/mise/installs/node/24.20.0/bin/node",
+          "process.command_args": [
+            "/mise/installs/node/24.20.0/bin/node",
+            "/app/server.js"
+          ],
+          "process.runtime.version": "24.20.0",
+          "process.runtime.name": "nodejs",
+          "process.runtime.description": "Node.js",
+          "process.command": "/app/server.js",
+          "process.owner": "root",
+          "service.name": "unknown_service:node",
+          "telemetry.sdk.language": "nodejs",
+          "telemetry.sdk.name": "opentelemetry",
+          "telemetry.sdk.version": "2.10.0"
+        },
+        "scope": {
+          "name": "langfuse-sdk",
+          "version": "5.9.1",
+          "attributes": {}
+        }
+      },
+      "model": "claude-haiku-4-5",
+      "modelParameters": {},
+      "completionStartTime": null,
+      "promptId": null,
+      "promptName": null,
+      "promptVersion": null,
+      "latency": 1.18,
+      "timeToFirstToken": null,
+      "usageDetails": {
+        "input": 2518,
+        "output": 121,
+        "total": 2639
+      },
+      "costDetails": {
+        "input": 0.002518,
+        "output": 0.000605,
+        "total": 0.003123
+      },
+      "usagePricingTierId": "cmgt5gnkv000104jx171tbq4e_tier_default",
+      "usagePricingTierName": "Standard",
+      "inputPrice": 0.000001,
+      "outputPrice": 0.000005,
+      "totalPrice": 0,
+      "calculatedInputCost": 0.002518,
+      "calculatedOutputCost": 0.000605,
+      "calculatedTotalCost": 0.003123,
+      "unit": "TOKENS",
+      "promptTokens": 2518,
+      "completionTokens": 121,
+      "totalTokens": 2639,
+      "modelId": "cmgt5gnkv000104jx171tbq4e",
+      "usage": {
+        "unit": "TOKENS",
+        "input": 2518,
+        "output": 121,
+        "total": 2639
+      }
+    }
+  ],
+  "htmlPath": "/project/cms3l9cmk049pad0dmurlfwck/traces/240ad5bb32448de739c6ae5f4ee8d88a",
+  "totalCost": 0.003123,
+  "_deprecation": {
+    "message": "On Langfuse Cloud, Langfuse v3 is deprecated and this endpoint will be removed on November 16, 2026. Data on this API is delayed by about 10 minutes. Real-time is only OpenTelemetry writes plus v2 observations and v2 metrics reads. In Langfuse v4, read span and trace data via GET /api/public/v2/observations?fromStartTime=<from>&toStartTime=<to>.",
+    "replacement": "GET /api/public/v2/observations?fromStartTime=<from>&toStartTime=<to>",
+    "docsUrl": "https://langfuse.com/docs/api-and-data-platform/features/observations-api",
+    "sunsetAt": "2026-11-16"
+  }
+}
