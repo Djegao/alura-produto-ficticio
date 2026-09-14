@@ -2,10 +2,11 @@
 
 > **Sessão nova? Comece por `docs/RETOMADA-15-09.md`.**
 >
-> **Estado em 12/09:** a **Aula 2 foi gravada por completo**. A branch de
-> trabalho é `gravacao/aulas-3-e-4-material`. Produção está no ar (401), com o
-> deploy de 12/09 — os PRs #4 e #6 já foram mergeados. O próximo passo é a
-> **Aula 3 (observabilidade)**.
+> **Estado em 14/09:** a **Aula 2 está gravada**. Aulas 3 e 4 têm script e
+> deck prontos (revisados em 14/09, ver abaixo). A branch de trabalho é
+> `gravacao/aulas-3-e-4-material` — é a única em uso; o `master` foi
+> reconciliado a partir dela ([PR #9](https://github.com/Djegao/alura-produto-ficticio/pull/9)).
+> Produção está no ar (401), com os PRs #4 e #6 já mergeados.
 >
 > **O nome canônico do produto é "Musa Balance"** (decidido em 12/09). O repo
 > ainda está majoritariamente com os nomes antigos — "Chef Caseiro" (~69
@@ -18,10 +19,28 @@
 > **A Aula 2 não usa o Langfuse.** Todas as demos rodam em `--dry-run`, no
 > terminal. A ferramenta só é apresentada na Aula 3.
 >
+> **Aulas 3 e 4 usam o método de evidência congelada** (o mesmo validado na
+> Aula 2): sem checkout, sem deploy ao vivo, sem reprodução de bug em tempo
+> real. A Aula 4 foi reescrita em 14/09 pra remover as últimas dependências
+> de deploy que ainda restavam do rascunho de 29/08.
+>
+> **Achado novo em 14/09, ao vivo, sem ensaio: "o hambúrguer que sumiu"**
+> (episódio D). Quatro mensagens reais no Telegram, cada uma classificada
+> corretamente pelo modelo — e mesmo assim o item preparado nunca entrou no
+> estoque, porque o classificador não guarda memória de conversa entre
+> mensagens. Quebra o framework "prompt, dados ou modelo?" usado nos
+> episódios A/B/C: nenhuma das três categorias explica a falha. Virou o
+> quinto padrão de falha da Aula 3 e o centro do diagnóstico da Aula 4.
+> Evidência completa em
+> [`docs/apoio/evidencia-porcionamento-patinho.md`](docs/apoio/evidencia-porcionamento-patinho.md).
+> **Ainda sem decisão de correção** — mesma convenção dos outros achados.
+>
 > ⚠️ **Os avisos antigos sobre a gravação de 29/08 estão superados** — aquele
 > formato (não-linear, com deploy ao vivo e ordem de PRs) foi abandonado em
-> 09/09. `docs/RETOMADA-MAQUINA-ESCOLA.md` e `docs/RUNBOOK-gravacao-29-08.md`
-> valem como registro histórico, não como instrução.
+> 09/09, e o formato linear que o sucedeu também foi superado em 12/09 pela
+> evidência congelada. `docs/RETOMADA-MAQUINA-ESCOLA.md`,
+> `docs/RUNBOOK-gravacao-29-08.md` e `docs/SCRIPT-LINEAR-CURSO.md` valem
+> como registro histórico, não como instrução.
 
 Produto fictício construído para o curso Alura **"Evals, observabilidade e
 conformidade"** (parte da formação AI Product Builder). Não é um produto real
@@ -317,22 +336,30 @@ explicitamente). Detalhados com evidência completa em `SDD.md` §11:
    maior, o corte pode acontecer no meio de uma chamada de ferramenta
    (`registrar_itens_usados`, v2), deixando um `tool_use` órfão que
    derruba a chamada seguinte com 400 da Anthropic. Decisão explícita do
-   instrutor: manter como está, usar a reprodução ao vivo como conteúdo
-   de aula (ver SDD.md §11.4 pra causa raiz completa e trace de exemplo).
+   instrutor: manter como está. **Desde 09/09 o formato é contar por
+   slide, não reproduzir ao vivo** — a evidência completa (1024 tokens no
+   teto, o corte logo após "Vou registrar o uso desses itens agora", o
+   `tool_use` órfão e o 400 literal) está em
+   `docs/apoio/evidencia-preservada.md`. O trace original expirou do
+   Langfuse em 11/09; a cópia versionada é a fonte agora.
 
 ## O que falta (próximas camadas)
 
-- Ingestão de nota fiscal por **imagem** (Claude Vision) — hoje só ingere
-  texto/markdown. É o terceiro eixo trocável (fable-5/haiku-4-5 pra visão)
-  que ainda não foi construído.
+- Ingestão de nota fiscal por **imagem** — construída no
+  [PR #6](https://github.com/Djegao/alura-produto-ficticio/pull/6), que
+  **ainda não foi mergeado**. Lê o QR code e busca o dado oficial na SEFAZ,
+  com visão como degrau de recuo: o desenho original (visão lendo os 44
+  dígitos) foi derrubado por teste, porque a SEFAZ exige um código que só
+  existe dentro do QR.
 - Tela de revisão de nota fiscal — `receipt_items.confirmed` já existe no
   schema, mas hoje é gravado direto como `true`, sem revisão humana.
-- Pipeline de evals da Aula 2: Claude-as-judge avaliando interações logadas e
-  escrevendo Score de volta no Langfuse via `trace_id`/`meal_suggestions.trace_id`
-  — dependência dura pra ter dado real de "qualidade ao longo do tempo" na
-  Aula 3 e conteúdo de diagnóstico na Aula 4.
-- Roteiros de aula ainda não escritos: Aulas 1, 4, 5 completas; Aula 3 falta
-  "Lendo os dados de produção" e "Padrões de falha".
+- ~~Pipeline de evals da Aula 2~~ — **construído em 28/08** (`evals/`),
+  rodou contra produção e gravou Scores reais no Langfuse. Os resultados
+  viraram conteúdo: `execucao_integra` em 0,33 nas operações de geração
+  confirma que o truncamento alcançou também o `mediar-cardapio`.
+- ~~Roteiros de aula~~ — **escritos**. Consolidados no
+  `docs/SCRIPT-LINEAR-CURSO.md` (do 1.1 ao 5.6), com os roteiros por aula
+  como referência de detalhe.
 - **Atualização em tempo real do painel web** — hoje o feed e a faixa de
   estado só refletem escritas do Telegram quando a página é recarregada.
   Decisão explícita do instrutor (2026-08-21): **não construir agora** —
