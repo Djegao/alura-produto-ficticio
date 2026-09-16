@@ -237,6 +237,49 @@ observabilidade do que acontece depois da resposta (Aula 3).
 
 ---
 
+## Operação: `receita-premium-semanal`
+
+Job semanal (`receita-premium.js`) que escolhe UMA receita do canal do chef
+Mohamad Hindi por casa, cruzando o feed público com estoque e preferências.
+A única decisão da LLM nesta operação é qual vídeo escolher — dedupe
+semanal, persistência e lista de compras já são determinísticos (ver
+`CLAUDE.md`, Fase 5). Por isso esta operação tem **um único critério**, e ele
+é deliberadamente estreito: os outros ângulos óbvios ("saiu no prazo?", "pulou
+alguma semana?") são regra de negócio resolvível inteiramente em código —
+comparar datas não é julgamento, é aritmética, e a regra de ouro do projeto
+proíbe terceirizar aritmética pra LLM (nem a de produção, nem a do juiz).
+Ver `evals/draft-repeticao-justificada-pelo-estoque.md` para o registro da
+decisão e das alternativas descartadas.
+
+### `repeticao_justificada_pelo_estoque` — 0 a 1
+
+**Pergunta:** quando o vídeo escolhido nesta semana já havia sido sugerido em
+uma semana anterior para a mesma casa, essa repetição faz sentido dado o
+estoque atual, as preferências da casa e os vídeos novos que estavam
+disponíveis no feed no momento da decisão?
+
+**Escala:** 1.0 = repetiu porque não havia vídeo novo relevante no feed, ou o
+estoque ainda favorece fortemente aquela receita, e a justificativa do
+modelo menciona isso; 0.5 = repetiu havendo alternativa razoável no feed,
+sem justificativa forte; 0.0 = repetiu com vídeos novos claramente melhor
+aproveitáveis disponíveis e sem mencionar isso — sinal de que o modelo não
+está de fato olhando o feed. **Quando não houve repetição, este critério não
+é avaliado** (o juiz não é chamado) — ver nota de agregação no draft.
+
+**Se falhar, o que acontece?** o valor do produto é trazer variedade real
+toda semana — é por isso que o feed é consultado de novo a cada rodada em
+vez de fixar uma lista fixa. Repetição não justificada é indistinguível, pra
+quem recebe a mensagem no Telegram, de "o modelo não está prestando
+atenção", e mina a confiança na única decisão que é da LLM nesta operação.
+
+**Nota didática:** dois fatos alimentam o juiz prontos, apurados em código a
+partir do histórico em `premium_suggestions` — se o vídeo já foi sugerido
+antes pra essa casa, e quais vídeos do feed daquela rodada não foram
+escolhidos. O juiz avalia só o que não é apurável: se a justificativa dada
+pelo modelo é uma razão real ou um preenchimento vazio.
+
+---
+
 ## O que deliberadamente **não** virou critério
 
 - **"A receita é gostosa"** — não é julgável de forma repetível, e o produto
@@ -248,6 +291,14 @@ observabilidade do que acontece depois da resposta (Aula 3).
 - **Casamento de nome no estoque** — é lógica determinística em código,
   então o lugar certo de testá-la é um teste, não um eval. O eval só
   registra que a saída da LLM estava correta (ver `ancoragem_no_texto`).
+- **"A receita premium saiu no prazo?" / "alguma semana ficou sem
+  sugestão?"** (`receita-premium-semanal`) — descartados por decisão
+  explícita em 16/09: são fatos 100% apuráveis comparando datas em
+  `premium_suggestions`, sem nenhuma ambiguidade que justifique um juiz LLM.
+  Colocar isso como "eval" contradiria a própria regra de ouro do projeto
+  (aritmética é código, não julgamento). Se algum dia viram monitoramento,
+  são um script determinístico separado — não Claude-as-judge. Registrado
+  como pendência de observabilidade, não de qualidade.
 
 Priorizar é parte do trabalho: **um eval que cobre tudo não é rodado por
 ninguém.**
