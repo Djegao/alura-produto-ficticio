@@ -151,9 +151,21 @@ async function sugerirReceitaPremium({ model, force = false }) {
       .map((v, n) => `${n + 1}. ${v.titulo}\n   URL: ${v.url}\n   Publicado: ${v.publicado}\n   ${v.descricao.replace(/\s+/g, ' ')}`)
       .join('\n\n');
 
+    // Input completo (nao so a contagem) — necessario pro eval
+    // repeticao_justificada_pelo_estoque (evals/criterios.md) reconstruir
+    // depois quais alternativas existiam no feed naquela rodada. Antes desta
+    // mudanca so `{ videos: N, estoqueItens: M }` era gravado, o que bastava
+    // pra debug mas nao pra julgar a escolha a posteriori.
     const generation = agent.startObservation(
       'escolher-video',
-      { input: { videos: videos.length, estoqueItens: estoque.length }, model },
+      {
+        input: {
+          videosDisponiveis: videos.map((v) => ({ titulo: v.titulo, url: v.url })),
+          estoqueResumo,
+          preferencias,
+          model,
+        },
+      },
       { asType: 'generation' }
     );
 

@@ -1,5 +1,8 @@
 # Aula 3 — Observabilidade: monitorando em produção
 
+> ⚠️ **Histórico (29/08).** Números de 22/08, vencidos. O mestre em debate
+> desde 16/09 é [`aula3-script.md`](./aula3-script.md).
+
 Versão do produto: **`master`, produção** (dados reais do Langfuse Cloud) +
 demo local do "antes/depois" com/sem as variáveis `LANGFUSE_*`. Ver mapa
 geral em [`PLANO-GRAVACAO-CURSO.md`](./PLANO-GRAVACAO-CURSO.md). Números

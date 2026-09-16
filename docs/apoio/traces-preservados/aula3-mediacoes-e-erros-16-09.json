@@ -1,0 +1,942 @@
+{
+ "_sobre": "Extrato compacto (sem prompts de sistema nem retorno de ferramentas) capturado da API publica do Langfuse em 2026-09-16 ~14:50 BRT, para a Aula 3. Os traces de 21-22/08 saem da janela de 30 dias do plano Hobby por volta de 21/09; os de 28/08-03/09, entre 27/09 e 03/10. Ver docs/apoio/aula3-dados-congelados.md.",
+ "mediacoes": [
+  {
+   "id": "cd1e4129dd4aad77e4e46de9188b3642",
+   "operacao": "mediar-cardapio",
+   "quando_utc": "2026-08-22T00:20:24.328Z",
+   "quando_brt": "2026-08-21 21:20:24 BRT",
+   "origem": "producao (Railway)",
+   "nivel": "ERROR",
+   "mensagem_de_erro": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.6: `tool_use` ids were found without `tool_result` blocks immediately after: toolu_01JLZqRFTw5dqCUuXKG9Etbf. Each `tool_use` block must have a corresponding `tool_result` block in the next message.\"},\"request_id\":\"req_011CeGq8ojMdBdAiee7J9dJY\"}",
+   "custo_usd": 0.100512,
+   "latencia_s": 41.55,
+   "passos": 10,
+   "texto_final_chars": 0,
+   "texto_final_fim": null,
+   "geracoes": [
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 3774,
+     "tokens_saida": 206,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:consultar_estoque (input 2 chars)",
+      "tool_use:consultar_validade_estoque (input 2 chars)",
+      "tool_use:consultar_preferencias (input 2 chars)",
+      "tool_use:consultar_orcamento_semanal (input 2 chars)",
+      "tool_use:consultar_relatos_recentes (input 10 chars)"
+     ],
+     "custo_usd": 0.009608,
+     "latencia_s": 2.348
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 15726,
+     "tokens_saida": 566,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:verificar_disponibilidade (input 84 chars)"
+     ],
+     "custo_usd": 0.037112,
+     "latencia_s": 7.522
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 16656,
+     "tokens_saida": 2048,
+     "no_teto": true,
+     "blocos": [
+      "thinking",
+      "text (1931 chars)",
+      "tool_use:registrar_lista_compras (input 2 chars)"
+     ],
+     "custo_usd": 0.053792,
+     "latencia_s": 26.813
+    }
+   ],
+   "ferramentas": [
+    "consultar_estoque",
+    "consultar_validade_estoque",
+    "consultar_preferencias",
+    "consultar_orcamento_semanal",
+    "consultar_relatos_recentes",
+    "verificar_disponibilidade"
+   ],
+   "notas": 0
+  },
+  {
+   "id": "eb57c85182f2bebfb1b4e9b02f730a38",
+   "operacao": "mediar-cardapio",
+   "quando_utc": "2026-08-22T00:25:46.622Z",
+   "quando_brt": "2026-08-21 21:25:46 BRT",
+   "origem": "producao (Railway)",
+   "nivel": "ERROR",
+   "mensagem_de_erro": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.6: `tool_use` ids were found without `tool_result` blocks immediately after: toolu_01V98xVgniCADd9kKknfBkG4. Each `tool_use` block must have a corresponding `tool_result` block in the next message.\"},\"request_id\":\"req_011CeGqYReEcWBYgA7Ltyvk7\"}",
+   "custo_usd": 0.098208,
+   "latencia_s": 39.669,
+   "passos": 10,
+   "texto_final_chars": 0,
+   "texto_final_fim": null,
+   "geracoes": [
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 3774,
+     "tokens_saida": 172,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:consultar_estoque (input 2 chars)",
+      "tool_use:consultar_validade_estoque (input 2 chars)",
+      "tool_use:consultar_preferencias (input 2 chars)",
+      "tool_use:consultar_orcamento_semanal (input 2 chars)",
+      "tool_use:consultar_relatos_recentes (input 2 chars)"
+     ],
+     "custo_usd": 0.009268,
+     "latencia_s": 3.339
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 15692,
+     "tokens_saida": 413,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:verificar_disponibilidade (input 91 chars)"
+     ],
+     "custo_usd": 0.035514,
+     "latencia_s": 5.746
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 16473,
+     "tokens_saida": 2048,
+     "no_teto": true,
+     "blocos": [
+      "thinking",
+      "text (2158 chars)",
+      "tool_use:registrar_lista_compras (input 2 chars)"
+     ],
+     "custo_usd": 0.053426,
+     "latencia_s": 27.264
+    }
+   ],
+   "ferramentas": [
+    "consultar_estoque",
+    "consultar_validade_estoque",
+    "consultar_preferencias",
+    "consultar_orcamento_semanal",
+    "consultar_relatos_recentes",
+    "verificar_disponibilidade"
+   ],
+   "notas": 0
+  },
+  {
+   "id": "ec907b77c2e9cd9a59b486ef0d271d2c",
+   "operacao": "mediar-cardapio",
+   "quando_utc": "2026-08-22T00:25:50.966Z",
+   "quando_brt": "2026-08-21 21:25:50 BRT",
+   "origem": "producao (Railway)",
+   "nivel": "DEFAULT",
+   "mensagem_de_erro": null,
+   "custo_usd": 0.108023999999,
+   "latencia_s": 43.693,
+   "passos": 10,
+   "texto_final_chars": 0,
+   "texto_final_fim": null,
+   "geracoes": [
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 3812,
+     "tokens_saida": 213,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:consultar_estoque (input 2 chars)",
+      "tool_use:consultar_validade_estoque (input 2 chars)",
+      "tool_use:consultar_preferencias (input 2 chars)",
+      "tool_use:consultar_orcamento_semanal (input 2 chars)",
+      "tool_use:consultar_relatos_recentes (input 10 chars)"
+     ],
+     "custo_usd": 0.009753999999,
+     "latencia_s": 2.28
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 15771,
+     "tokens_saida": 2048,
+     "no_teto": true,
+     "blocos": [
+      "thinking"
+     ],
+     "custo_usd": 0.052022,
+     "latencia_s": 24.728
+    },
+    {
+     "nome": "forcar-registro-decisao",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 18004,
+     "tokens_saida": 1024,
+     "no_teto": true,
+     "blocos": [
+      "tool_use:registrar_decisao_cardapio (input 2 chars)"
+     ],
+     "custo_usd": 0.046248,
+     "latencia_s": 13.807
+    }
+   ],
+   "ferramentas": [
+    "consultar_estoque",
+    "consultar_validade_estoque",
+    "consultar_preferencias",
+    "consultar_orcamento_semanal",
+    "consultar_relatos_recentes",
+    "registrar_decisao_cardapio"
+   ],
+   "notas": 0
+  },
+  {
+   "id": "9f8bb3c520bca952adff5825cf213c84",
+   "operacao": "mediar-cardapio",
+   "quando_utc": "2026-08-22T00:25:53.460Z",
+   "quando_brt": "2026-08-21 21:25:53 BRT",
+   "origem": "producao (Railway)",
+   "nivel": "DEFAULT",
+   "mensagem_de_erro": null,
+   "custo_usd": 0.151698,
+   "latencia_s": 52.033,
+   "passos": 12,
+   "texto_final_chars": 1737,
+   "texto_final_fim": "rque não há contra o que comparar.\n\n3. **Sem tensão de desperdício:** olhei os relatos recentes (nenhum delivery/restaur",
+   "geracoes": [
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 3775,
+     "tokens_saida": 177,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:consultar_estoque (input 2 chars)",
+      "tool_use:consultar_validade_estoque (input 2 chars)",
+      "tool_use:consultar_preferencias (input 2 chars)",
+      "tool_use:consultar_orcamento_semanal (input 2 chars)",
+      "tool_use:consultar_relatos_recentes (input 2 chars)"
+     ],
+     "custo_usd": 0.00932,
+     "latencia_s": 2.279
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 15698,
+     "tokens_saida": 599,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:verificar_disponibilidade (input 142 chars)"
+     ],
+     "custo_usd": 0.037386,
+     "latencia_s": 8.209
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 17452,
+     "tokens_saida": 2048,
+     "no_teto": true,
+     "blocos": [
+      "thinking",
+      "text (1737 chars)"
+     ],
+     "custo_usd": 0.055384,
+     "latencia_s": 25.851
+    },
+    {
+     "nome": "forcar-registro-decisao",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 19684,
+     "tokens_saida": 1024,
+     "no_teto": true,
+     "blocos": [
+      "tool_use:registrar_decisao_cardapio (input 2058 chars)"
+     ],
+     "custo_usd": 0.049608,
+     "latencia_s": 13.335
+    }
+   ],
+   "ferramentas": [
+    "consultar_estoque",
+    "consultar_validade_estoque",
+    "consultar_preferencias",
+    "consultar_orcamento_semanal",
+    "consultar_relatos_recentes",
+    "verificar_disponibilidade",
+    "registrar_decisao_cardapio"
+   ],
+   "notas": 0
+  },
+  {
+   "id": "4a6df619b6bc5d15a8fb5ea8f5b347d7",
+   "operacao": "mediar-cardapio",
+   "quando_utc": "2026-08-22T01:16:52.576Z",
+   "quando_brt": "2026-08-21 22:16:52 BRT",
+   "origem": "producao (Railway)",
+   "nivel": "ERROR",
+   "mensagem_de_erro": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.6: `tool_use` ids were found without `tool_result` blocks immediately after: toolu_011GKvHGpbSjXg5iDyBA6UsH, toolu_01WvUvGhJpMHveRpuWYc1Y34. Each `tool_use` block must have a corresponding `tool_result` block in the next message.\"},\"request_id\":\"req_011CeGuSaUrAyGKWXY8fc1wT\"}",
+   "custo_usd": 0.106954,
+   "latencia_s": 41.702,
+   "passos": 10,
+   "texto_final_chars": 0,
+   "texto_final_fim": null,
+   "geracoes": [
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 3774,
+     "tokens_saida": 234,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:consultar_estoque (input 2 chars)",
+      "tool_use:consultar_validade_estoque (input 2 chars)",
+      "tool_use:consultar_preferencias (input 2 chars)",
+      "tool_use:consultar_orcamento_semanal (input 2 chars)",
+      "tool_use:consultar_relatos_recentes (input 10 chars)"
+     ],
+     "custo_usd": 0.009888,
+     "latencia_s": 2.87
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 16199,
+     "tokens_saida": 852,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:verificar_disponibilidade (input 125 chars)"
+     ],
+     "custo_usd": 0.040918,
+     "latencia_s": 11.026
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 17834,
+     "tokens_saida": 2048,
+     "no_teto": true,
+     "blocos": [
+      "thinking",
+      "tool_use:registrar_lista_compras (input 120 chars)",
+      "tool_use:registrar_decisao_cardapio (input 2 chars)"
+     ],
+     "custo_usd": 0.056148,
+     "latencia_s": 24.491
+    }
+   ],
+   "ferramentas": [
+    "consultar_estoque",
+    "consultar_validade_estoque",
+    "consultar_preferencias",
+    "consultar_orcamento_semanal",
+    "consultar_relatos_recentes",
+    "verificar_disponibilidade"
+   ],
+   "notas": 0
+  },
+  {
+   "id": "d807057bd0808ca94dc63c8a0970f328",
+   "operacao": "mediar-cardapio",
+   "quando_utc": "2026-08-22T11:16:01.106Z",
+   "quando_brt": "2026-08-22 08:16:01 BRT",
+   "origem": "producao (Railway)",
+   "nivel": "DEFAULT",
+   "mensagem_de_erro": null,
+   "custo_usd": 0.158684,
+   "latencia_s": 61.345,
+   "passos": 12,
+   "texto_final_chars": 0,
+   "texto_final_fim": null,
+   "geracoes": [
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 3781,
+     "tokens_saida": 218,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:consultar_estoque (input 2 chars)",
+      "tool_use:consultar_validade_estoque (input 2 chars)",
+      "tool_use:consultar_preferencias (input 2 chars)",
+      "tool_use:consultar_orcamento_semanal (input 2 chars)",
+      "tool_use:consultar_relatos_recentes (input 2 chars)"
+     ],
+     "custo_usd": 0.009742,
+     "latencia_s": 4.4
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 16190,
+     "tokens_saida": 1027,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:verificar_disponibilidade (input 112 chars)"
+     ],
+     "custo_usd": 0.04265,
+     "latencia_s": 14.674
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 17777,
+     "tokens_saida": 2048,
+     "no_teto": true,
+     "blocos": [
+      "thinking"
+     ],
+     "custo_usd": 0.056034,
+     "latencia_s": 26.882
+    },
+    {
+     "nome": "forcar-registro-decisao",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 20009,
+     "tokens_saida": 1024,
+     "no_teto": true,
+     "blocos": [
+      "tool_use:registrar_decisao_cardapio (input 2 chars)"
+     ],
+     "custo_usd": 0.050258,
+     "latencia_s": 12.508
+    }
+   ],
+   "ferramentas": [
+    "consultar_estoque",
+    "consultar_validade_estoque",
+    "consultar_preferencias",
+    "consultar_orcamento_semanal",
+    "consultar_relatos_recentes",
+    "verificar_disponibilidade",
+    "registrar_decisao_cardapio"
+   ],
+   "notas": 5
+  },
+  {
+   "id": "652b38032d3ce3953b4758e607c40223",
+   "operacao": "mediar-cardapio",
+   "quando_utc": "2026-08-22T16:01:02.393Z",
+   "quando_brt": "2026-08-22 13:01:02 BRT",
+   "origem": "maquina local",
+   "nivel": "DEFAULT",
+   "mensagem_de_erro": null,
+   "custo_usd": 0.189922,
+   "latencia_s": 112.972,
+   "passos": 15,
+   "texto_final_chars": 1686,
+   "texto_final_fim": "enquanto pediram delivery.\n\nConfirmam a substituição do bacon por bacon/peito de peru, ou preferem a versão vegetariana?",
+   "geracoes": [
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 3781,
+     "tokens_saida": 187,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:consultar_estoque (input 2 chars)",
+      "tool_use:consultar_validade_estoque (input 2 chars)",
+      "tool_use:consultar_preferencias (input 2 chars)",
+      "tool_use:consultar_orcamento_semanal (input 2 chars)",
+      "tool_use:consultar_relatos_recentes (input 2 chars)"
+     ],
+     "custo_usd": 0.009432,
+     "latencia_s": 18.506
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 16274,
+     "tokens_saida": 408,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:verificar_disponibilidade (input 77 chars)"
+     ],
+     "custo_usd": 0.036628,
+     "latencia_s": 16.137
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 17123,
+     "tokens_saida": 1577,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:registrar_itens_usados (input 213 chars)",
+      "tool_use:registrar_lista_compras (input 359 chars)"
+     ],
+     "custo_usd": 0.050016,
+     "latencia_s": 29.57
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 18827,
+     "tokens_saida": 943,
+     "no_teto": false,
+     "blocos": [
+      "tool_use:registrar_decisao_cardapio (input 2055 chars)"
+     ],
+     "custo_usd": 0.047084,
+     "latencia_s": 37.724
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 19821,
+     "tokens_saida": 712,
+     "no_teto": false,
+     "blocos": [
+      "text (1686 chars)"
+     ],
+     "custo_usd": 0.046762,
+     "latencia_s": 10.017
+    }
+   ],
+   "ferramentas": [
+    "consultar_estoque",
+    "consultar_validade_estoque",
+    "consultar_preferencias",
+    "consultar_orcamento_semanal",
+    "consultar_relatos_recentes",
+    "verificar_disponibilidade",
+    "registrar_itens_usados",
+    "registrar_lista_compras",
+    "registrar_decisao_cardapio"
+   ],
+   "notas": 5
+  },
+  {
+   "id": "efae9192250525b599117ca7e25864bc",
+   "operacao": "mediar-cardapio",
+   "quando_utc": "2026-08-22T17:07:55.194Z",
+   "quando_brt": "2026-08-22 14:07:55 BRT",
+   "origem": "producao (Railway)",
+   "nivel": "DEFAULT",
+   "mensagem_de_erro": null,
+   "custo_usd": 0.11011,
+   "latencia_s": 47.022,
+   "passos": 10,
+   "texto_final_chars": 782,
+   "texto_final_fim": "ção num ponto**\nA casa tem restrição de **evitar carne de porco**. Pizza napoletana clássica (molho, mussarela de búfala",
+   "geracoes": [
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 3789,
+     "tokens_saida": 212,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:consultar_estoque (input 2 chars)",
+      "tool_use:consultar_validade_estoque (input 2 chars)",
+      "tool_use:consultar_preferencias (input 2 chars)",
+      "tool_use:consultar_orcamento_semanal (input 2 chars)",
+      "tool_use:consultar_relatos_recentes (input 10 chars)"
+     ],
+     "custo_usd": 0.009698,
+     "latencia_s": 2.46
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 16307,
+     "tokens_saida": 2048,
+     "no_teto": true,
+     "blocos": [
+      "thinking",
+      "text (782 chars)"
+     ],
+     "custo_usd": 0.053094,
+     "latencia_s": 27.159
+    },
+    {
+     "nome": "forcar-registro-decisao",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 18539,
+     "tokens_saida": 1024,
+     "no_teto": true,
+     "blocos": [
+      "tool_use:registrar_decisao_cardapio (input 2 chars)"
+     ],
+     "custo_usd": 0.047318,
+     "latencia_s": 14.051
+    }
+   ],
+   "ferramentas": [
+    "consultar_estoque",
+    "consultar_validade_estoque",
+    "consultar_preferencias",
+    "consultar_orcamento_semanal",
+    "consultar_relatos_recentes",
+    "registrar_decisao_cardapio"
+   ],
+   "notas": 5
+  },
+  {
+   "id": "5e9799eaf011d6c7fa9208a8ae4acd49",
+   "operacao": "mediar-cardapio",
+   "quando_utc": "2026-09-03T19:34:50.628Z",
+   "quando_brt": "2026-09-03 16:34:50 BRT",
+   "origem": "producao (Railway)",
+   "nivel": "DEFAULT",
+   "mensagem_de_erro": null,
+   "custo_usd": 0.178488,
+   "latencia_s": 64.372,
+   "passos": 12,
+   "texto_final_chars": 246,
+   "texto_final_fim": "se disponíveis no estoque** (confirmado via `verificar_disponibilidade`):\n- Macarrão espaguete — 2,5 kg ✅\n- Ovos brancos",
+   "geracoes": [
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 3779,
+     "tokens_saida": 244,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:consultar_estoque (input 2 chars)",
+      "tool_use:consultar_validade_estoque (input 2 chars)",
+      "tool_use:consultar_preferencias (input 2 chars)",
+      "tool_use:consultar_orcamento_semanal (input 2 chars)",
+      "tool_use:consultar_relatos_recentes (input 10 chars)"
+     ],
+     "custo_usd": 0.009998,
+     "latencia_s": 2.793
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 19634,
+     "tokens_saida": 895,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:verificar_disponibilidade (input 123 chars)"
+     ],
+     "custo_usd": 0.048218,
+     "latencia_s": 10.404
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 21272,
+     "tokens_saida": 2048,
+     "no_teto": true,
+     "blocos": [
+      "thinking",
+      "text (246 chars)"
+     ],
+     "custo_usd": 0.063024,
+     "latencia_s": 26.497
+    },
+    {
+     "nome": "forcar-registro-decisao",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 23504,
+     "tokens_saida": 1024,
+     "no_teto": true,
+     "blocos": [
+      "tool_use:registrar_decisao_cardapio (input 2 chars)"
+     ],
+     "custo_usd": 0.057248,
+     "latencia_s": 14.697
+    }
+   ],
+   "ferramentas": [
+    "consultar_estoque",
+    "consultar_validade_estoque",
+    "consultar_preferencias",
+    "consultar_orcamento_semanal",
+    "consultar_relatos_recentes",
+    "verificar_disponibilidade",
+    "registrar_decisao_cardapio"
+   ],
+   "notas": 0
+  },
+  {
+   "id": "1ecca5e617e2e1733f76a66c8053e151",
+   "operacao": "mediar-cardapio",
+   "quando_utc": "2026-09-03T19:36:10.270Z",
+   "quando_brt": "2026-09-03 16:36:10 BRT",
+   "origem": "producao (Railway)",
+   "nivel": "DEFAULT",
+   "mensagem_de_erro": null,
+   "custo_usd": 0.177987999999,
+   "latencia_s": 54.883,
+   "passos": 12,
+   "texto_final_chars": 9,
+   "texto_final_fim": "Consultei",
+   "geracoes": [
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 3779,
+     "tokens_saida": 217,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:consultar_estoque (input 2 chars)",
+      "tool_use:consultar_validade_estoque (input 2 chars)",
+      "tool_use:consultar_preferencias (input 2 chars)",
+      "tool_use:consultar_orcamento_semanal (input 2 chars)",
+      "tool_use:consultar_relatos_recentes (input 10 chars)"
+     ],
+     "custo_usd": 0.009728,
+     "latencia_s": 2.589
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 19606,
+     "tokens_saida": 922,
+     "no_teto": false,
+     "blocos": [
+      "thinking",
+      "tool_use:verificar_disponibilidade (input 96 chars)"
+     ],
+     "custo_usd": 0.048431999999,
+     "latencia_s": 10.498
+    },
+    {
+     "nome": "chamada-claude",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 21161,
+     "tokens_saida": 2048,
+     "no_teto": true,
+     "blocos": [
+      "thinking",
+      "text (9 chars)"
+     ],
+     "custo_usd": 0.062802,
+     "latencia_s": 25.934
+    },
+    {
+     "nome": "forcar-registro-decisao",
+     "modelo": "claude-sonnet-5",
+     "tokens_entrada": 23393,
+     "tokens_saida": 1024,
+     "no_teto": true,
+     "blocos": [
+      "tool_use:registrar_decisao_cardapio (input 2035 chars)",
+      "tool_use:registrar_lista_compras (input 2 chars)"
+     ],
+     "custo_usd": 0.057026,
+     "latencia_s": 12.818
+    }
+   ],
+   "ferramentas": [
+    "consultar_estoque",
+    "consultar_validade_estoque",
+    "consultar_preferencias",
+    "consultar_orcamento_semanal",
+    "consultar_relatos_recentes",
+    "verificar_disponibilidade",
+    "registrar_decisao_cardapio"
+   ],
+   "notas": 0
+  }
+ ],
+ "receita_premium": [
+  {
+   "id": "c0fc08d7d9be93cbb9b5ef41dc67b778",
+   "operacao": "receita-premium-semanal",
+   "quando_utc": "2026-08-22T01:47:31.169Z",
+   "quando_brt": "2026-08-21 22:47:31 BRT",
+   "origem": "maquina local",
+   "nivel": "DEFAULT",
+   "mensagem_de_erro": null,
+   "custo_usd": 0.015696,
+   "latencia_s": 7.466,
+   "passos": 2,
+   "texto_final_chars": 0,
+   "texto_final_fim": null,
+   "ferramentas": [],
+   "notas": 0,
+   "saida": {
+    "video": "Como fazer picanha na frigideira",
+    "faltantes": 2
+   }
+  },
+  {
+   "id": "461cc85b29e12cc2020f9cdbbcd1352e",
+   "operacao": "receita-premium-semanal",
+   "quando_utc": "2026-08-28T14:35:23.910Z",
+   "quando_brt": "2026-08-28 11:35:23 BRT",
+   "origem": "producao (Railway)",
+   "nivel": "ERROR",
+   "mensagem_de_erro": "401 {\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"API key is invalid.\"},\"request_id\":null}",
+   "custo_usd": 0,
+   "latencia_s": 0.919,
+   "passos": 1,
+   "texto_final_chars": 0,
+   "texto_final_fim": null,
+   "ferramentas": [],
+   "notas": 0,
+   "saida": null
+  },
+  {
+   "id": "463d682c0f8497375be9d624dfe4f517",
+   "operacao": "receita-premium-semanal",
+   "quando_utc": "2026-08-28T15:35:33.664Z",
+   "quando_brt": "2026-08-28 12:35:33 BRT",
+   "origem": "producao (Railway)",
+   "nivel": "ERROR",
+   "mensagem_de_erro": "401 {\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"API key is invalid.\"},\"request_id\":null}",
+   "custo_usd": 0,
+   "latencia_s": 4.052,
+   "passos": 1,
+   "texto_final_chars": 0,
+   "texto_final_fim": null,
+   "ferramentas": [],
+   "notas": 0,
+   "saida": null
+  },
+  {
+   "id": "46bdbeaeb3b55fbc6a390f3e55a65118",
+   "operacao": "receita-premium-semanal",
+   "quando_utc": "2026-08-28T16:55:35.241Z",
+   "quando_brt": "2026-08-28 13:55:35 BRT",
+   "origem": "producao (Railway)",
+   "nivel": "DEFAULT",
+   "mensagem_de_erro": null,
+   "custo_usd": 0.01815,
+   "latencia_s": 10.729,
+   "passos": 2,
+   "texto_final_chars": 0,
+   "texto_final_fim": null,
+   "ferramentas": [],
+   "notas": 0,
+   "saida": {
+    "video": "Como fazer BEEF WELLINGTON, Receita original do Gordon Ramsay",
+    "faltantes": 6
+   }
+  },
+  {
+   "id": "ae84dc6355d3a5f91a46f3c2b5178df5",
+   "operacao": "receita-premium-semanal",
+   "quando_utc": "2026-09-04T10:18:12.677Z",
+   "quando_brt": "2026-09-04 07:18:12 BRT",
+   "origem": "producao (Railway)",
+   "nivel": "DEFAULT",
+   "mensagem_de_erro": null,
+   "custo_usd": 0.018718,
+   "latencia_s": 11.097,
+   "passos": 2,
+   "texto_final_chars": 0,
+   "texto_final_fim": null,
+   "ferramentas": [],
+   "notas": 0,
+   "saida": {
+    "video": "Como fazer BEEF WELLINGTON, Receita original do Gordon Ramsay",
+    "faltantes": 7
+   }
+  },
+  {
+   "id": "2091a12ecf457e38b55e72b593d237d3",
+   "operacao": "receita-premium-semanal",
+   "quando_utc": "2026-09-11T10:18:14.265Z",
+   "quando_brt": "2026-09-11 07:18:14 BRT",
+   "origem": "producao (Railway)",
+   "nivel": "DEFAULT",
+   "mensagem_de_erro": null,
+   "custo_usd": 0.016702,
+   "latencia_s": 9.562,
+   "passos": 2,
+   "texto_final_chars": 0,
+   "texto_final_fim": null,
+   "ferramentas": [],
+   "notas": 0,
+   "saida": {
+    "video": "Como fazer POLENTA CREMOSA, nunca mais erre o ponto!",
+    "faltantes": 1
+   }
+  }
+ ],
+ "erros_no_painel": [
+  {
+   "traceId": "cd1e4129dd4aad77e4e46de9188b3642",
+   "operacao": "mediar-cardapio",
+   "quando_brt": "2026-08-21 21:20:24 BRT",
+   "tipo": "AGENT",
+   "mensagem": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.6: `tool_use` ids were found without `tool_result` blocks immediately after: toolu_01JLZqRFTw5dqCUuXKG9Etbf. Each `tool_use` block must have a corresponding `tool_result` block in the next message.\"},\"request_id\":\"req_011CeGq8ojMdBdAiee7J9dJY\"}"
+  },
+  {
+   "traceId": "eb57c85182f2bebfb1b4e9b02f730a38",
+   "operacao": "mediar-cardapio",
+   "quando_brt": "2026-08-21 21:25:46 BRT",
+   "tipo": "AGENT",
+   "mensagem": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.6: `tool_use` ids were found without `tool_result` blocks immediately after: toolu_01V98xVgniCADd9kKknfBkG4. Each `tool_use` block must have a corresponding `tool_result` block in the next message.\"},\"request_id\":\"req_011CeGqYReEcWBYgA7Ltyvk7\"}"
+  },
+  {
+   "traceId": "4a6df619b6bc5d15a8fb5ea8f5b347d7",
+   "operacao": "mediar-cardapio",
+   "quando_brt": "2026-08-21 22:16:52 BRT",
+   "tipo": "AGENT",
+   "mensagem": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.6: `tool_use` ids were found without `tool_result` blocks immediately after: toolu_011GKvHGpbSjXg5iDyBA6UsH, toolu_01WvUvGhJpMHveRpuWYc1Y34. Each `tool_use` block must have a corresponding `tool_result` block in the next message.\"},\"request_id\":\"req_011CeGuSaUrAyGKWXY8fc1wT\"}"
+  },
+  {
+   "traceId": "461cc85b29e12cc2020f9cdbbcd1352e",
+   "operacao": "receita-premium-semanal",
+   "quando_brt": "2026-08-28 11:35:23 BRT",
+   "tipo": "AGENT",
+   "mensagem": "401 {\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"API key is invalid.\"},\"request_id\":null}"
+  },
+  {
+   "traceId": "463d682c0f8497375be9d624dfe4f517",
+   "operacao": "receita-premium-semanal",
+   "quando_brt": "2026-08-28 12:35:33 BRT",
+   "tipo": "AGENT",
+   "mensagem": "401 {\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"API key is invalid.\"},\"request_id\":null}"
+  },
+  {
+   "traceId": "55b8ca336f50addb6f932caab8809770",
+   "operacao": "ingerir-nota-imagem",
+   "quando_brt": "2026-08-29 16:21:11 BRT",
+   "tipo": "AGENT",
+   "mensagem": "Li a chave (35260761…6101) e ela é válida, mas a SEFAZ de SP não abre a nota só com a chave — ela exige o QR code. Manda outra foto com o QR nítido e sem dobra, ou cola aqui o link que sai ao escanear o QR pela câmera."
+  }
+ ],
+ "notas_resumo": {
+  "total": 39,
+  "interacoes": [
+   "2c94d225cabcce3482b75ac9e3e1cd57",
+   "b864e6e3746200e0b84418e85a26c52c",
+   "078afc7fb4e4073a5303dfc09f77ccf1",
+   "d807057bd0808ca94dc63c8a0970f328",
+   "652b38032d3ce3953b4758e607c40223",
+   "efae9192250525b599117ca7e25864bc",
+   "e803a194f43f69473294a85dc6549e01",
+   "c4362988d8e22921305a6059ca866844",
+   "57debf7a71533fdc6a9e7a982595ba7c"
+  ],
+  "escritas_em_utc": [
+   "2026-08-28"
+  ]
+ }
+}

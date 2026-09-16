@@ -5,3 +5,7 @@ node_modules/
 interactions.db
 server.log
 .playwright-mcp/
+
+# backups temporarios de deck (gerados durante edicao de notas)
+*BACKUP-*.pptx
+~$*.pptx

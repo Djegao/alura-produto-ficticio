@@ -1,0 +1,51 @@
+AÇÃO — saída de tela DENTRO do vídeo 2.3. Não é vídeo novo, não tem claquete.
+O slide 28 fica exatamente como está. Você sai dele, mostra código, e volta.
+
+COREOGRAFIA (6 passos)
+
+1. Slide 28 na tela. Você fala a frase de entrada.
+2. Alt+tab  ->  VS Code (já aberto, cursor na linha 462).
+3. PARADA 1 — lê as regras.
+4. Rola PARA BAIXO até a linha 523 (~60 linhas, uma direção só).
+5. PARADA 2 — mostra o tool_choice. É o slide acontecendo.
+6. Alt+tab  ->  volta pro slide 28. Fala o fecho. Avança pro 29.
+
+ANTES DE GRAVAR — deixe o VS Code assim e minimizado:
+code -g "C:/Users/PC Studio 2/Desktop/6498 Evals/alura-produto-ficticio/evals/run-evals.js:462"
+Sem painel lateral, sem terminal embaixo, zoom grande.
+
+⚠ NÃO role ACIMA da linha 462. A linha 453 ainda diz "Chef Caseiro" — não foi
+trocada de propósito: mexer no prompt do juiz muda o julgamento e invalidaria
+a demo do slide 29.
+
+---
+
+1) FALA DE ENTRADA (ainda no slide)
+"Eu falei que prompt não é contrato. Deixa eu te mostrar o que isso quer dizer
+no código."
+
+3) PARADA 1 — linha 462, "Regras do julgamento"
+"Lembra das três coisas que eu disse sobre o que faz do modelo um juiz? Elas
+não ficaram no slide. Estão aqui, escritas no prompt."
+• Julgue só com base no material. Não suponha nada.
+• Toda nota precisa de evidência citável. Genérica é inválida.
+• Seja severo com falha silenciosa.
+"E essa aqui é o slide anterior: sinais apurados em código são fato, use como
+verdade e não refaça conta nenhuma. Aritmética não é trabalho do juiz."
+
+5) PARADA 2 — linha 523, o tool_choice   <- PAUSE. É O SLIDE.
+"E agora a linha que dá nome ao slide."
+   tool_choice: { type: 'tool', name: 'registrar_avaliacao' }
+"Olha o comentário que eu deixei aqui: garantia estrutural, não pedido no
+prompt. Sem isso, o juiz às vezes responde em prosa e não sobra score nenhum
+pra agregar."
+"Eu não pedi pra ele responder estruturado. Eu tirei a opção de não responder."
+
+6) FECHO (de volta no slide)
+"Pedir não garante. Forçar garante. Vale pro seu agente, e vale pro seu juiz."
+
+---
+
+DURAÇÃO: ~2 a 3 min.
+OPCIONAL, se sobrar fôlego: linha 447, o schema — cada critério virou um campo
+e a descrição é a rubrica do criterios.md. Cortável sem prejuízo.

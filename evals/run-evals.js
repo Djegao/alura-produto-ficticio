@@ -40,6 +40,7 @@
 //   node evals/run-evals.js --operacao ingerir-relato
 //   node evals/run-evals.js --operacao sugerir-receita,mediar-cardapio --limit 4
 //   node evals/run-evals.js --sem-cor             # desliga ANSI (log/CI)
+//   node evals/run-evals.js --trace ID[,ID]       # julga traces ESPECIFICOS (pinar demo de aula)
 //
 // Env vars necessarias (mesmo .env do produto): LANGFUSE_PUBLIC_KEY,
 // LANGFUSE_SECRET_KEY, LANGFUSE_BASE_URL, ANTHROPIC_API_KEY.
@@ -187,6 +188,37 @@ async function buscarTraceCompleto(id) {
   // Este endpoint ja devolve o array `observations` inteiro — nao precisa de
   // uma segunda chamada em /api/public/observations.
   return langfuse('GET', `/api/public/traces/${id}`);
+}
+
+// Resolve um id completo OU um prefixo (>= 12 chars, como o que o proprio
+// script imprime na tela) pro trace completo. Prefixo ambiguo e' erro, nao
+// chute — o objetivo de --trace e' reproduzibilidade.
+//
+// A listagem e' feita UMA vez por operacao e guardada: GET /api/public/traces
+// tem limite de 15 chamadas/min no Langfuse Cloud (429 observado em 03/09 ao
+// resolver 4 prefixos numa rodada). Com id completo nao ha listagem nenhuma.
+const _listagemPorOperacao = new Map();
+async function listarIdsDaOperacao(operacao) {
+  if (!_listagemPorOperacao.has(operacao)) {
+    const q = new URLSearchParams({ limit: '100', page: '1', name: operacao });
+    const r = await langfuse('GET', `/api/public/traces?${q}`);
+    _listagemPorOperacao.set(operacao, (r?.data ?? []).map((t) => t.id));
+  }
+  return _listagemPorOperacao.get(operacao);
+}
+
+async function resolverTrace(idOuPrefixo) {
+  if (idOuPrefixo.length >= 32) return buscarTraceCompleto(idOuPrefixo);
+  if (idOuPrefixo.length < 12) {
+    throw new Error(`"${idOuPrefixo}" e' curto demais: use o id completo ou um prefixo de pelo menos 12 caracteres.`);
+  }
+  const candidatos = [];
+  for (const operacao of OPERACOES) {
+    for (const id of await listarIdsDaOperacao(operacao)) if (id.startsWith(idOuPrefixo)) candidatos.push(id);
+  }
+  if (candidatos.length === 0) throw new Error(`nenhum trace das operacoes ${OPERACOES.join('/')} comeca com "${idOuPrefixo}".`);
+  if (candidatos.length > 1) throw new Error(`prefixo "${idOuPrefixo}" e' ambiguo: ${candidatos.join(', ')}.`);
+  return buscarTraceCompleto(candidatos[0]);
 }
 
 async function gravarScore({ traceId, nome, valor, comentario, tipo }) {
@@ -480,6 +512,31 @@ async function julgar(material) {
   };
 }
 
+// `tool_choice` garante que o juiz CHAME a ferramenta, nao que ele PREENCHA
+// todos os campos: de vez em quando ele devolve a avaliacao sem um dos
+// criterios. Perder o trace inteiro por isso e caro (ainda mais ao vivo), e
+// repetir nao adultera nada — ou a avaliacao vem completa, ou tenta de novo.
+async function julgarComRetry(material, criterios, tentativas = 3) {
+  let faltante = null;
+  for (let t = 1; t <= tentativas; t++) {
+    const resultado = await julgar(material);
+    const incompleto = criterios.find((cr) => {
+      const item = resultado.avaliacao[cr.nome];
+      return !item || typeof item.valor !== 'number';
+    });
+    if (!incompleto) return resultado;
+    faltante = incompleto.nome;
+    if (t < tentativas) {
+      console.log(
+        '        ' + cinza(`(juiz nao devolveu "${faltante}" — tentando de novo: ${t + 1}/${tentativas})`)
+      );
+    }
+  }
+  throw new Error(
+    `O juiz nao devolveu o criterio "${faltante}" em ${tentativas} tentativas (ou devolveu sem valor numerico).`
+  );
+}
+
 async function chamarJuiz(tool, material) {
   return anthropic.messages.create({
     model: MODELO_JUIZ,
@@ -513,6 +570,14 @@ function lerArgs(argv) {
     if (a === '--dry-run') args.dryRun = true;
     else if (a === '--sem-cor') continue;
     else if (a === '--limit' || a === '--limite') args.limite = Number(argv[++i]);
+    else if (a === '--trace' || a === '--traces') {
+      // Pina traces por id (aceita prefixo de 12+ chars). Existe pra gravacao
+      // de aula: o `--limit N` traz "os mais recentes", e qualquer uso novo do
+      // produto muda o que aparece na tela. Com id fixo a demo e reproduzivel.
+      const ids = String(argv[++i]).split(',').map((s) => s.trim()).filter(Boolean);
+      if (!ids.length) throw new Error('--trace precisa de pelo menos um id.');
+      args.traces = ids;
+    }
     else if (a === '--operacao' || a === '--operacoes') {
       const pedidas = String(argv[++i]).split(',').map((s) => s.trim());
       const invalidas = pedidas.filter((p) => !OPERACOES.includes(p));
@@ -532,11 +597,13 @@ function lerArgs(argv) {
 }
 
 const AJUDA = `
-Chef Caseiro — pipeline de evals (Claude-as-judge -> Langfuse Scores)
+Musa Balance — pipeline de evals (Claude-as-judge -> Langfuse Scores)
 
   node evals/run-evals.js [opcoes]
 
   --limit N            traces por operacao (padrao: 4)
+  --trace ID[,ID]      julga so estes traces (id completo ou prefixo >= 12 chars);
+                       a operacao vem do proprio trace. Ignora --limit/--operacao.
   --operacao A[,B]     ${OPERACOES.join(' | ')}
   --dry-run            julga e mostra, mas NAO grava Score no Langfuse
   --sem-cor            saida sem ANSI
@@ -563,34 +630,70 @@ async function main() {
   }
 
   console.log('');
-  console.log(negrito('  Chef Caseiro — pipeline de evals'));
+  console.log(negrito('  Musa Balance — pipeline de evals'));
   console.log(cinza(`  interacoes reais do Langfuse -> juiz (${MODELO_JUIZ}) -> Scores de volta no trace`));
   console.log('');
   console.log(
     cinza('  Langfuse: ') + base +
     cinza('   modo: ') + (args.dryRun ? amarelo('DRY-RUN (nao grava)') : verde('GRAVANDO SCORES'))
   );
-  console.log(
-    cinza('  Operacoes: ') + args.operacoes.join(', ') +
-    cinza('   limite: ') + args.limite + cinza(' por operacao')
-  );
+  if (args.traces) {
+    console.log(cinza('  Traces pinados: ') + args.traces.map((t) => t.slice(0, 12) + '...').join(', '));
+  } else {
+    console.log(
+      cinza('  Operacoes: ') + args.operacoes.join(', ') +
+      cinza('   limite: ') + args.limite + cinza(' por operacao')
+    );
+  }
   console.log('  ' + cinza(linha()));
 
   const resultados = [];
   const falhas = [];
   let scoresGravados = 0;
 
-  for (const operacao of args.operacoes) {
+  // Lotes a julgar: [{ operacao, traces: [resumo...] }]. Ou "os N mais
+  // recentes por operacao" (padrao), ou os ids pinados por --trace, agrupados
+  // pela operacao que o proprio trace declara (campo `name`).
+  const lotes = [];
+  if (args.traces) {
+    for (const idPedido of args.traces) {
+      let completo;
+      try {
+        completo = await resolverTrace(idPedido);
+      } catch (err) {
+        falhas.push({ operacao: '?', traceId: idPedido, etapa: 'buscar trace pinado', detalhe: detalharErro(err) });
+        console.log('  ' + vermelho(`! nao consegui buscar o trace ${idPedido}:`) + '\n    ' + detalharErro(err));
+        continue;
+      }
+      if (!OPERACOES.includes(completo.name)) {
+        falhas.push({ operacao: completo.name, traceId: completo.id, etapa: 'buscar trace pinado',
+          detalhe: `o trace e' da operacao "${completo.name}", que nao tem criterios. Validas: ${OPERACOES.join(', ')}.` });
+        console.log('  ' + vermelho(`! trace ${completo.id.slice(0, 12)}... e' de "${completo.name}" — sem criterios pra julgar.`));
+        continue;
+      }
+      let lote = lotes.find((l) => l.operacao === completo.name);
+      if (!lote) lotes.push((lote = { operacao: completo.name, traces: [] }));
+      lote.traces.push({ id: completo.id, timestamp: completo.timestamp, _completo: completo });
+    }
+    args.operacoes = lotes.map((l) => l.operacao); // pro resumo agregado
+  } else {
+    for (const operacao of args.operacoes) lotes.push({ operacao, traces: null });
+  }
+
+  for (const lote of lotes) {
+    const operacao = lote.operacao;
     console.log('');
     console.log('  ' + negrito(ciano(operacao)));
 
-    let traces;
-    try {
-      traces = await buscarTraces(operacao, args.limite);
-    } catch (err) {
-      falhas.push({ operacao, etapa: 'buscar traces', detalhe: detalharErro(err) });
-      console.log('  ' + vermelho('! nao consegui buscar traces:') + '\n    ' + detalharErro(err));
-      continue;
+    let traces = lote.traces;
+    if (!traces) {
+      try {
+        traces = await buscarTraces(operacao, args.limite);
+      } catch (err) {
+        falhas.push({ operacao, etapa: 'buscar traces', detalhe: detalharErro(err) });
+        console.log('  ' + vermelho('! nao consegui buscar traces:') + '\n    ' + detalharErro(err));
+        continue;
+      }
     }
 
     if (!traces.length) {
@@ -604,9 +707,9 @@ async function main() {
       const quando = new Date(resumo.timestamp).toISOString().replace('T', ' ').slice(0, 16);
 
       try {
-        const completo = await buscarTraceCompleto(resumo.id);
+        const completo = resumo._completo ?? (await buscarTraceCompleto(resumo.id));
         const material = montarMaterial(completo);
-        const { avaliacao, tokens } = await julgar(material);
+        const { avaliacao, tokens } = await julgarComRetry(material, CRITERIOS[operacao]);
 
         console.log('');
         console.log('  ' + negrito(rotulo) + cinza(`  ${quando} UTC`));
@@ -641,7 +744,7 @@ async function main() {
               '  ' +
               cinza(barra(valor)) +
               '  ' +
-              cinza(encurtar(item.justificativa.replace(/\s+/g, ' '), 300))
+              cinza(encurtar(item.justificativa.replace(/\s+/g, ' '), 2000))
           );
 
           if (!args.dryRun) {

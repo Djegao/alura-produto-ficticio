@@ -1,0 +1,603 @@
+[
+ {
+  "video": "2.1",
+  "n": 1,
+  "base": "A1·22",
+  "kind": "divisor",
+  "title": "2.1 O que são evals?",
+  "sub": "",
+  "table": [],
+  "notes": "",
+  "bullets": []
+ },
+ {
+  "video": "2.1",
+  "n": 2,
+  "base": "A1·5",
+  "kind": "hero",
+  "title": "Evals",
+  "sub": "O primeiro pilar do run",
+  "table": [],
+  "notes": "Na aula passada eu fechei o relatório de riscos do Musa Balance. E a gente viu os três pilares que sustentam o run: evals, observabilidade e conformidade.\n\nHoje eu pego o primeiro. E vou começar do jeito mais simples: lembrando qual era a pergunta dele.",
+  "bullets": []
+ },
+ {
+  "video": "2.1",
+  "n": 3,
+  "base": "A1·10",
+  "kind": "statement",
+  "title": "A IA está fazendo o que deveria?",
+  "sub": "",
+  "table": [],
+  "notes": "Essa é a pergunta do primeiro pilar. Qualidade, precisão, aderência ao que eu esperava.\n\nEssa aula inteira é essa pergunta.\n\nE repara: ela não é sobre construir. Construir eu já fiz. O produto está no ar, a minha casa usa. Ela é sobre o run. Sobre o que acontece depois que eu parei de olhar.",
+  "bullets": []
+ },
+ {
+  "video": "2.1",
+  "n": 4,
+  "base": "A1·16",
+  "kind": "build, foto do corredor",
+  "title": "Build and Run",
+  "sub": "E se eu mudar o produto amanhã?",
+  "table": [],
+  "notes": "O relatório de riscos fala do que pode dar errado. É hipótese. Agora eu quero uma pergunta mais incômoda: e se eu mudar o produto amanhã?\n\nPorque eu vou mudar. Vou mexer no prompt do Mediador, vou trocar o modelo, vou ajustar uma regra. Isso é o trabalho. E tem três jeitos disso dar errado.\n\n(linha 1) O primeiro é o mais traiçoeiro. Eu melhoro uma coisa e quebro outra. Corrijo como ele classifica a refeição e, sem perceber, pioro como ele identifica um trade-off. Eu testei o que eu mudei. Não testei o que eu não mudei.\n\n(linha 2) O segundo é pior, porque não tem sintoma. Um comportamento que eu tinha como garantido simplesmente some. Ninguém recebe erro. O Mediador continua respondendo, educado, bonito. Só que parou de fazer uma coisa que fazia. E eu só descubro quando alguém da casa reclama. Ou não descubro.\n\n(linha 3) E o terceiro: um erro que eu já consertei volta. E volta pior, porque agora eu confio que aquilo está resolvido. Não estou mais olhando pra lá.",
+  "bullets": [
+   "Melhoro uma coisa e quebro outra."
+  ]
+ },
+ {
+  "video": "2.1",
+  "n": 5,
+  "base": "A1·16",
+  "kind": "build, foto do corredor",
+  "title": "Build and Run",
+  "sub": "E se eu mudar o produto amanhã?",
+  "table": [],
+  "notes": "O relatório de riscos fala do que pode dar errado. É hipótese. Agora eu quero uma pergunta mais incômoda: e se eu mudar o produto amanhã?\n\nPorque eu vou mudar. Vou mexer no prompt do Mediador, vou trocar o modelo, vou ajustar uma regra. Isso é o trabalho. E tem três jeitos disso dar errado.\n\n(linha 1) O primeiro é o mais traiçoeiro. Eu melhoro uma coisa e quebro outra. Corrijo como ele classifica a refeição e, sem perceber, pioro como ele identifica um trade-off. Eu testei o que eu mudei. Não testei o que eu não mudei.\n\n(linha 2) O segundo é pior, porque não tem sintoma. Um comportamento que eu tinha como garantido simplesmente some. Ninguém recebe erro. O Mediador continua respondendo, educado, bonito. Só que parou de fazer uma coisa que fazia. E eu só descubro quando alguém da casa reclama. Ou não descubro.\n\n(linha 3) E o terceiro: um erro que eu já consertei volta. E volta pior, porque agora eu confio que aquilo está resolvido. Não estou mais olhando pra lá.",
+  "bullets": [
+   "Melhoro uma coisa e quebro outra.",
+   "Um comportamento que eu tinha como garantido some."
+  ]
+ },
+ {
+  "video": "2.1",
+  "n": 6,
+  "base": "A1·16",
+  "kind": "build, foto do corredor",
+  "title": "Build and Run",
+  "sub": "E se eu mudar o produto amanhã?",
+  "table": [],
+  "notes": "O relatório de riscos fala do que pode dar errado. É hipótese. Agora eu quero uma pergunta mais incômoda: e se eu mudar o produto amanhã?\n\nPorque eu vou mudar. Vou mexer no prompt do Mediador, vou trocar o modelo, vou ajustar uma regra. Isso é o trabalho. E tem três jeitos disso dar errado.\n\n(linha 1) O primeiro é o mais traiçoeiro. Eu melhoro uma coisa e quebro outra. Corrijo como ele classifica a refeição e, sem perceber, pioro como ele identifica um trade-off. Eu testei o que eu mudei. Não testei o que eu não mudei.\n\n(linha 2) O segundo é pior, porque não tem sintoma. Um comportamento que eu tinha como garantido simplesmente some. Ninguém recebe erro. O Mediador continua respondendo, educado, bonito. Só que parou de fazer uma coisa que fazia. E eu só descubro quando alguém da casa reclama. Ou não descubro.\n\n(linha 3) E o terceiro: um erro que eu já consertei volta. E volta pior, porque agora eu confio que aquilo está resolvido. Não estou mais olhando pra lá.",
+  "bullets": [
+   "Melhoro uma coisa e quebro outra.",
+   "Um comportamento que eu tinha como garantido some.",
+   "Um erro corrigido volta. E volta pior."
+  ]
+ },
+ {
+  "video": "2.1",
+  "n": 7,
+  "base": "A1·10",
+  "kind": "statement",
+  "title": "Testar uma vez responde sobre aquele momento.",
+  "sub": "",
+  "table": [],
+  "notes": "A resposta natural é: eu testo. Abro o produto, faço um pedido, leio. Uma vez. Duas.\n\nSó que testar uma vez responde sobre aquele momento. Aquele pedido, aquele estoque, aquele humor do modelo naquele minuto. E produto é o que acontece nos outros dias.\n\nEntão eu preciso de um jeito sistemático de verificar isso. Não uma vez. Continuamente. É aqui que entram os evals.",
+  "bullets": []
+ },
+ {
+  "video": "2.1",
+  "n": 8,
+  "base": "A1·27",
+  "kind": "lista",
+  "title": "Evals: qualidade em evidência",
+  "sub": "",
+  "table": [],
+  "notes": "Quero uma definição que você consiga repetir pra alguém amanhã.\n\nEval é um processo sistemático pra verificar se o produto se comporta como eu espero. Sistemático é a palavra. Não é eu abrindo o produto quando lembro.\n\nE deixa eu tirar a confusão mais comum do caminho. Isso não é QA. Não é teste de software. Teste compara com o resultado esperado. Dois mais dois dá quatro, sempre. Rodo de novo, dá quatro de novo.\n\nO Mediador não funciona assim. O mesmo pedido, na mesma semana, gera um texto diferente cada vez. E o pulo do gato: as duas versões podem estar certas. Se eu escrevo um teste esperando uma frase específica, ele falha na segunda execução e não me ensina nada.\n\nTeste pergunta \"é igual ao esperado?\". Eval pergunta \"é bom?\".\n\nE a terceira parte: é critério. Uma coisa que eu escrevo, que outra pessoa consegue aplicar, e que eu melhoro toda semana. Critério é o próximo vídeo. Antes, a estrutura onde ele mora.",
+  "bullets": [
+   "Processo sistemático: o produto faz o que eu espero?",
+   "Não é teste de software. Teste pergunta \"é igual?\". Eval pergunta \"é bom?\".",
+   "Critério reproduzível, que eu aprimoro semana a semana."
+  ]
+ },
+ {
+  "video": "2.1",
+  "n": 9,
+  "base": "A2·13",
+  "kind": "funil",
+  "title": "O funil de qualquer eval",
+  "sub": "1. Cenário · 2. Critério · 3. Resposta · 4. Evidência",
+  "table": [],
+  "notes": "Todo eval tem os mesmos quatro passos, nesta ordem.\n\nCenário: o que eu estou tentando avaliar. Não uma pergunta genérica. Uma situação específica. No Musa Balance: o casal pediu uma mediação de cardápio pra semana.\n\nCritério: o que eu espero que ele faça ali. Que exponha o trade-off. Que use o número que a ferramenta devolveu. E aqui está o que quase ninguém fala: isso é decisão minha, de produto. Não é o modelo que define o que é bom.\n\nResposta: o que ele fez de verdade. Não o que eu imagino. O que está gravado.\n\nEvidência: atendeu ou não atendeu, com uma justificativa que eu consiga apontar.\n\nGuarda esse funil. A aula inteira mora nele. O próximo vídeo é o passo dois. Os dois últimos são os passos três e quatro.",
+  "bullets": []
+ },
+ {
+  "video": "2.1",
+  "n": 10,
+  "base": "A1·10",
+  "kind": "statement",
+  "title": "Não estamos avaliando o modelo.",
+  "sub": "",
+  "table": [],
+  "notes": "Antes de escrever qualquer critério, uma frase pra ficar gravada: não estamos avaliando o modelo. Estamos avaliando o comportamento esperado do produto.\n\nParece detalhe de linguagem. Não é. Muda o que você escreve.\n\nSe eu avalio o modelo, escrevo critério genérico. A resposta é coerente? O texto está bem escrito? Qualquer produto do mundo passa nisso.\n\nSe eu avalio o produto, escrevo o que este produto prometeu pra esta casa. Expôs o trade-off? Usou o número da ferramenta? Deixou a escolha com o casal?\n\nO segundo eu defendo numa reunião. O primeiro, não.",
+  "bullets": []
+ },
+ {
+  "video": "2.1",
+  "n": 11,
+  "base": "A1·27",
+  "kind": "lista",
+  "title": "Se tudo passa, desconfie",
+  "sub": "",
+  "table": [],
+  "notes": "Um último aviso, e ele é contraintuitivo.\n\nÉ muito tentador comemorar quando cem por cento das respostas passam. Eu já fiz isso. Levei o número verde pra reunião, todo mundo bateu palma.\n\nSó que cem por cento é sinal de alerta. Quase sempre quer dizer que o critério está tão frouxo que qualquer resposta passa. Inclusive as ruins.\n\nUm critério bom precisa reprovar alguma coisa. Se nunca reprova, não está medindo. Está decorando.\n\nE aí vem a decisão mais de produto desta aula: quanto de falha eu aceito? Zero erro custa modelo mais caro, resposta mais lenta, e um produto que recusa tanto que a pessoa desinstala. Essa conta é minha. Não é do modelo.\n\nNo próximo vídeo a gente escreve os critérios. Em português, sem código, a partir de um cenário que aconteceu na minha cozinha.",
+  "bullets": [
+   "100% de aprovação é sinal de alerta, não de sucesso.",
+   "Um critério bom precisa reprovar alguma coisa. Se nunca reprova, não está medindo.",
+   "Quanto de falha eu aceito é decisão de produto. Zero erro não existe de graça."
+  ]
+ },
+ {
+  "video": "2.2",
+  "n": 1,
+  "base": "A1·22",
+  "kind": "divisor",
+  "title": "2.2 Critérios de qualidade",
+  "sub": "",
+  "table": [],
+  "notes": "",
+  "bullets": []
+ },
+ {
+  "video": "2.2",
+  "n": 2,
+  "base": "A2·19",
+  "kind": "só os dois cards; apagar a caixa \"Cenário: pote vazio\" e a lista da direita",
+  "title": "De opinião a critério verificável",
+  "sub": "OPINIÃO: \"Acho que a resposta está adequada.\" ↓ CRITÉRIO VERIFICÁVEL: \"O que eu esperaria ver? O que eu não aceitaria ver?\"",
+  "table": [],
+  "notes": "No funil a gente viu cenário, critério, resposta, evidência. Hoje a gente para no critério.\n\nÉ o passo mais fácil de fazer errado. E o único que não precisa de código. Isso é bom e é perigoso. Bom porque qualquer pessoa do time consegue escrever critério. Perigoso porque qualquer pessoa consegue escrever critério ruim. E critério ruim parece critério.\n\nO ponto de partida é sempre o mesmo. Eu leio uma resposta e acho que está adequada. Isso é opinião.\n\nPra virar critério, eu respondo duas perguntas antes de ler a próxima. O que eu esperaria ver? E o que eu não aceitaria ver?",
+  "bullets": []
+ },
+ {
+  "video": "2.2",
+  "n": 3,
+  "base": "A1·16",
+  "kind": "lista com pergunta",
+  "title": "Um cenário real",
+  "sub": "Fim de dia. Ninguém quer cozinhar.",
+  "table": [],
+  "notes": "Critério no abstrato não se escreve bem. Então um cenário que aconteceu na minha cozinha.\n\nFim de dia, ninguém quer cozinhar. A casa querendo pedir entrega. Só que tem porção caseira parada na geladeira, feita no fim de semana.\n\nEu, chef, penso em desperdício e orçamento. A musa quer comer o que deu vontade. E olha: os dois têm razão. Não existe lado errado nessa conversa. É pra esse conflito que o Mediador existe.\n\nEntão é daqui que os critérios nascem. Da promessa do produto. Não de uma lista de boas práticas que eu baixei da internet.",
+  "bullets": [
+   "A casa quer pedir entrega hoje.",
+   "Tem porção caseira parada na geladeira, do fim de semana.",
+   "Chef: desperdício. Musa: vontade."
+  ]
+ },
+ {
+  "video": "2.2",
+  "n": 4,
+  "base": "A1·27",
+  "kind": "lista",
+  "title": "Os critérios que nascem daí",
+  "sub": "",
+  "table": [],
+  "notes": "Repara que dá pra apontar o sim ou o não em todos. Esse é o teste.\n\nEle mencionou que existem porções caseiras? Ou fingiu que a geladeira estava vazia? Isso é fato. Ou a porção aparece na resposta, ou não aparece.\n\nEle citou o delivery recente como parte do motivo? Essa é a informação que muda a conversa. A casa pediu entrega ontem. Isso pesa.\n\nE o terceiro é de posicionamento. Ele decidiu sozinho o que a casa deve fazer? Se decidiu, parou de ser mediador. No momento em que ele diz \"não peça entrega\", virou mais um app de dieta que a pessoa desinstala.",
+  "bullets": [
+   "Menciona que existem porções caseiras não consumidas?",
+   "Cita o delivery recente como parte do motivo?",
+   "Não decide sozinho: expõe o conflito e deixa a escolha em aberto?"
+  ]
+ },
+ {
+  "video": "2.2",
+  "n": 5,
+  "base": "A1·27",
+  "kind": "lista",
+  "title": "Dois que pegam número inventado",
+  "sub": "",
+  "table": [],
+  "notes": "E tem dois critérios que existem pra pegar um tipo específico de erro.\n\nEle usou número real? Quantas porções restam, quantos dias desde o preparo? Ou falou por alto? Um mediador sem número não medeia, opina. E opinião não resolve conflito entre duas pessoas que já sabem o que querem.\n\nE o meu favorito: ele inventou um prazo de validade que não veio de cálculo em código?\n\nPorque um número inventado que parece certo é a pior classe de erro que existe aqui. É indistinguível de um número certo até alguém conferir. E como o Mediador fala com autoridade, a casa age em cima dele. Come uma coisa que passou. Ou joga fora uma coisa que estava boa.",
+  "bullets": [
+   "Usa números reais: porções restantes, dias desde o preparo?",
+   "Não inventa prazo de validade que não veio de cálculo em código?",
+   "Um número inventado que parece certo é indistinguível de um certo até alguém conferir."
+  ]
+ },
+ {
+  "video": "2.2",
+  "n": 6,
+  "base": "A1·21",
+  "kind": "3 colunas",
+  "title": "Um critério tem 4 partes",
+  "sub": "As quatro são obrigatórias. Se faltar uma, o critério vaza.",
+  "table": [
+   [
+    "Nome",
+    "Pergunta",
+    "Escala"
+   ],
+   [
+    "Como ele se chama?",
+    "Uma pessoa consegue responder?",
+    "Binário ou de 0 a 1?"
+   ],
+   [
+    "É o que vai ser gravado toda vez. Sem nome estável, não dá pra comparar esta semana com a próxima.",
+    "Respondível olhando a interação, sem abrir o repositório. Se precisa do código, está na língua errada.",
+    "Binário quando a falha é categórica. De 0 a 1 quando \"meio certo\" existe de verdade."
+   ],
+   [
+    "Ex.: mediou_sem_decidir",
+    "Ex.: deixou a escolha com o casal?",
+    "Ex.: não existe respeitar 70% de uma alergia."
+   ]
+  ],
+  "notes": "Agora o formato. Um critério tem quatro partes. As quatro são obrigatórias. Se faltar uma, ele vaza por algum lado.\n\nNome. Parece burocracia. Não é. É o que vai ser gravado toda vez que o critério for aplicado. Sem nome estável, eu não comparo a semana passada com esta. E comparar no tempo é o ponto inteiro.\n\nPergunta. O teste de fogo: uma pessoa consegue responder olhando a interação, sem abrir o repositório? Se precisa do código, o critério está na língua errada.\n\nEscala. Binário quando a falha é categórica. De zero a um quando \"meio certo\" existe de verdade. Não existe respeitar setenta por cento de uma alergia.\n\nE tem uma quarta. Não coube na tela. É a mais importante.",
+  "bullets": []
+ },
+ {
+  "video": "2.2",
+  "n": 7,
+  "base": "A1·10",
+  "kind": "statement",
+  "title": "Por que erra caro.",
+  "sub": "",
+  "table": [],
+  "notes": "Por que erra caro.\n\nParece burocracia de documentação. É o oposto. É o que separa um critério de uma curiosidade.\n\nUm critério que não custa nada quando falha não merece ser um eval. E ele não é neutro. É negativo. Toda rodada ele gasta tempo, gasta dinheiro, e ocupa uma linha do relatório que alguém tem que ler.\n\nO exercício é escrever o custo em uma frase. \"Se ele inventar a validade, a casa come comida estragada ou joga fora comida boa.\" Se você não consegue escrever essa frase, o critério não deveria existir.",
+  "bullets": []
+ },
+ {
+  "video": "2.2",
+  "n": 8,
+  "base": "A1·27",
+  "kind": "lista",
+  "title": "Binário ou de zero a um?",
+  "sub": "",
+  "table": [],
+  "notes": "A regra da escala é mais simples do que parece.\n\nBinário é pra falha categórica. Ou ele deixou a escolha em aberto, ou decidiu sozinho. Não existe deixar setenta por cento em aberto. Se a falha não tem meio-termo na vida real, não pode ter meio-termo na régua.\n\nDe zero a um é pra quando \"meio certo\" existe. Ele citou números, mas soltos, sem ligar à escolha. Não é a mesma coisa que não citar nada. E também não é o que eu queria.\n\nNa dúvida, binário. Escala contínua vira opinião disfarçada de número. O meu zero vírgula sete é o zero vírgula oito seu. E ninguém sabe o que separa os dois.",
+  "bullets": [
+   "Binário pra falha categórica: ou deixou a escolha, ou decidiu.",
+   "De 0 a 1 quando \"meio certo\" existe: citou números, mas soltos, sem ligar à escolha.",
+   "Na dúvida, binário. Escala contínua vira opinião disfarçada de número: meu 0,7 é o seu 0,8."
+  ]
+ },
+ {
+  "video": "2.2",
+  "n": 9,
+  "base": "A1·22",
+  "kind": "divisor de ação",
+  "title": "2.2.1 Os critérios no produto",
+  "sub": "",
+  "table": [],
+  "notes": "AÇÃO: Alt+tab pro editor. Ler o mediou_sem_decidir inteiro. Apontar as quatro partes com o mouse. Os outros quatro, só mostrar.\n\nEsses critérios existem de verdade no produto. Olha aqui. É um arquivo de texto, em português. Não tem código nenhum.\n\nEsse é o mediou_sem_decidir. Nome: é assim que ele vai ser gravado toda vez. Pergunta: o agente apresentou o conflito e deixou a escolha explícita para o casal, sem proibir, julgar ou decidir sozinho? Escala: binário. E por que erra caro: (lê o parágrafo). \"Degrada em silêncio quando alguém troca o modelo ou melhora o prompt.\"\n\nOs outros quatro seguem o mesmo formato. Trade-off com números. Números vieram de ferramenta. Falta virou trade-off. E um que vem antes de todos, que eu explico no último vídeo.\n\nQualquer pessoa da casa lê isso e aplica numa mediação. Sem me perguntar nada.",
+  "bullets": []
+ },
+ {
+  "video": "2.2",
+  "n": 10,
+  "base": "A1·10",
+  "kind": "statement",
+  "title": "Se precisa de mim pra julgar, não é critério.",
+  "sub": "",
+  "table": [],
+  "notes": "Olha o que mudou. Antes eu lia a mediação e achava razoável. E \"razoável\" era eu, lendo uma vez, com o humor daquele dia.\n\nAgora eu tenho critério. E o teste é esse: qualquer pessoa da casa aplica e chega no mesmo sim ou no mesmo não que eu. Se precisa de mim pra julgar, não é critério. É gosto.\n\nSó que tem um problema. Cinco critérios escritos. Treze mediações gravadas. Alguém precisa aplicar. Por enquanto, esse alguém sou eu, lendo uma por uma.\n\nNo próximo vídeo eu passo esse trabalho pra frente.",
+  "bullets": []
+ },
+ {
+  "video": "2.3",
+  "n": 1,
+  "base": "A1·22",
+  "kind": "divisor",
+  "title": "2.3 Claude como avaliador",
+  "sub": "",
+  "table": [],
+  "notes": "",
+  "bullets": []
+ },
+ {
+  "video": "2.3",
+  "n": 2,
+  "base": "A1·16",
+  "kind": "lista com pergunta",
+  "title": "Ler à mão",
+  "sub": "Funciona. Até não funcionar.",
+  "table": [],
+  "notes": "Eu tenho critério escrito. Agora preciso aplicar.\n\nO primeiro jeito é o óbvio: eu leio. Pego a mediação, olho o que o produto tinha em mãos, respondo sim ou não pra cada critério.\n\nE quero ser justo com esse método, porque ele é subestimado. Com três mediações, ler uma por uma é o melhor investimento que existe. Foi lendo à mão que eu descobri o que medir. Não pule essa etapa achando que é primitiva.\n\nO problema é que ela não escala. E não escala de um jeito específico. Com trezentas eu não leio, isso é óbvio. O caso que mata é o do meio. Com trinta por semana, eu leio na segunda, leio na terça, e paro na quarta.\n\nE aí eu tenho um processo de qualidade que existe no documento e não existe na prática.",
+  "bullets": [
+   "Com três mediações, ler é o melhor.",
+   "Com trinta por semana, eu paro na quarta-feira.",
+   "O critério não escala sozinho."
+  ]
+ },
+ {
+  "video": "2.3",
+  "n": 3,
+  "base": "A1·21",
+  "kind": "3 colunas",
+  "title": "Do critério ao veredito",
+  "sub": "O Claude entra num papel oposto ao que ele tinha até agora.",
+  "table": [
+   [
+    "Trace",
+    "Julgamento",
+    "Veredito"
+   ],
+   [
+    "O que aconteceu de fato?",
+    "O critério foi atendido?",
+    "Atendeu ou não atendeu?"
+   ],
+   [
+    "Uma execução real: pedido, resposta final, cada ferramenta chamada e o que devolveu.",
+    "O árbitro confronta a execução com o critério. Sempre do mesmo jeito.",
+    "Nota por critério, com a evidência que sustenta cada uma."
+   ],
+   [
+    "Ex.: bem mais do que eu olho quando leio à mão.",
+    "Ex.: LLM as a judge.",
+    "Ex.: um árbitro que não cansa na sexta."
+   ]
+  ],
+  "notes": "A ideia é essa: o Claude entra num papel oposto ao que ele tinha neste produto.\n\nAté agora ele gerava. Escrevia a mediação. Agora ele julga. Mesmo modelo, trabalho contrário. Ele não produz nada novo. Lê uma execução que já aconteceu e emite um parecer.\n\nE olha o que ele recebe: o trace inteiro. O pedido original, a resposta final, quais ferramentas foram chamadas e o que cada uma devolveu.\n\nIsso é bem mais do que eu olho quando leio à mão. Eu leio a resposta. Ele enxerga o caminho inteiro. Inclusive se o produto consultou o estoque e depois ignorou o resultado.\n\nÉ um árbitro que não cansa e não julga diferente na sexta-feira.",
+  "bullets": []
+ },
+ {
+  "video": "2.3",
+  "n": 4,
+  "base": "A1·27",
+  "kind": "lista",
+  "title": "O que faz do modelo um juiz",
+  "sub": "",
+  "table": [],
+  "notes": "Só que apontar o modelo pra uma resposta e perguntar \"isso tá bom?\" não produz um juiz. Produz um elogiador. Modelo de linguagem é agradável por construção. Ele vai achar quase tudo razoável.\n\nO que transforma o modelo em juiz é o conjunto de regras que eu dou. Essas três estão no prompt do juiz, literalmente.\n\nPrimeira: julgue só com base no material. Se a informação não está no que ele recebeu, ela não existe. Isso corta a tendência dele de preencher lacuna com o que é plausível.\n\nSegunda: toda nota precisa de evidência citável. \"A resposta foi boa\" não vale como razão.\n\nTerceira, a minha favorita: seja severo com falha silenciosa. Repara que essa é uma instrução de valor, não técnica. Eu estou dizendo pro juiz o que este produto considera grave. É isso que \"simular o julgamento de um especialista\" quer dizer. Especialista tem critério de gravidade, não só de correção.",
+  "bullets": [
+   "Julgue só com base no material. Não suponha nada.",
+   "Toda nota precisa de evidência citável. Justificativa genérica é justificativa inválida.",
+   "Seja severo com falha silenciosa: um estado errado que ninguém percebeu é pior que um erro barulhento."
+  ]
+ },
+ {
+  "video": "2.3",
+  "n": 5,
+  "base": "A1·10",
+  "kind": "statement",
+  "title": "Nota sem evidência não vale nada.",
+  "sub": "",
+  "table": [],
+  "notes": "Deixa eu insistir na segunda regra, porque ela muda a natureza da coisa.\n\nCada critério devolve dois campos, os dois obrigatórios: o valor e a justificativa. E a justificativa tem que citar o material. Um trecho da resposta, o nome de uma ferramenta, um número que apareceu.\n\nIsso não é capricho. É o que me deixa discordar do juiz.\n\nSe ele me devolve \"zero vírgula três\" e mais nada, eu tenho duas opções, as duas ruins. Aceitar na fé. Ou refazer o trabalho à mão.\n\nSe ele me devolve \"zero vírgula três porque a resposta não menciona as porções que estão na geladeira\", eu confiro em cinco segundos. E se ele estiver errado, eu descubro. E conserto o critério.\n\nUm juiz que eu não consigo auditar não é melhor que nenhum juiz. É pior. Me dá confiança falsa.",
+  "bullets": []
+ },
+ {
+  "video": "2.3",
+  "n": 6,
+  "base": "A1·27",
+  "kind": "lista",
+  "title": "O juiz não faz conta",
+  "sub": "",
+  "table": [],
+  "notes": "Uma decisão de desenho que eu recomendo pra qualquer eval que você construir.\n\nAntes de chamar o Claude, o código apura os fatos objetivos. Quais ferramentas rodaram. Quantos tokens saíram. Se alguma etapa deu erro. Se a saída final veio vazia.\n\nIsso entra no material que o juiz recebe, já pronto, marcado como fato. E a instrução é explícita: isso é verdade apurada, use e não refaça conta nenhuma.\n\nPor quê? Porque comparar número é exatamente o que modelo de linguagem faz mal. E faz com confiança.\n\nA regra que eu levo pra qualquer projeto: aritmética é trabalho de código. Julgamento é trabalho do modelo. Misturar os dois é como a maioria dos evals estraga sem ninguém notar.",
+  "bullets": [
+   "Primeiro o código apura os fatos: ferramentas, tokens, erros.",
+   "Isso entra no material já pronto, marcado como fato. O juiz usa e não recalcula.",
+   "Aritmética é trabalho de código. Julgamento é trabalho do modelo."
+  ]
+ },
+ {
+  "video": "2.3",
+  "n": 7,
+  "base": "A1·10",
+  "kind": "statement",
+  "title": "Prompt não é contrato.",
+  "sub": "",
+  "table": [],
+  "notes": "E a última decisão. A que mais gente aprende do jeito difícil.\n\nPra somar as notas, eu preciso que a resposta do juiz venha estruturada. Não em prosa. A tentação é escrever no prompt: \"responda em JSON com as notas de cada critério\".\n\nE isso funciona. Quase sempre. E \"quase sempre\" não serve. Quando ele resolve responder em prosa, não sobra nota nenhuma pra somar. E eu só descubro quando o relatório vem vazio.\n\nA solução não é escrever o pedido com mais ênfase. É estrutural. A chamada da ferramenta é forçada pela API. O modelo não tem a opção de responder em prosa.\n\nGuarda essa frase, porque vale muito além de eval: prompt não é contrato. Prompt é pedido. Quando você precisa de garantia, a garantia tem que estar na estrutura.",
+  "bullets": []
+ },
+ {
+  "video": "2.3",
+  "n": 8,
+  "base": "A1·22",
+  "kind": "divisor de ação",
+  "title": "2.3.1 O juiz julga uma mediação",
+  "sub": "",
+  "table": [],
+  "notes": "AÇÃO: No terminal: ~15 s. É a mediação do risoto de camarão de 22/08. Notas esperadas: integridade 0 · trade-off 0,5 · números de ferramenta 1 · mediou sem decidir 1 · falta virou trade-off 0.\n\nCOMANDO:\nnode evals/run-evals.js --dry-run --trace 9f8bb3c520bca952adff5825cf213c84\n\nChega de teoria. Vou pegar uma mediação real, de agosto, e mandar o juiz julgar.\n\n(enquanto roda) Repara no que está acontecendo. Ele está montando o material. Pedido, resposta, ferramentas, e os sinais que o código já apurou. E mandando pro juiz. Cada linha que aparecer é um critério julgado, com a evidência do lado.\n\n(quando terminar) Olha isso. Uma mediação só. O casal quer um risoto de camarão no sábado.\n\nNúmeros vieram de ferramenta: um. Todos os números que ele citou batem com o que a ferramenta devolveu. Um quilo de camarão, duzentos gramas de manteiga. O juiz conferiu um por um.\n\nMediou sem decidir: um. Ele apresentou o conflito do vinho e perguntou pro casal o que prefere.\n\nIntegridade: zero. A resposta foi cortada no meio da frase. O código viu que os tokens bateram no teto, e o juiz confirmou.\n\nE agora a linha que vale a aula. Falta virou trade-off: zero. Lê a justificativa: (lê) \"o texto afirma que o alho já foi colocado na lista de compras, mas nenhuma ferramenta de lista foi chamada\".",
+  "bullets": []
+ },
+ {
+  "video": "2.3",
+  "n": 9,
+  "base": "A1·10",
+  "kind": "statement",
+  "title": "Ele enxerga o caminho inteiro.",
+  "sub": "",
+  "table": [],
+  "notes": "O Mediador escreveu \"já coloquei o alho na lista de compras\". Se eu estivesse lendo à mão, eu acreditaria. Está escrito com convicção.\n\nO juiz não acreditou. Porque ele não lê só a resposta. Ele lê o trace. E no trace a ferramenta de lista de compras não aparece. A frase é bonita e a ação não aconteceu.\n\nIsso é falha silenciosa. Ninguém recebeu erro. A casa vai ao mercado achando que o alho está na lista. E não está.\n\nFoi por isso que eu pedi pro juiz ser severo com esse tipo de coisa. E foi por isso que eu dei a ele o caminho inteiro, não só o texto.\n\nAgora eu tenho um juiz. No próximo vídeo eu monto o conjunto: quais critérios, quais operações, e o que eu decidi não medir.",
+  "bullets": []
+ },
+ {
+  "video": "2.4",
+  "n": 1,
+  "base": "A1·22",
+  "kind": "divisor",
+  "title": "2.4 Primeiro conjunto de evals",
+  "sub": "",
+  "table": [],
+  "notes": "",
+  "bullets": []
+ },
+ {
+  "video": "2.4",
+  "n": 2,
+  "base": "A1·10",
+  "kind": "statement",
+  "title": "Conjunto é escolha, não lista.",
+  "sub": "",
+  "table": [],
+  "notes": "Agora a gente monta o conjunto. E \"conjunto\" é a palavra certa. Não é uma lista de tudo que dá pra medir. É uma escolha do que vale medir primeiro.\n\nA tentação, e eu já caí nela, é escrever vinte critérios pra cobrir todo cenário imaginável. Dá uma sensação ótima de rigor.\n\nE o resultado é sempre o mesmo: um eval que cobre tudo não é rodado por ninguém. Fica lento, fica caro, e vira aquele relatório de quarenta linhas que alguém abre na primeira semana e nunca mais.\n\nPriorizar não é atalho. É parte do trabalho.",
+  "bullets": []
+ },
+ {
+  "video": "2.4",
+  "n": 3,
+  "base": "A1·16",
+  "kind": "lista com pergunta",
+  "title": "Antes de tudo",
+  "sub": "A execução chegou ao fim inteira?",
+  "table": [],
+  "notes": "Antes dos critérios de qualidade, tem um que vem antes de todos. E vale pras três operações do produto.\n\nA execução chegou ao fim inteira? Sem erro, sem saída vazia, sem resposta cortada no meio?\n\nPor que primeiro? Porque todos os outros critérios pressupõem que existe uma resposta pra julgar. Não adianta perguntar se o Mediador expôs o trade-off se ele parou no meio da palavra.\n\nE esse é o único que o código quase resolve sozinho. Quando os tokens de saída batem exatamente no teto configurado, aquilo não é coincidência. É corte.\n\nRepara na divisão de trabalho de novo. O código detecta o sinal. O juiz decide o que fazer com ele.",
+  "bullets": [
+   "Sem erro, sem saída vazia, sem corte.",
+   "Sem resposta inteira, nenhum outro critério faz sentido.",
+   "Saída no teto de tokens é corte."
+  ]
+ },
+ {
+  "video": "2.4",
+  "n": 4,
+  "base": "A1·27",
+  "kind": "lista",
+  "title": "O conjunto do Mediador",
+  "sub": "",
+  "table": [],
+  "notes": "São os critérios do cenário da entrega, agora com nome e escala.\n\nTrade-off com números. Ele expôs o custo real de cada opção, com número concreto? Um mediador sem número não medeia, opina. De zero a um, porque \"citou números mas soltos\" existe.\n\nNúmeros vieram de ferramenta. Todo número que ele citou saiu de uma consulta de verdade? Ou o modelo estimou? Binário, sem meio-termo. Um número inventado já contamina a mediação inteira. E como o Mediador fala com autoridade, a casa age em cima dele.\n\nMediou sem decidir. Esse é de posicionamento, não de qualidade de texto. No momento em que ele diz \"não peça entrega\", deixou de ser o produto que eu construí. E é o tipo de coisa que degrada em silêncio quando alguém melhora o prompt.",
+  "bullets": [
+   "Trade-off com números: expôs o custo real de cada opção?",
+   "Números vieram de ferramenta: todo número saiu de uma consulta, ou o modelo estimou? Binário.",
+   "Mediou sem decidir: apresentou o conflito e deixou a escolha com o casal?"
+  ]
+ },
+ {
+  "video": "2.4",
+  "n": 5,
+  "base": "A1·10",
+  "kind": "statement",
+  "title": "A falta nunca cancela a proposta.",
+  "sub": "",
+  "table": [],
+  "notes": "E tem um quarto. Faltou ingrediente e ele ofereceu substituição com o que tem em casa, ou mandou o item pra lista de compras? Em vez de simplesmente cancelar?\n\nFalta de item é o caso mais comum da vida real. Um produto que responde \"não dá\" toda vez é inútil exatamente na semana em que a casa mais precisa dele.\n\nA regra do produto é explícita: a falta nunca cancela a proposta. Ela vira trade-off.\n\nE esse critério existe por um motivo específico. Essa regra mora no prompt. E prompt não é contrato.",
+  "bullets": []
+ },
+ {
+  "video": "2.4",
+  "n": 6,
+  "base": "A1·27",
+  "kind": "lista",
+  "title": "O Mediador não está sozinho",
+  "sub": "",
+  "table": [],
+  "notes": "O Mediador não é a única coisa que este produto faz. E o conjunto tem que cobrir o resto.\n\nA casa fala com ele o dia inteiro. \"Comprei dois quilos de arroz.\" \"Comemos a lasanha.\" \"Joguei fora aquele resto.\"\n\nEsse caminho de entrada tem os critérios dele. Ele entendeu que aquilo era uma compra, e não um desejo? Ele preencheu algum número que ninguém disse?\n\nEsse segundo é perigoso de um jeito particular. Se eu digo \"comi um prato de lasanha\" e o modelo estima seiscentas e cinquenta calorias, o orçamento da semana virou ficção. E ficção que ninguém sabe que é ficção, porque está gravada no banco igual a um número real.\n\nA regra do produto: campo não dito fica vazio, e o sistema pergunta.\n\nRepara no padrão. Cada operação promete uma coisa diferente. Então cada uma falha diferente. Critério genérico não pega nenhuma delas.",
+  "bullets": [
+   "A casa fala com o produto o dia inteiro.",
+   "Critérios próprios: entendeu o tipo certo? preencheu número que ninguém disse?",
+   "Cada operação promete algo diferente. Então cada uma falha diferente."
+  ]
+ },
+ {
+  "video": "2.4",
+  "n": 7,
+  "base": "A1·27",
+  "kind": "lista",
+  "title": "O que eu decidi não medir",
+  "sub": "",
+  "table": [],
+  "notes": "E agora a parte que eu acho que mais ensina: o que eu decidi não medir. A lista do que fica de fora diz tanto sobre o produto quanto a lista do que entra.\n\n\"A mediação foi agradável.\" Fora. Não é julgável de forma repetível. E o produto nem promete isso.\n\nTom e simpatia. Fora, por enquanto. É barato quando erra. Pode entrar na terceira rodada.\n\nLatência e custo. Fora, e esse é o mais contraintuitivo, porque os dois importam muito. Mas são métricas, não critérios de qualidade. São coletados sozinhos, automaticamente. Medir de novo aqui só polui o resultado.\n\nRepara: cada exclusão tem um motivo. E o motivo nunca é \"não deu tempo\".",
+  "bullets": [
+   "\"Foi agradável\": não é julgável de forma repetível.",
+   "Tom e simpatia: barato quando erra. Pode entrar na terceira rodada, não na primeira.",
+   "Latência e custo: são métricas, não critérios de qualidade. Já são coletados sozinhos."
+  ]
+ },
+ {
+  "video": "2.4",
+  "n": 8,
+  "base": "A1·22",
+  "kind": "divisor de ação",
+  "title": "2.4.1 O conjunto inteiro",
+  "sub": "",
+  "table": [],
+  "notes": "AÇÃO: No terminal: ~30 s. Duas mediações e dois relatos de ingestão. Deixar rolar até o resumo.\n\nCOMANDO:\nnode evals/run-evals.js --dry-run --trace 652b38032d3ce3953b4758e607c40223,d807057bd0808ca94dc63c8a0970f328,fc52a27f08c7cd11be8e0894d1e34ccf,724d2cf3a53efbfa29ad53fde19a3cda\n\nAgora o conjunto inteiro. Quatro interações reais: duas mediações e dois relatos que a casa mandou pelo chat.\n\n(enquanto roda) Cada bloco é uma interação. Cada linha, um critério. A nota, a barra, e a justificativa do lado. No fim ele agrega por operação.\n\n(quando terminar, rolar de volta até as duas mediações) Antes de olhar o resumo, eu quero que você olhe as duas primeiras. Porque elas contam a história sozinhas.",
+  "bullets": []
+ },
+ {
+  "video": "2.4",
+  "n": 9,
+  "base": "A1·10",
+  "kind": "tabela",
+  "title": "Mesmo pedido. Mesmo dia.",
+  "sub": "\"Vamos fazer carbonara. Preciso da lista de compras\" — 22/08",
+  "table": [
+   [
+    "Critério",
+    "11:16",
+    "16:01"
+   ],
+   [
+    "Execução íntegra",
+    "0",
+    "1"
+   ],
+   [
+    "Trade-off com números",
+    "0",
+    "0,7"
+   ],
+   [
+    "Números de ferramenta",
+    "0",
+    "1"
+   ],
+   [
+    "Mediou sem decidir",
+    "0",
+    "1"
+   ],
+   [
+    "Falta virou trade-off",
+    "0",
+    "1"
+   ]
+  ],
+  "notes": "Mesmo pedido, palavra por palavra. Mesmo produto. Mesmo dia. Cinco horas de diferença.\n\nDe manhã ele não entregou nada. Bateu no teto de tokens, a saída veio vazia. Zero em tudo.\n\nÀ tarde ele mediou. Quatrocentos gramas de macarrão dos dois quilos e meio. Quatro ovos dos trinta. Tudo conferido contra a ferramenta. O bacon que faltava foi pra lista de compras com substituto sem porco. E ele terminou perguntando: \"confirmam a substituição ou preferem a versão vegetariana?\".\n\nLembra do que eu falei no primeiro vídeo? Testar uma vez responde sobre aquele momento.\n\nSe eu tivesse testado de manhã, diria que o produto está quebrado. Se tivesse testado à tarde, diria que está pronto. Os dois estariam errados. Isso não é um slide meu tentando te convencer. É o meu produto, no dia vinte e dois de agosto, provando sozinho.",
+  "bullets": [],
+  "tabela": true
+ },
+ {
+  "video": "2.4",
+  "n": 10,
+  "base": "A1·10",
+  "kind": "statement",
+  "title": "Nota baixa é o conjunto funcionando.",
+  "sub": "",
+  "table": [],
+  "notes": "Agora o resumo. E a primeira coisa sobre nota baixa: isso não é o conjunto falhando. É o conjunto funcionando. Lembra do primeiro vídeo. Se cem por cento passasse, eu ia desconfiar do critério. Ele existe pra reprovar.\n\nSegunda coisa: leia sempre a justificativa junto da nota. Olha o relato do vinho. (aponta) \"Comprei um vinho, um chocolate e dois pães.\" Ancoragem no texto: zero vírgula quatro. Por quê? Três itens comprados, um registrado. O chocolate e os pães sumiram. Ninguém recebeu erro. A nota me diz que tem problema. A justificativa me diz o que fazer.\n\nE a terceira, onde mora o valor de verdade: repara em quais critérios reprovaram juntos. Não é uma lista de problemas independentes. Dois ou três padrões respondem pela maioria. É neles que vale trabalhar primeiro.",
+  "bullets": []
+ },
+ {
+  "video": "2.4",
+  "n": 11,
+  "base": "A1·16",
+  "kind": "lista com pergunta",
+  "title": "O que ainda falta",
+  "sub": "Ninguém está sendo avisado de nada.",
+  "table": [],
+  "notes": "Pra fechar, eu quero ser honesto sobre o tamanho do que a gente construiu. Porque é bastante. E é menos do que parece.\n\nEste conjunto julga as execuções que eu escolhi, quando eu mando rodar. Ninguém está sendo avisado de nada. Não tem alarme. Não tem vigilância.\n\nSe a qualidade cair numa terça-feira de madrugada, eu descubro quando lembrar de rodar de novo. Se eu esquecer duas semanas, tenho duas semanas de produto ruim que ninguém viu.\n\nEntão o primeiro pilar está de pé. Eu consigo responder se a IA está fazendo o que deveria. Mas eram três perguntas. E a segunda é outra: o que está acontecendo com o meu produto? É esse buraco que a próxima aula preenche.",
+  "bullets": [
+   "Só roda quando eu mando rodar.",
+   "Se a qualidade cair de madrugada, ninguém me avisa.",
+   "Primeiro pilar de pé. Falta o segundo."
+  ]
+ },
+ {
+  "video": "2.4",
+  "n": 12,
+  "base": "A1·5",
+  "kind": "hero, fechamento",
+  "title": "Eu sei o que procurar.",
+  "sub": "Agora falta enxergar.",
+  "table": [],
+  "notes": "Eu sei o que procurar. Agora falta enxergar. Até lá.",
+  "bullets": []
+ }
+]

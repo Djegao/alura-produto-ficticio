@@ -1,0 +1,382 @@
+[
+ {
+  "video": "5.1",
+  "n": 1,
+  "base": "divisor",
+  "kind": "divisor",
+  "title": "5.1 O que são guardrails?",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Antes de gravar: nenhuma demo de terminal — é leitura de código. Ter abertos: agent.js, sefaz.js, intencao-efeitos.js, receita-premium.js."
+ },
+ {
+  "video": "5.1",
+  "n": 2,
+  "base": "statement",
+  "kind": "statement",
+  "title": "Guardrail é limite em código. Não é intenção em prompt.",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Guardrail, nesta aula, tem uma definição específica: é um limite operacional que define o que o produto pode e não pode fazer — protegendo o usuário e protegendo a empresa. E a palavra-chave é \"operacional\". Não é uma frase no prompt pedindo comportamento. É código que impõe o limite, com ou sem a cooperação do modelo.\n\nDeixa eu explicar por que essa distinção importa tanto. Um prompt é uma instrução em linguagem natural, e o modelo interpreta linguagem natural — é literalmente o trabalho dele. Isso quer dizer que qualquer regra escrita só no prompt está sujeita à mesma variabilidade que qualquer outra interpretação: no caso raro, no contexto ambíguo, na versão nova do modelo que pesa as instruções de um jeito ligeiramente diferente, aquela regra pode dobrar. Eu já vi isso na prática — lembra do achado da Aula 2, onde o prompt v2 pedia explicitamente pra chamar uma ferramenta antes de responder, e o modelo às vezes simplesmente não chamava? O prompt pedia. O modelo, nem sempre obedecia. Isso não é o modelo sendo defeituoso — é a natureza de pedir algo em linguagem natural pra um sistema que interpreta linguagem natural.\n\nGuardrail é a resposta a esse problema. Em vez de pedir, eu construo uma trava que existe independente da interpretação: tool_choice forçado não é um pedido mais educado, é uma restrição na própria chamada de API que obriga o modelo a devolver aquele formato. Validação de domínio não pergunta pro modelo se a URL parece confiável — o código decide antes mesmo do modelo entrar na jogada. A diferença entre os dois mundos é a diferença entre \"eu confio que ele vai se comportar\" e \"eu construí de um jeito que ele não consegue se comportar mal, mesmo que tentasse\".\n\nE isso vale tanto pra proteger o usuário — ele não recebe uma ação perigosa só porque o modelo teve um dia ruim — quanto pra proteger a empresa: ninguém quer descobrir, num incidente de produção, que a única coisa entre uma chamada cara e a internet inteira era uma frase de prompt pedindo \"por favor, só processe requisições autorizadas\"."
+ },
+ {
+  "video": "5.1",
+  "n": 3,
+  "base": "statement",
+  "kind": "tabela",
+  "tabela": true,
+  "title": "Cinco guardrails reais, no código de hoje",
+  "sub": "",
+  "table": [
+   [
+    "Guardrail",
+    "Onde",
+    "O que ele impede"
+   ],
+   [
+    "tool_choice forçado pra saída crítica",
+    "agent.js, nota-fiscal.js, juiz da Aula 2",
+    "O produto não confia em \"pedir\" quando a saída importa"
+   ],
+   [
+    "Validação de domínio antes de confiar em dado externo",
+    "sefaz.js",
+    "Só aceita URL .gov.br + chave de 44 dígitos antes de gastar uma chamada"
+   ],
+   [
+    "Perguntar em vez de estimar",
+    "intencao-efeitos.js",
+    "Porcionamento sem número dito nunca vira estimativa"
+   ],
+   [
+    "Guarda-corpo antes de publicar escolha da IA",
+    "receita-premium.js",
+    "A URL escolhida é conferida contra o feed real antes de ir pro Telegram"
+   ],
+   [
+    "Basic Auth como limite de custo",
+    "server.js",
+    "Sem credencial, ninguém gasta a chave paga do produto"
+   ]
+  ],
+  "bullets": [],
+  "notes": "🔴 AÇÃO: abrir os quatro arquivos rapidamente, um bloco de código por vez, sem ler linha a linha — mostrar que existe, não explicar sintaxe.\n\nCinco guardrails reais, não hipotéticos — todos já apareceram nas aulas anteriores, só que sem esse nome. Vou passar pelos cinco, e em cada um eu quero que você repare no mesmo detalhe: o que exatamente o código faz que o prompt sozinho não faria.\n\nO primeiro: saída crítica nunca depende só de pedir. Se o produto precisa que o modelo registre um consumo ou extraia um item de nota fiscal, isso é forçado via tool_choice — um parâmetro da própria chamada de API que diz \"a resposta tem que vir nesse formato de ferramenta, não tem outra opção de saída\". Sem isso, o modelo pode decidir responder em texto livre, explicando o que faria, em vez de fazer. Com isso, a única saída possível é a chamada estruturada. Não é sugestão. É o único caminho que existe.\n\nO segundo: dado que vem de fora do seu controle passa por validação antes de custar dinheiro. A leitura de nota por QR code só tenta buscar se a URL já bate com o formato esperado — domínio .gov.br, chave de 44 dígitos — antes mesmo de fazer uma requisição de rede ou gastar uma chamada de modelo tentando entender o que chegou. Pensa no motivo: se eu deixasse qualquer texto ir direto pro modelo interpretar, alguém mandando lixo, ou pior, tentando abusar do sistema, custaria dinheiro real antes de eu sequer saber que era lixo. A validação barata acontece primeiro, exatamente pra proteger o gasto caro.\n\nO terceiro é a regra de ouro aplicada de novo, agora com outro nome: quando falta uma informação, o produto pergunta. Nunca estima sozinho. Já vimos essa regra pra matemática — \"Claude nunca calcula data nem soma\" — aqui ela vira guardrail de produto: porcionamento sem número dito nunca vira um chute educado. O código simplesmente não grava nada até a resposta vir completa.\n\nO quarto: quando a IA escolhe algo que vai ser mostrado pro usuário — um link, uma recomendação — existe checagem determinística antes de publicar. Na receita premium, o modelo escolhe qual vídeo do canal combina com o estoque da casa. Mas antes de esse link ir pro grupo da família no Telegram, o código confere se aquela URL existe de verdade no feed real. Se o modelo alucinou um link — coisa que modelo de linguagem pode fazer, com uma URL que parece plausível e não existe — o produto erra alto e recusa, em vez de mandar um link quebrado pra família.\n\nE o quinto é o mais simples e o mais fácil de esquecer, porque não parece \"guardrail de IA\" à primeira vista: acesso a um recurso que custa dinheiro real tem barreira. Cada chamada ao modelo, cada requisição, sai do meu bolso. Sem uma credencial na frente, qualquer pessoa que descubra a URL pública pode gastar a minha chave paga infinitamente. Isso não protege a qualidade da resposta — protege o meu limite de cartão."
+ },
+ {
+  "video": "5.1",
+  "n": 4,
+  "base": "statement",
+  "kind": "statement",
+  "title": "Nenhum confia em \"pedir\" quando a saída importa.",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Repara no fio que atravessa os cinco. Nenhum deles delega pro modelo a responsabilidade de se comportar bem por educação. Cada um tem uma trava em código, fora do alcance do prompt. É a mesma lição do achado que a gente já viu nas aulas anteriores: prompt não é garantia estrutural. Guardrail é.\n\nE eu quero deixar uma coisa bem clara, porque é fácil ouvir isso e achar que estou dizendo \"não confie no modelo\". Não é isso. Eu confio no modelo pra fazer exatamente o que ele é bom em fazer: interpretar linguagem ambígua, entender intenção, lidar com o caso que eu não previ. O que eu não faço é depender dele pra garantir uma propriedade que o meu produto precisa ter cem por cento das vezes — formato de saída, limite de gasto, dado validado antes de confiar. Essas duas coisas não competem. Guardrail não é desconfiança do modelo. É reconhecer qual parte do problema é trabalho de julgamento e qual parte é trabalho de garantia — e nunca confundir as duas.\n\nPensa assim: eu não peço educadamente pro freio do carro funcionar. Eu construo o freio pra funcionar, e uso o motorista — a parte inteligente, adaptável, que lida com trânsito imprevisível — pra decidir quando frear. O guardrail é o freio. O modelo é o motorista. Os dois são necessários, e cada um faz a parte que só ele faz bem."
+ },
+ {
+  "video": "5.2",
+  "n": 5,
+  "base": "divisor",
+  "kind": "divisor",
+  "title": "5.2 Transparência com o usuário",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Antes de gravar: ter aberto telegram.js no estado atual (master, já com o fix do PR #4 — mostrar o código corrigido, citando o antes só de memória/slide, sem reverter nada)."
+ },
+ {
+  "video": "5.2",
+  "n": 6,
+  "base": "statement",
+  "kind": "statement",
+  "title": "Transparência não é aviso legal genérico.",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Transparência, do jeito que esta aula trata, não é um texto de rodapé dizendo \"este produto usa inteligência artificial\". É o produto dizer, no momento certo, o que ele sabe fazer e o que não sabe.\n\nRepara na diferença entre as duas ideias. Um aviso legal genérico é estático — está lá, sempre igual, independente do que está acontecendo naquele instante. Ele protege juridicamente, talvez, mas não ajuda o usuário a entender o que aconteceu numa interação específica. Transparência de comportamento é dinâmica: ela reage ao que está acontecendo. Se o produto não sabe processar algo, ele diz isso ali, na hora, sobre aquela coisa específica. Se ele processou com sucesso, ele não precisa dizer nada — a resposta certa já é a transparência suficiente.\n\nE por que isso importa tanto num produto com IA especificamente? Porque a IA erra de um jeito diferente do software tradicional. Um formulário que não aceita um campo mostra um erro vermelho na hora. Um modelo que não sabe processar uma entrada pode simplesmente... não fazer nada de errado visível. Ele pode ficar em silêncio, ou pior, pode tentar responder mesmo sem ter capacidade — e aí você tem uma resposta confiante e errada, que é o pior dos dois mundos. Transparência é a decisão consciente de fechar essa lacuna: garantir que existe sempre um terceiro caminho, além de \"funcionou\" e \"inventou uma resposta errada\" — que é \"avisou que não sabe\"."
+ },
+ {
+  "video": "5.2",
+  "n": 7,
+  "base": "statement",
+  "kind": "tabela",
+  "tabela": true,
+  "title": "A foto do cupom, antes e depois",
+  "sub": "",
+  "table": [
+   [
+    "",
+    "Antes (até 11/09)",
+    "Depois (PR #4, no ar desde 12/09)"
+   ],
+   [
+    "Usuário manda foto de cupom",
+    "Nenhuma resposta. Nenhum log. Nenhum trace.",
+    "\"Ainda não sei ler foto de cupom, me manda o link do QR ou o texto.\""
+   ],
+   [
+    "O que o produto sabe fazer",
+    "Exatamente o mesmo nos dois lados",
+    "Exatamente o mesmo nos dois lados"
+   ],
+   [
+    "O que mudou",
+    "—",
+    "Só ele ter dito"
+   ]
+  ],
+  "bullets": [],
+  "notes": "O exemplo mais concreto do curso inteiro pra isso é o episódio B da Aula 4. Antes do PR quatro, uma foto de cupom enviada ao bot não gerava resposta nenhuma — nem log, nem trace, nem mensagem. Depois do fix, o bot responde dizendo exatamente o que não sabe fazer ainda.\n\nE repara: a capacidade técnica é idêntica nos dois lados. O produto continua sem saber ler foto de cupom. A única coisa que mudou foi ele ter dito isso.\n\nVale se colocar no lugar de quem mandou a foto, nos dois cenários. No antes: você manda uma foto, espera, nada acontece. O que você conclui? Que o bot travou? Que sua mensagem não chegou? Que você fez algo errado? Você não tem informação nenhuma pra saber o que fazer a seguir — tenta de novo, manda outra foto, desiste do produto? A ausência de resposta não é neutra, ela custa confiança, porque o usuário preenche esse vazio com a pior hipótese disponível.\n\nNo depois: a mesma foto, e em segundos vem uma resposta específica — ainda não sei ler isso, mas aqui está o que eu sei fazer no lugar. Isso não é só mais educado. É acionável: o usuário sabe exatamente o próximo passo. E tem um efeito colateral que eu não esperava quando corrigi isso: o time de suporte — que no meu caso sou eu mesmo, mas em qualquer produto real seria um time — para de receber \"o bot não funciona\" e passa a receber, no máximo, \"o bot ainda não lê foto, adiciona isso?\". A queixa vira pedido de feature. É uma categoria de problema completamente diferente pra resolver."
+ },
+ {
+  "video": "5.2",
+  "n": 8,
+  "base": "statement",
+  "kind": "statement",
+  "title": "Admitir a limitação já é uma correção.",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Esse é o ponto pedagógico central, direto do que a gente já viu na Aula 4. O bug real nunca foi \"não saber ler foto\" — sistema tem limite, tudo bem. O bug era não dizer que não sabia. E isso generaliza: toda resposta \"não sei fazer isso\" é mais transparente, e mais barata de construir, do que fingir que processou algo que não processou.\n\nReparo em \"mais barata\" de propósito, porque tem um argumento de engenharia escondido aqui, não só um argumento ético. Ensinar o produto a dizer \"não sei\" é uma correção pequena — algumas linhas, uma checagem de tipo de mensagem, um texto de resposta. Ensinar o produto a de fato ler a foto — que foi a correção seguinte, no vídeo 4.3 — exigiu decisão de arquitetura, integração com a SEFAZ, um desenho que eu tentei e não funcionou antes de achar o que funcionava. A ordem importa: eu fechei o buraco barato e imediato antes de investir no problema caro e difícil. Se eu tivesse feito ao contrário — só investido na capacidade nova sem nunca admitir a limitação enquanto ela não existia — o produto teria ficado em silêncio por mais tempo, esperando uma correção mais difícil, quando a correção fácil já resolvia o pior sintoma no mesmo dia.\n\nE tem uma última camada nisso que eu quero que fique: dizer \"não sei\" publicamente também é um tipo de guardrail. Não impede uma ação perigosa, mas impede um tipo diferente de dano — o dano de deixar alguém confiando numa resposta que nunca existiu. Transparência e guardrail, no fim, estão protegendo a mesma coisa por ângulos diferentes: a confiança de quem usa o produto."
+ },
+ {
+  "video": "5.3",
+  "n": 9,
+  "base": "divisor",
+  "kind": "divisor",
+  "title": "5.3 LGPD na prática",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Antes de gravar: ter aberto schema.sql (colunas telegram_chat_id / telegram_user_id) e o trecho do CLAUDE.md/SDD.md §13.8 sobre RLS desligado. Não abrir o Supabase com dado real em tela cheia."
+ },
+ {
+  "video": "5.3",
+  "n": 10,
+  "base": "statement",
+  "kind": "statement",
+  "title": "Dado sensível não é só CPF.",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Quando a gente pensa em dado pessoal sensível, o reflexo é CPF, cartão, prontuário médico. Mas rotina familiar também é dado pessoal — o que a casa comeu, o que desejou, quanto gastou. Não é dado financeiro nem de saúde no sentido estrito. É íntimo o suficiente pra merecer o mesmo cuidado.\n\nE a própria LGPD é explícita sobre isso: dado pessoal é qualquer informação relacionada a pessoa natural identificada ou identificável — não é uma lista fechada de campos \"sensíveis\" tipo CPF ou dado de saúde. Se o dado permite identificar alguém, ou entender um padrão de comportamento daquela pessoa, ele entra na definição. O log do meu produto sabe que horas a casa janta, o que ela evita comer, quando alguém desperdiçou comida, quando teve vontade de alguma coisa às dez da noite. Junta isso tudo ao longo de meses e você tem um retrato bem íntimo de uma rotina familiar — que é exatamente o tipo de coisa que a LGPD existe pra proteger, mesmo sem nenhum CPF em lugar nenhum.\n\nO motivo de eu insistir nisso é prático: é fácil um time de produto pensar \"eu não coleto dado sensível, meu produto é só sobre receita e estoque\" — e é exatamente aí que a exposição acontece, porque ninguém tratou aquele dado com o cuidado que ele precisava. Reconhecer que o dado é pessoal é o primeiro passo antes de qualquer proteção técnica fazer sentido. Não dá pra proteger o que você não admite que precisa de proteção."
+ },
+ {
+  "video": "5.3",
+  "n": 11,
+  "base": "lista",
+  "kind": "lista",
+  "title": "O que o Musa Balance coleta",
+  "sub": "",
+  "table": [],
+  "bullets": [
+   "telegram_chat_id e telegram_user_id: identificam pessoas reais numa conversa real.",
+   "pensamentos: o log cru de tudo que os dois atores conversam sobre comida em casa.",
+   "Itens de estoque ligados à casa: o que tem na geladeira, quando venceu."
+  ],
+  "notes": "🔴 AÇÃO: mostrar schema.sql, apontar as colunas — sem abrir dado de linha real.\n\nO que o produto coleta, concretamente: identificação de pessoas reais numa conversa real, o log cru de tudo que a casa conversa sobre comida, e os itens do estoque ligados a ela. Nenhum desses três é telemetria escondida — são o dado funcional que faz o produto funcionar. E é exatamente por isso que a decisão de como proteger esse dado importa tanto.\n\nVale separar essa distinção com cuidado, porque ela muda completamente como eu penso em risco. Telemetria escondida é dado que o produto junta sem que o funcionamento dependa dele — analytics de clique, por exemplo. Dado funcional é o oposto: se eu apagasse pensamentos agora, o produto inteiro para de funcionar, porque é literalmente o feed, a fonte de tudo que o resto do sistema lê. Isso significa que eu não posso simplesmente \"parar de coletar\" pra reduzir risco — o dado é o produto. O trabalho não é coletar menos, é proteger melhor o que é inevitavelmente necessário.\n\nE o telegram_chat_id merece uma palavra à parte, porque ele é o tipo de dado que passa despercebido. Ele não parece pessoal à primeira vista — é só um número que identifica um chat. Mas cruzado com o resto — quem mandou aquela mensagem, em que chat, sobre o que — ele reidentifica uma pessoa real de um jeito que nenhum pseudônimo interno apagaria. É o detalhe que separa \"eu penso em dado pessoal\" de \"eu penso em dado pessoal de verdade, incluindo o que não parece óbvio\"."
+ },
+ {
+  "video": "5.3",
+  "n": 12,
+  "base": "statement",
+  "kind": "tabela",
+  "tabela": true,
+  "title": "Onde a proteção está — e onde não está",
+  "sub": "",
+  "table": [
+   [
+    "RLS (linha por tenant)",
+    "Service role key",
+    "Basic Auth"
+   ],
+   [
+    "Desligado, de propósito",
+    "Nunca exposta ao browser",
+    "Gate de acesso, não controle de LGPD"
+   ],
+   [
+    "Household único; sem multi-tenancy real hoje",
+    "Só tools.js toca as tabelas sensíveis",
+    "Única barreira entre o dado real e quem descobrir a URL"
+   ],
+   [
+    "Não seria aceitável assim num produto multi-tenant de verdade",
+    "É a proteção de fato, hoje",
+    "Documentado em SDD.md §8"
+   ]
+  ],
+  "bullets": [],
+  "notes": "Aqui eu preciso ser honesto sobre uma escolha real do projeto. O RLS — segurança em nível de linha, que isola um tenant do outro dentro do banco — está desligado, de propósito, no Supabase. A proteção de fato hoje é que só a chave de serviço toca essas tabelas, e ela nunca chega ao navegador.\n\nDeixa eu explicar o raciocínio completo, porque \"desligar segurança de propósito\" soa alarmante fora de contexto, e eu quero que você entenda exatamente onde termina a decisão razoável e onde começaria o risco real. RLS existe pra resolver um problema específico: várias contas compartilhando o mesmo banco, cada uma só podendo enxergar a própria linha. Meu produto hoje tem uma casa. Uma. Não existe \"outro tenant\" pra vazar dado pra ele, porque não existe outro tenant. A camada que eu tenho no lugar — só o backend, com a chave de serviço, toca essas tabelas, e o navegador do usuário nunca recebe essa chave — cobre exatamente o risco que existe hoje: alguém de fora acessando o banco diretamente. O risco que o RLS cobriria — um tenant lendo dado de outro — simplesmente não existe ainda, porque a estrutura de múltiplos tenants não existe.\n\nIsso é uma decisão documentada e justificada pro escopo de uma casa só. Se esse produto virasse multi-tenant de verdade — várias casas, mesmo banco — essa mesma decisão deixaria de ser aceitável, porque nesse momento o RLS deixa de ser uma camada redundante e passa a ser a única coisa entre a casa A e o jantar da casa B. E é exatamente por isso que documentar a decisão importa tanto quanto tomar a decisão certa hoje: o registro escrito é o que garante que, no dia em que o escopo mudar, alguém vai lembrar de revisitar essa escolha — em vez dela sobreviver por inércia num contexto onde ela já não faz sentido."
+ },
+ {
+  "video": "5.3",
+  "n": 13,
+  "base": "statement",
+  "kind": "statement",
+  "title": "Quem tem direito de pedir a exclusão? O produto sabe atender?",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "E aqui fica a pergunta que eu deixo em aberto de propósito — é exatamente a pergunta que o checklist do próximo vídeo formaliza. Hoje não existe rota de exclusão, não existe prazo de retenção automático. É uma pendência honesta, não uma solução.\n\nE vale desmembrar por que essa pergunta é mais difícil do que parece. \"Direito de exclusão\" pressupõe que dá pra apagar um dado sem quebrar outra coisa — mas pensamentos é o histórico que o produto usa pra saber que a lasanha ainda tem cinco porções, que o orçamento da semana já foi gasto até tal ponto, que um prato preparado está vencendo. Apagar uma linha de conversa pode apagar junto o único registro de um evento que ainda importa pro estado atual da casa. Isso não é motivo pra não construir o mecanismo — é motivo pro mecanismo ser desenhado com cuidado, talvez anonimizando em vez de deletando, talvez separando o dado identificável do dado funcional. Mas até esse desenho existir, a resposta honesta pra \"eu quero que apaguem meu dado\" hoje seria \"eu preciso fazer isso manualmente, sem processo formal\" — e isso é exatamente o tipo de lacuna que precisa estar escrita em algum lugar, não descoberta na hora que alguém pedir de verdade."
+ },
+ {
+  "video": "5.4",
+  "n": 14,
+  "base": "divisor",
+  "kind": "divisor",
+  "title": "5.4 Checklist de conformidade",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Antes de gravar: ter aberto docs/aula5-checklist-conformidade.md (e o artefato interativo, se estiver usando)."
+ },
+ {
+  "video": "5.4",
+  "n": 15,
+  "base": "statement",
+  "kind": "statement",
+  "title": "Não é uma lista de \"está tudo certo\".",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Tudo que apareceu nos três vídeos anteriores vira um checklist aplicável a qualquer produto com IA, não só o meu. E ele é honesto sobre o que falta — não é uma lista de \"está tudo certo\". É uma lista de \"aqui está onde a gente está, aqui está o que falta\".\n\nPor que um checklist, e não só \"use bom senso\"? Porque bom senso não escala e não deixa rastro. Se eu perguntar pra mim mesmo, de cabeça, \"meu produto está bem?\", a resposta tende a ser sim — ninguém audita a própria memória com rigor. Um checklist obriga uma resposta por item, específica, que alguém de fora consegue conferir depois. E o mais importante: ele transforma \"eu acho que está tudo bem\" em \"eu escrevi, com data, que este item específico está parcial, e aqui está o motivo\". Essa diferença é o que separa uma decisão de risco documentada de um ponto cego que ninguém sabia que existia até o incidente acontecer."
+ },
+ {
+  "video": "5.4",
+  "n": 16,
+  "base": "statement",
+  "kind": "tabela",
+  "tabela": true,
+  "title": "O checklist, resumido",
+  "sub": "",
+  "table": [
+   [
+    "Seção",
+    "Sim",
+    "Parcial",
+    "Não / em falta"
+   ],
+   [
+    "Guardrails",
+    "tool_choice forçado, validação de domínio, \"pergunta em vez de estima\", guarda-corpo de URL",
+    "Basic Auth sem rate limit por usuário",
+    "—"
+   ],
+   [
+    "Transparência",
+    "Nenhum caminho termina em silêncio (Telegram), o produto diz o que não sabe",
+    "Convenção semSilencio aplicada caso a caso, não automática",
+    "Falha silenciosa de estado (episódio C) segue sem monitoramento"
+   ],
+   [
+    "LGPD",
+    "Mapeamento do dado pessoal, segredos fora do versionamento, credencial de app separada de credencial de terceiro",
+    "Minimização de dado (pensamentos é funcional, mas é o item mais sensível)",
+    "RLS desligado; sem política de retenção/exclusão"
+   ]
+  ],
+  "bullets": [],
+  "notes": "🔴 AÇÃO: percorrer a tabela real em aula5-checklist-conformidade.md (ou o artefato interativo), parando na coluna \"como o Chef Caseiro está hoje\" — este slide é o resumo, não substitui o documento.\n\nRodo as três seções como pergunta de sim, não ou parcial. Guardrails: a maioria já é sim, porque são os mesmos cinco do primeiro vídeo. Não pulei pra parcial sem escrever o que falta pra virar sim — por exemplo, Basic Auth protege o acesso, mas não tem limite de uso depois de autenticado.\n\nE reparo especificamente no \"parcial\", porque é a resposta que mais gente evita dar. É desconfortável escrever \"meio que sim, mas não completamente\" — parece mais fraco do que um \"sim\" limpo. Mas é a resposta mais honesta na maioria dos produtos reais, e fingir que é \"sim\" só empurra a descoberta do \"não\" pro pior momento possível: quando já é incidente, não mais checklist. Cada \"parcial\" aqui vem com a frase exata que falta pra virar \"sim\" — não é um meio-termo vago, é uma lacuna nomeada."
+ },
+ {
+  "video": "5.4",
+  "n": 17,
+  "base": "statement",
+  "kind": "statement",
+  "title": "O que está em falta, sem rodeio.",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Três coisas estão marcadas como pendência, sem prazo definido: a falha silenciosa de estado — o caso da lasanha, que continua sem monitoramento — o RLS desligado, e a ausência de qualquer política de retenção ou exclusão de dado. Nenhuma delas está escondida. Todo item marcado como pendência tem uma decisão explícita registrada: aceito o risco, ou vou corrigir até tal data. Nunca um \"não\" sem dono.\n\nE eu quero fechar esse vídeo com uma distinção que separa maturidade de negligência: ter pendência não é o problema. Todo produto real, em qualquer estágio, tem pendência — quem diz que não tem está escondendo ou não sabe. O problema é pendência sem dono, sem data, sem registro — aquela que ninguém decidiu conscientemente manter, que só está lá porque ninguém olhou. As três daqui foram olhadas. Alguém — no caso, eu — decidiu \"sim, eu sei que isso existe, e por enquanto o risco é aceitável nesse escopo, e está escrito onde qualquer um pode conferir depois\". É essa decisão registrada que separa um risco gerenciado de um acidente esperando pra acontecer."
+ },
+ {
+  "video": "5.5",
+  "n": 18,
+  "base": "divisor",
+  "kind": "divisor",
+  "title": "5.5 O que aprendemos?",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": ""
+ },
+ {
+  "video": "5.5",
+  "n": 19,
+  "base": "lista",
+  "kind": "lista",
+  "title": "Três lições, uma por pilar",
+  "sub": "",
+  "table": [],
+  "bullets": [
+   "Guardrail é limite em código, não intenção em prompt.",
+   "Transparência é o produto dizer, no momento certo, o que não sabe fazer.",
+   "LGPD começa em identificar que rotina também é dado pessoal."
+  ],
+  "notes": "Guardrail é limite em código, não intenção em prompt — os cinco guardrails reais do produto seguem o mesmo padrão: nunca confiar só em pedir. Transparência é o produto dizer, no momento certo, o que não sabe fazer — \"admitir já é corrigir\". E LGPD em produtos com IA começa em identificar que dado de rotina também é dado pessoal — e em documentar honestamente onde a proteção existe e onde ainda não existe. O checklist formaliza os três como algo aplicável a qualquer produto, não só a este.\n\nSe eu tivesse que resumir os três numa frase só, seria essa: cada um deles existe porque, em algum momento, alguém — eu, neste caso — teve que admitir que o modelo sozinho não garante uma propriedade que o produto precisa ter. Guardrail admite isso pro comportamento. Transparência admite isso pra comunicação. LGPD admite isso pro dado. Os três são a mesma postura, aplicada em três lugares diferentes: eu não presumo que vai dar certo, eu construo pra que dar errado seja visível, contido e registrado."
+ },
+ {
+  "video": "5.6",
+  "n": 20,
+  "base": "divisor",
+  "kind": "divisor",
+  "title": "5.6 Conclusão",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": ""
+ },
+ {
+  "video": "5.6",
+  "n": 21,
+  "base": "statement",
+  "kind": "tabela",
+  "tabela": true,
+  "title": "Os três pilares, com conteúdo real",
+  "sub": "",
+  "table": [
+   [
+    "Evals",
+    "Observabilidade",
+    "Conformidade responsável"
+   ],
+   [
+    "Critério mensurável + Claude-as-judge com saída forçada",
+    "Trace real, custo real, quatro padrões de falha reais detectados",
+    "Guardrail em código, transparência como comportamento"
+   ],
+   [
+    "Resultado gravado como Score no Langfuse",
+    "Duas corrigidas ao vivo (Telegram); dois riscos aceitos e documentados (match de nome, porcionamento)",
+    "LGPD como prática, não como rodapé"
+   ]
+  ],
+  "bullets": [],
+  "notes": "Volto ao gancho da Aula 1: lançar é o começo, não o fim. Agora com conteúdo real por trás de cada pilar — não como slogan, como coisa que a gente viu acontecer, com trace, com data, com número.\n\nEvals: critério mensurável, Claude como juiz com saída forçada, resultado gravado de volta no Langfuse. Observabilidade: trace real, custo real, quatro padrões de falha reais — duas corrigidas ao vivo, duas que eu escolhi manter como risco aceito e registrado, não escondido. E conformidade responsável: guardrail em código, transparência como comportamento do produto, LGPD como prática.\n\nRepara que os três pilares apareceram na ordem certa, e essa ordem não é acaso. Eval vem primeiro porque sem critério mensurável eu nem sei reconhecer uma falha quando ela aparece — é o \"o que é bom\" antes de qualquer outra coisa. Observabilidade vem depois porque, com o critério definido, eu preciso do dado real pra aplicar aquele critério contra o que está de fato acontecendo em produção, não contra o que eu imagino que está acontecendo. E conformidade responsável fecha o ciclo, porque depois de eu saber o que é bom e conseguir ver o que está de fato acontecendo, sobra a pergunta mais difícil: o que eu faço com o que eu vi — corrijo, documento como risco aceito, ou finjo que não vi? Os três pilares, nessa ordem, são literalmente o ciclo de maturidade de qualquer produto de IA sério."
+ },
+ {
+  "video": "5.6",
+  "n": 22,
+  "base": "statement",
+  "kind": "statement",
+  "title": "Nenhum dos três funciona sozinho.",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "O eval que não vira dado observável não gera aprendizado. A observabilidade sem guardrail vira incidente. O guardrail sem eval nunca sabe se está funcionando de verdade. O produto que você acabou de ver por dentro rodou — errou, foi corrigido, errou de novo — com os três juntos.\n\nDeixa eu mostrar cada uma dessas três falhas de fé, rapidinho, porque cada uma delas é uma armadilha real que eu já vi times caírem. Eval sem observabilidade: você constrói um juiz caprichado, mas ele só roda quando alguém lembra de mandar rodar, contra um punhado de casos de teste — e a produção, que é onde a vida real acontece, segue sem nenhum critério aplicado nela. Observabilidade sem guardrail: você vê tudo, em tempo real, bonito no painel — e continua sem nada que impeça a próxima falha de acontecer de novo, porque ver não é o mesmo que prevenir. Guardrail sem eval: você trava um comportamento perigoso, mas nunca mede se aquela trava está de fato funcionando bem, ou se ela está travando coisa demais e irritando quem usa, ou de menos e deixando passar o que devia barrar.\n\nOs três, juntos, formam um ciclo que se sustenta: o eval diz o que é bom, a observabilidade mostra o que está de fato acontecendo, e o guardrail — junto com a transparência e a prática de LGPD — decide o que fazer com essa distância entre os dois. Tira uma perna, a mesa cai."
+ },
+ {
+  "video": "5.6",
+  "n": 23,
+  "base": "hero",
+  "kind": "hero, fechamento",
+  "title": "Lançar é o começo.",
+  "sub": "O run é o resto da história.",
+  "table": [],
+  "bullets": [],
+  "notes": "Lançar é o começo, não o fim. O run — evals, observabilidade, conformidade — é o resto da história, e é o que separa um produto de IA que sobrevive ao primeiro mês de um que não.\n\nSe você chegou até aqui achando que precisava de um produto grande, com time grande, pra fazer tudo isso — não precisa. Tudo que eu mostrei nessas cinco aulas rodou numa casa só, com um instrutor de curso mantendo o código sozinho, gastando um dólar e cinquenta e quatro num mês inteiro de uso real. O tamanho do produto não é desculpa pra pular o run. O tamanho só muda a escala dos números, não muda se você precisa saber responder a essas perguntas.\n\nAplica o mesmo ciclo no seu produto: detecte, diagnostique, corrija, registre o risco que sobrar. Nenhuma dessas quatro palavras exige um time de plantão vinte e quatro horas — exige só a disposição de olhar pro próprio produto com o mesmo rigor que a gente aplicou aqui. Até a próxima."
+ }
+]

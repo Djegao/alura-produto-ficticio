@@ -1,0 +1,241 @@
+{
+  "id": "1b17effcb5a9085d12e7cb7869e3d59d",
+  "projectId": "cms3l9cmk049pad0dmurlfwck",
+  "name": "ingerir-relato",
+  "timestamp": "2026-09-14T21:17:39.121Z",
+  "environment": "default",
+  "tags": [],
+  "bookmarked": false,
+  "release": null,
+  "version": null,
+  "userId": null,
+  "sessionId": null,
+  "public": false,
+  "input": {
+    "texto": "O que vamos comer na sexta?",
+    "canal": "telegram",
+    "model": "claude-haiku-4-5"
+  },
+  "output": {
+    "tipo": "desejo",
+    "descricao": "O que vamos comer na sexta?"
+  },
+  "metadata": {
+    "resourceAttributes": {
+      "host.name": "5d3c4718b1a8",
+      "host.arch": "amd64",
+      "process.pid": 25,
+      "process.executable.name": "node",
+      "process.executable.path": "/mise/installs/node/24.20.0/bin/node",
+      "process.command_args": [
+        "/mise/installs/node/24.20.0/bin/node",
+        "/app/server.js"
+      ],
+      "process.runtime.version": "24.20.0",
+      "process.runtime.name": "nodejs",
+      "process.runtime.description": "Node.js",
+      "process.command": "/app/server.js",
+      "process.owner": "root",
+      "service.name": "unknown_service:node",
+      "telemetry.sdk.language": "nodejs",
+      "telemetry.sdk.name": "opentelemetry",
+      "telemetry.sdk.version": "2.10.0"
+    },
+    "scope": {
+      "name": "langfuse-sdk",
+      "version": "5.9.1",
+      "attributes": {}
+    }
+  },
+  "createdAt": "2026-09-14T21:17:46.000Z",
+  "updatedAt": "2026-09-14T21:17:45.393Z",
+  "externalId": null,
+  "scores": [],
+  "latency": 1.018,
+  "observations": [
+    {
+      "id": "6528d908807b8c7c",
+      "traceId": "1b17effcb5a9085d12e7cb7869e3d59d",
+      "startTime": "2026-09-14T21:17:39.121Z",
+      "endTime": "2026-09-14T21:17:40.139Z",
+      "projectId": "cms3l9cmk049pad0dmurlfwck",
+      "parentObservationId": null,
+      "type": "AGENT",
+      "environment": "default",
+      "name": "ingerir-relato",
+      "level": "DEFAULT",
+      "statusMessage": null,
+      "version": null,
+      "createdAt": "2026-09-14T21:17:45.308Z",
+      "updatedAt": "2026-09-14T21:17:45.308Z",
+      "input": {
+        "texto": "O que vamos comer na sexta?",
+        "canal": "telegram",
+        "model": "claude-haiku-4-5"
+      },
+      "output": {
+        "tipo": "desejo",
+        "descricao": "O que vamos comer na sexta?"
+      },
+      "metadata": {
+        "resourceAttributes": {
+          "host.name": "5d3c4718b1a8",
+          "host.arch": "amd64",
+          "process.pid": 25,
+          "process.executable.name": "node",
+          "process.executable.path": "/mise/installs/node/24.20.0/bin/node",
+          "process.command_args": [
+            "/mise/installs/node/24.20.0/bin/node",
+            "/app/server.js"
+          ],
+          "process.runtime.version": "24.20.0",
+          "process.runtime.name": "nodejs",
+          "process.runtime.description": "Node.js",
+          "process.command": "/app/server.js",
+          "process.owner": "root",
+          "service.name": "unknown_service:node",
+          "telemetry.sdk.language": "nodejs",
+          "telemetry.sdk.name": "opentelemetry",
+          "telemetry.sdk.version": "2.10.0"
+        },
+        "scope": {
+          "name": "langfuse-sdk",
+          "version": "5.9.1",
+          "attributes": {}
+        }
+      },
+      "model": null,
+      "modelParameters": {},
+      "completionStartTime": null,
+      "promptId": null,
+      "promptName": null,
+      "promptVersion": null,
+      "latency": 1.018,
+      "timeToFirstToken": null,
+      "usageDetails": {},
+      "costDetails": {},
+      "usagePricingTierId": null,
+      "usagePricingTierName": null,
+      "inputPrice": 0,
+      "outputPrice": 0,
+      "totalPrice": 0,
+      "calculatedInputCost": null,
+      "calculatedOutputCost": null,
+      "calculatedTotalCost": null,
+      "unit": "TOKENS",
+      "promptTokens": 0,
+      "completionTokens": 0,
+      "totalTokens": 0,
+      "modelId": null,
+      "usage": {
+        "unit": "TOKENS",
+        "input": 0,
+        "output": 0,
+        "total": 0
+      }
+    },
+    {
+      "id": "743fb81e1a7d560f",
+      "traceId": "1b17effcb5a9085d12e7cb7869e3d59d",
+      "startTime": "2026-09-14T21:17:39.122Z",
+      "endTime": "2026-09-14T21:17:40.139Z",
+      "projectId": "cms3l9cmk049pad0dmurlfwck",
+      "parentObservationId": "6528d908807b8c7c",
+      "type": "GENERATION",
+      "environment": "default",
+      "name": "classificar-intencao",
+      "level": "DEFAULT",
+      "statusMessage": null,
+      "version": null,
+      "createdAt": "2026-09-14T21:17:45.308Z",
+      "updatedAt": "2026-09-14T21:17:45.308Z",
+      "input": "O que vamos comer na sexta?",
+      "output": [
+        {
+          "type": "tool_use",
+          "id": "toolu_019kFGbTzEhapiGP9zP1XuXF",
+          "name": "registrar_intencao",
+          "input": {
+            "tipo": "desejo",
+            "descricao": "O que vamos comer na sexta?"
+          },
+          "caller": {
+            "type": "direct"
+          }
+        }
+      ],
+      "metadata": {
+        "resourceAttributes": {
+          "host.name": "5d3c4718b1a8",
+          "host.arch": "amd64",
+          "process.pid": 25,
+          "process.executable.name": "node",
+          "process.executable.path": "/mise/installs/node/24.20.0/bin/node",
+          "process.command_args": [
+            "/mise/installs/node/24.20.0/bin/node",
+            "/app/server.js"
+          ],
+          "process.runtime.version": "24.20.0",
+          "process.runtime.name": "nodejs",
+          "process.runtime.description": "Node.js",
+          "process.command": "/app/server.js",
+          "process.owner": "root",
+          "service.name": "unknown_service:node",
+          "telemetry.sdk.language": "nodejs",
+          "telemetry.sdk.name": "opentelemetry",
+          "telemetry.sdk.version": "2.10.0"
+        },
+        "scope": {
+          "name": "langfuse-sdk",
+          "version": "5.9.1",
+          "attributes": {}
+        }
+      },
+      "model": "claude-haiku-4-5",
+      "modelParameters": {},
+      "completionStartTime": null,
+      "promptId": null,
+      "promptName": null,
+      "promptVersion": null,
+      "latency": 1.017,
+      "timeToFirstToken": null,
+      "usageDetails": {
+        "input": 2477,
+        "output": 62,
+        "total": 2539
+      },
+      "costDetails": {
+        "input": 0.002477,
+        "output": 0.00031,
+        "total": 0.002787
+      },
+      "usagePricingTierId": "cmgt5gnkv000104jx171tbq4e_tier_default",
+      "usagePricingTierName": "Standard",
+      "inputPrice": 0.000001,
+      "outputPrice": 0.000005,
+      "totalPrice": 0,
+      "calculatedInputCost": 0.002477,
+      "calculatedOutputCost": 0.00031,
+      "calculatedTotalCost": 0.002787,
+      "unit": "TOKENS",
+      "promptTokens": 2477,
+      "completionTokens": 62,
+      "totalTokens": 2539,
+      "modelId": "cmgt5gnkv000104jx171tbq4e",
+      "usage": {
+        "unit": "TOKENS",
+        "input": 2477,
+        "output": 62,
+        "total": 2539
+      }
+    }
+  ],
+  "htmlPath": "/project/cms3l9cmk049pad0dmurlfwck/traces/1b17effcb5a9085d12e7cb7869e3d59d",
+  "totalCost": 0.002787,
+  "_deprecation": {
+    "message": "On Langfuse Cloud, Langfuse v3 is deprecated and this endpoint will be removed on November 16, 2026. Data on this API is delayed by about 10 minutes. Real-time is only OpenTelemetry writes plus v2 observations and v2 metrics reads. In Langfuse v4, read span and trace data via GET /api/public/v2/observations?fromStartTime=<from>&toStartTime=<to>.",
+    "replacement": "GET /api/public/v2/observations?fromStartTime=<from>&toStartTime=<to>",
+    "docsUrl": "https://langfuse.com/docs/api-and-data-platform/features/observations-api",
+    "sunsetAt": "2026-11-16"
+  }
+}

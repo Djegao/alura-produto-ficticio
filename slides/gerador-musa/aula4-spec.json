@@ -1,0 +1,289 @@
+[
+ {
+  "video": "4.1",
+  "n": 1,
+  "base": "hero",
+  "kind": "hero, capa",
+  "title": "Do instrumental à realidade",
+  "sub": "Detectar, diagnosticar, corrigir",
+  "table": [],
+  "bullets": [],
+  "notes": "Nas três primeiras aulas a gente construiu o instrumental: critérios de qualidade, evals, e observabilidade com o Langfuse. Hoje esse instrumental encontra a realidade. Vou abrir a operação real do meu produto — em produção, com dado real — e fazer o ciclo completo: detectar uma falha, diagnosticar a causa, corrigir antes do usuário perceber.\n\nJá adianto o placar: encontrei quatro falhas reais fazendo exatamente isso. Duas eu corrigi. Duas eu decidi manter, de propósito — e uma delas apareceu sozinha, dois dias atrás, sem eu estar procurando, enquanto eu simplesmente usava o meu próprio produto."
+ },
+ {
+  "video": "4.1",
+  "n": 2,
+  "base": "divisor",
+  "kind": "divisor",
+  "title": "4.1 Detectando degradação",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Primeira parte: detectar. E detectar é mais difícil do que parece, porque a falha interessante quase nunca grita."
+ },
+ {
+  "video": "4.1",
+  "n": 3,
+  "base": "statement",
+  "kind": "statement",
+  "title": "O produto está no ar. Duas falhas estão dentro dele agora.",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "🔴 AÇÃO: abrir chef.workshopee.com.br e mostrar o produto funcionando: a faixa de estado, o feed, o estoque. Nenhum comando.\n\nAntes de procurar defeito, olha o produto. Está no ar, responde, tem dado real, e cada sugestão dessas custou dinheiro de verdade em chamada de modelo. Nenhum alarme disparou. Ninguém abriu chamado.\n\nE eu vou te dizer uma coisa: neste momento, enquanto a gente olha essa tela, existem duas falhas ativas aqui dentro. As duas eu decidi manter, de propósito — pra continuarem sendo exemplo real, não hipótese. As duas estão bem na sua frente e você não tem como ver. É esse o problema da aula: falha que não grita é a regra, não a exceção. Detectar é trabalho ativo — não é esperar o alarme."
+ },
+ {
+  "video": "4.1",
+  "n": 4,
+  "base": "statement",
+  "kind": "tabela",
+  "tabela": true,
+  "title": "42 interações, US$ 1,54",
+  "sub": "Mesmo recorte da Aula 3 — revalidado em 16/09.",
+  "table": [
+   [
+    "O que o produto faz",
+    "Vezes",
+    "Custo por vez",
+    "% da conta"
+   ],
+   [
+    "Mediar o cardápio",
+    "10",
+    "US$ 0,138",
+    "89,6%"
+   ],
+   [
+    "Receita premium da semana",
+    "6",
+    "US$ 0,012",
+    "4,5%"
+   ],
+   [
+    "Entender uma mensagem",
+    "21",
+    "US$ 0,003",
+    "4,3%"
+   ],
+   [
+    "Ler nota fiscal",
+    "4",
+    "US$ 0,006",
+    "1,6%"
+   ],
+   [
+    "Um teste meu",
+    "1",
+    "US$ 0",
+    "0%"
+   ]
+  ],
+  "bullets": [],
+  "notes": "Isso aqui não é estimativa. É o que o Langfuse registrou, no mesmo recorte que eu mostrei na aula passada: quarenta e duas interações, um dólar e cinquenta e quatro no total. Repara na primeira linha. O Mediador de cardápio rodou dez vezes — um quarto das chamadas. E ele come nove de cada dez dólares da conta."
+ },
+ {
+  "video": "4.1",
+  "n": 5,
+  "base": "statement",
+  "kind": "statement",
+  "title": "24% das chamadas. 90% da conta.",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Essa assimetria é o primeiro sinal de degradação que a gente consegue ver sem nenhum usuário reclamar. E ela muda decisão de produto: não adianta otimizar o agente de ingestão, que é barato e roda quase metade das vezes.\n\nCusto e latência viram eixos que você troca ao vivo no seu próprio produto — entender qual eixo pesa mais é o primeiro passo antes de qualquer troca."
+ },
+ {
+  "video": "4.1",
+  "n": 6,
+  "base": "lista",
+  "kind": "lista",
+  "title": "A falha que não deixou rastro",
+  "sub": "",
+  "table": [],
+  "bullets": [
+   "Resposta no Telegram: nada.",
+   "Log da aplicação: nenhuma linha.",
+   "Trace no Langfuse: nenhum trace."
+  ],
+  "notes": "Deixa eu te contar como eu encontrei a primeira. Um dia desses eu mandei uma foto de um cupom fiscal pro bot, pelo Telegram — coisa mais normal do mundo pra quem usa o produto. E não aconteceu nada. Nenhuma resposta, nenhuma reação, nenhum item novo no estoque.\n\nComecei a procurar o rastro. Resposta no Telegram: nada. Log da aplicação: nenhuma linha. Trace no Langfuse: nenhum trace. Banco de dados: nada.\n\nE aí eu fiz a pergunta óbvia pro próprio Telegram: você entregou essa mensagem? E a resposta foi sim — zero pendência, zero erro de entrega.\n\nJunta tudo: o canal confirma que entregou, e o meu produto não tem absolutamente nenhum registro de ter recebido nada. Se o dado confirma a entrega e o meu sistema não tem rastro nenhum — onde essa mensagem foi parar?"
+ },
+ {
+  "video": "4.1",
+  "n": 7,
+  "base": "statement",
+  "kind": "statement",
+  "title": "Ausência não dispara alarme.",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Essa é a categoria de falha mais perigosa que existe. Um erro que grita tem stack trace, tem alerta, alguém acorda. Uma ausência não dispara nada — não existe monitor que avise que uma coisa que deveria ter acontecido não aconteceu, a menos que alguém já tenha pensado nisso antes. Eu vou voltar nesse caso já já."
+ },
+ {
+  "video": "4.2",
+  "n": 8,
+  "base": "divisor",
+  "kind": "divisor",
+  "title": "4.2 Diagnosticando a causa",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Segunda parte: diagnosticar. E eu quero separar bem três coisas que costumam ser confundidas: problema de prompt, problema de dados e problema de modelo."
+ },
+ {
+  "video": "4.2",
+  "n": 9,
+  "base": "statement",
+  "kind": "statement + Claude",
+  "title": "Episódio A — dois erros, ou um só?",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "🔴 AÇÃO: colar estas duas linhas no Claude (log real, 21/08), com a pergunta \"isso são dois problemas ou um só?\".\n\n2026-08-22T01:30:11.106373641Z | Erro capturando relato/desejo/aquisicao via Telegram: fetch failed\n2026-08-22T01:30:11.106381240Z | Erro processando update do Telegram: fetch failed\n\nContexto primeiro. Ler nota fiscal pelo Telegram é o caminho que eu quero que a casa use de verdade — ninguém vai abrir o painel web toda vez que chega em casa com sacola de mercado. No dia 21 de agosto eu mandei uma nota que eu já sabia ser complicada: um link de QR code de uma nota que o site da SEFAZ demora pra resolver. Se esse caminho falhar em silêncio, o produto perde a única forma barata de manter o estoque atualizado sem digitação manual — e ninguém vai saber que perdeu.\n\nNo dia seguinte eu fiz o que eu faço depois de qualquer dia de uso mais pesado: abri o log de produção pra conferir se passou tudo bem. E essas duas linhas me chamaram atenção — não porque gritavam, mas porque duas linhas de erro pra uma coisa só já é estranho.\n\nEu tenho duas linhas de erro aqui. Minha primeira leitura foi a óbvia: aconteceram dois problemas. Só que tem uma coisa esquisita — olha o horário das duas. A diferença entre elas é de oito microssegundos. Eu não sei o que essa mensagem de erro quer dizer, e sinceramente não é o meu trabalho saber. O meu trabalho é perceber que tem algo estranho e levar para quem sabe.\n\n(cole no Claude e leia a resposta)\n\nOlha o que ele me diz. Não foram dois erros. Foi um só — e o segundo é o próprio produto tentando me avisar do primeiro, e falhando nessa tentativa. Quando ele falhou em avisar, ele apagou a informação do erro original. Ou seja: o aviso comeu a evidência. Guarda essa, porque o próximo caso é o oposto exato."
+ },
+ {
+  "video": "4.2",
+  "n": 10,
+  "base": "statement",
+  "kind": "statement + Claude",
+  "title": "Episódio B — a falha perfeitamente silenciosa",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "🔴 AÇÃO: colar este bloco no Claude (evidência real, 22/08), com a pergunta \"por que uma mensagem entregue com sucesso não deixou rastro nenhum?\".\n\nResposta no Telegram: nada\nLog do Railway: nenhuma linha\nTrace no Langfuse: nenhum trace\nBanco (pensamentos/estoque): nada\ngetWebhookInfo do Telegram: pending_update_count: 0, last_error: nenhum\n\nDepois do episódio anterior, eu não corrigi nada ainda — eu quis tentar um caminho diferente pra resolver a mesma nota difícil. Em vez do link do QR, mandei foto do cupom direto pro bot. É exatamente o comportamento que eu quero incentivar: \"não sei mandar do jeito certo, deixa eu tentar de outro jeito\" — e é assim que qualquer usuário real ia reagir também.\n\nE esse é diferente, e é o mais assustador. No caso anterior eu pelo menos tinha erro pra olhar — duas linhas, estranhas, mas linhas. Aqui não tem nada. Zero log. Isso significa que, se eu não tivesse ficado esperando uma resposta e desconfiado do silêncio, esse caso nunca teria virado investigação — ele teria sido só \"ah, deve ter sido bug, mando de novo depois\". É o tipo de falha que sobrevive indefinidamente num produto real, porque ninguém escreve ticket pra \"nada aconteceu\".\n\nO Telegram confirma que entregou. Não existe registro nenhum da conversa. E o meu produto respondeu \"recebido\" — só que esse \"recebido\" ele manda sempre, antes de processar qualquer coisa, então não prova nada sozinho.\n\n(cole no Claude e leia a resposta)\n\nE aqui está: existe um caminho dentro do produto em que ele recebe a mensagem, percebe que é um formato que não sabe ler — uma foto — e sai calado. Não erra, não avisa, não registra. Repara no que é o pecado aqui: não é ele não saber ler foto. É ele não dizer que não sabe."
+ },
+ {
+  "video": "4.2",
+  "n": 11,
+  "base": "statement",
+  "kind": "statement + painel + Claude",
+  "title": "Episódio C — a conta bateu, o estoque não",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "🔴 AÇÃO: antes, confirmar a lasanha em 5/5 no painel via GET /api/estado-cozinha. Depois, colar este bloco no Claude (evidência real, 22/08), perguntando quem errou.\n\nMensagem no Telegram: \"Comemos 3 porções de lasagna, 1 e 1/2 para cada!\"\n\nO que o modelo devolveu:\n{\n  \"tipo\": \"relato_refeicao\",\n  \"descricao\": \"Comeram 3 porções de lasagna ao total, 1 e 1/2 porção para cada pessoa\",\n  \"data\": \"2026-08-22\",\n  \"fonte_refeicao\": \"caseira\",\n  \"item_nome\": \"lasagna\",\n  \"item_quantidade\": 3\n}\n\nEstoque, verificado agora:\n{ \"name\": \"lasanha\", \"portions_total\": 5, \"portions_remaining\": 5 }\n\nAqui o contexto é diferente dos dois primeiros: não tem erro nenhum envolvido, é o dia a dia normal da casa. E é exatamente por isso que importa tanto — o Mediador e a lista de compras decidem em cima do número que está gravado no estoque. Se esse número mentir, a próxima sugestão de cardápio parte de um dado errado sem ninguém saber, e a casa pode acabar comprando comida que já tinha, ou o Mediador sugerindo um prato achando que sobrou lasanha que já acabou.\n\nEsse aqui desmonta um reflexo que quase todo mundo tem. Eu avisei pelo Telegram: comemos três porções de lasagna, uma e meia para cada. O bot reagiu com joinha. Perfeito. Eu só fui conferir o estoque por hábito — não porque desconfiei de nada, o joinha não dá motivo pra desconfiar. E foi aí que vi: continua com cinco porções. E quando eu vou ver o registro, ele entendeu tudo certo — que era refeição em casa, que era lasanha, que eram três porções. Ele até fez a conta do \"uma e meia para cada\". A inteligência acertou. Então quem errou?\n\n(cole no Claude e leia a resposta)\n\nEu escrevi \"lasagna\", com G, e o prato estava salvo como \"lasanha\", com NH. Pra mim são a mesma palavra. Pro produto, não eram — e ele não deu baixa. E o mais perigoso: nada falhou visivelmente. Eu recebi joinha. Se eu não tivesse ido conferir o estoque, eu nunca saberia.\n\n(não corrigir esse caso — fica quebrado de propósito, é o gancho da Aula 5)"
+ },
+ {
+  "video": "4.2",
+  "n": 12,
+  "base": "statement",
+  "kind": "statement + Claude",
+  "title": "Episódio D — o hambúrguer que sumiu",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "🔴 AÇÃO: colar este bloco no Claude (conversa e traces reais, 14/09), perguntando por que a interação inteira falhou mesmo com as quatro classificações corretas — e, na sequência, se o problema foi prompt, dados ou modelo.\n\nA conversa (Telegram, 18h17-18h18):\n[18:17] Diego: O que vamos comer na sexta?\n(reação, sem texto)\n[18:18] Diego: Preparei hambúrguer de patinho, 220g pra mim e 160g pra esposa. Tá pronto no congelador, dois de cada. Adicionar ao estoque da geladeira\n[18:18] bot: Quantas porções rendeu a hambúrguer de patinho? Só quem cozinhou sabe — me manda \"porcionei hambúrguer de patinho em N\".\n[18:18] Diego: Porcionei em 2 unidades de 220g e 2 unidades de 160g\n[18:18] bot: Porcionou o quê, e em quantas porções?\n[18:18] Diego: O hambúrguer de patinho\n(reação, sem texto — fim da conversa)\n\nOs quatro traces (classificação de cada mensagem):\n1) \"O que vamos comer na sexta?\" -> {\"tipo\": \"desejo\"} — correto\n2) \"Preparei hambúrguer de patinho, 220g...\" -> {\"tipo\": \"porcionamento\", \"item_nome\": \"hambúrguer de patinho\"} — item_quantidade AUSENTE (faltou número explícito de unidades); guardrail disparou pergunta, nada gravado\n3) \"Porcionei em 2 unidades de 220g e 2 unidades de 160g\" -> {\"tipo\": \"porcionamento\"} — item_nome AUSENTE (resposta direta, sem repetir o nome do prato); nada gravado\n4) \"O hambúrguer de patinho\" -> {\"tipo\": \"desejo\"} — reclassificado como desejo, não como resposta pendente; conversa encerra sem gravar nada\n\nEstado final (schema, filtro \"%patinho%\"):\n{ \"name\": \"carne moída patinho\", \"quantity\": 2, \"unit\": \"kg\", \"state\": \"base\" }\n-- nenhum item com state=\"preparado\" e name~\"hambúrguer de patinho\"\n\nO quarto eu não fui atrás — e por isso o contexto de negócio aqui é o mais direto de todos: eu era o próprio usuário, fazendo a coisa mais comum do mundo pra esse produto, que é registrar o que acabou de cozinhar. Isso importa porque é o mesmo mecanismo que sustenta o guardrail \"pergunte, não chute\": se ele falhar desse jeito, o porcionamento simplesmente não entra no estoque, e a mediação do dia seguinte decide o cardápio achando que a geladeira tem menos comida do que realmente tem.\n\nAconteceu comigo, no dia 14 de setembro, à noite, usando o meu próprio produto pra valer. Eu preparei um hambúrguer, contei pro bot: nome do prato, peso de cada porção, quantas porções. Ele fez uma pergunta razoável — quantas porções rendeu. Eu respondi, no formato que ele mesmo sugeriu. Ele perguntou de novo, agora de um jeito diferente, como se eu não tivesse acabado de responder. Foi nesse momento que percebi que algo estava errado — não porque deu erro, mas porque a pergunta repetida não fazia sentido pra quem estava do outro lado da conversa. Tentei mais uma vez, só o nome do prato. E ele desistiu — virou um emoji, silêncio, fim.\n\nFui direto no Langfuse pegar os quatro registros dessa conversa, e trouxe pro Claude, junto com o estoque de antes e depois.\n\n(cole os quatro traces no Claude e leia a resposta)\n\nPresta atenção no que ele acabou de me mostrar: as quatro classificações estão perfeitas. Zero erro, zero exceção. O hambúrguer que eu de fato cozinhei? Nunca entrou no estoque. Quatro mensagens reais, uma ação física de verdade — resultado líquido zero, sem uma falha visível em lugar nenhum.\n\nE agora eu quero voltar na pergunta que eu fiz no início da aula: o problema está no prompt, nos dados, ou no modelo? Pergunta pro Claude: qual dessas três explica o que aconteceu aqui?\n\n(deixe o Claude responder — a resposta esperada, em substância: nenhuma das três explica sozinha. O prompt de cada chamada estava correto, os dados de cada mensagem eram claros, o modelo acertou nas quatro. A causa é arquitetural — o sistema não guarda memória de conversa entre mensagens.)\n\nNenhuma das três. E é por isso que esse caso é diferente dos outros. Nos episódios A, B e C, o produto em volta do modelo errou de um jeito que eu conseguia apontar. Aqui, o produto nem chega a errar sozinho — ele só nunca teve a peça que faltava: lembrar da própria pergunta que ele mesmo fez."
+ },
+ {
+  "video": "4.2",
+  "n": 13,
+  "base": "statement",
+  "kind": "statement",
+  "title": "O que os quatro casos têm em comum",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Repara no que eu fiz nos quatro. Em nenhum deles eu abri código pra descobrir o problema. Eu observei, juntei evidência e perguntei. Nos dois primeiros o produto falhou em avisar. No terceiro ele avisou que tinha dado certo, e não tinha — que é pior. E no quarto, cada peça isolada estava certa, e a soma delas ainda assim falhou completamente.\n\nReflexo comum quando algo dá errado num produto com IA: \"o problema é o prompt\". Nos quatro casos aqui, a inteligência acertou — inclusive no quarto, quatro vezes seguidas. Quem errou foi o produto em volta dela. E às vezes nem existe um \"errou\" pontual: existe uma peça que nunca foi construída. Cuidar disso é trabalho de quem constrói o produto — é o seu trabalho."
+ },
+ {
+  "video": "4.3",
+  "n": 14,
+  "base": "divisor",
+  "kind": "divisor",
+  "title": "4.3 Corrigindo antes do usuário",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Diagnóstico feito. Agora corrigir — duas correções, nesta ordem, as duas já no ar."
+ },
+ {
+  "video": "4.3",
+  "n": 15,
+  "base": "statement",
+  "kind": "statement, antes/depois",
+  "title": "Ensinar o produto a dizer \"não sei\"",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Sem deploy: a correção já está no ar desde 12/09 (PR #4).\n\nE aqui está a parte que eu mais gosto. Eu não ensinei ele a ler foto. Ele continuava sem saber ler. O que eu fiz foi ensinar ele a dizer que não sabe. Antes, uma linha de código só: chegava foto, o produto saía calado. Depois, a mesma foto — e ele responde: \"ainda não sei ler foto de cupom, me manda o link do QR ou o texto\". A capacidade técnica é exatamente a mesma nos dois lados. O que mudou foi só ele ter dito. E de quebra, aquele primeiro caso também sumiu: o aviso de erro nunca mais vai apagar a informação do erro original. Admitir a limitação já é uma correção. O problema nunca foi não saber ler — foi não dizer."
+ },
+ {
+  "video": "4.3",
+  "n": 16,
+  "base": "statement",
+  "kind": "statement",
+  "title": "Agora sim: ensinar a ler a nota",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "🔴 AÇÃO: painel do produto, com um item entrado por nota fiscal em foto.\n\nDepois veio a segunda correção: ensinar ele a ler de verdade. E repara na ordem — primeiro o produto aprendeu a dizer \"não sei\", depois aprendeu a saber. Se eu tivesse feito ao contrário, eu teria consertado o sintoma e deixado o buraco.\n\nE aqui eu preciso ser honesto sobre uma coisa: o desenho que eu imaginei primeiro não funcionou. Eu achei que bastava a inteligência ler os números impressos no cupom. Não bastava — o dado oficial só vem pelo link que está dentro do QR code, e nenhum modelo de visão lê o que não está escrito. Quem teve a ideia fui eu, e quem descobriu que ela não parava em pé fui eu, testando. Isso é parte do trabalho, não é fracasso."
+ },
+ {
+  "video": "4.4",
+  "n": 17,
+  "base": "divisor",
+  "kind": "divisor",
+  "title": "4.4 Simulando o ciclo completo",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Ciclo fechado. Agora a consequência — porque toda correção cria alguma coisa nova para observar."
+ },
+ {
+  "video": "4.4",
+  "n": 18,
+  "base": "statement",
+  "kind": "statement",
+  "title": "O que essa correção criou",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "🔴 AÇÃO: se quiser, painel com os itens novos no estoque.\n\nEu resolvi um problema e criei outro. Agora que entra foto, entra mais coisa errada no estoque — mais formato, mais leitura, mais chance de item torto. E aí aquela tela de conferir antes de salvar, que parecia luxo, virou a próxima coisa a construir. Não porque eu achei: porque a consequência apareceu.\n\nE tem o outro lado: aquele caso da lasanha continua quebrado neste momento, e eu escolhi não corrigir. A saída óbvia seria o produto perguntar quando estiver em dúvida, em vez de chutar o nome mais parecido.\n\nSó que — e é aqui que os dois casos se encontram — esse mecanismo já existe no meu produto. É exatamente o que tentou acontecer com o hambúrguer, no episódio quatro. E não resolveu nada; só produziu mais pergunta, até o produto desistir sozinho. Então a saída óbvia para um problema pode já estar quebrada em outro lugar, e eu só vou descobrir isso olhando os dois juntos."
+ },
+ {
+  "video": "4.4",
+  "n": 19,
+  "base": "lista",
+  "kind": "lista",
+  "title": "Dois riscos, conhecidos e registrados",
+  "sub": "",
+  "table": [],
+  "bullets": [
+   "O match de nome (lasanha × lasagna): sem correção, de propósito.",
+   "O porcionamento sem memória de conversa (o hambúrguer): sem correção, ainda em aberto."
+  ],
+  "notes": "Risco que eu conheço e registro é uma coisa; risco escondido é outra. Os dois que eu decidi manter até aqui estão anotados, com data, com trace, com o motivo de eu não ter mexido. É exatamente aí que a próxima aula começa."
+ },
+ {
+  "video": "4.5",
+  "n": 20,
+  "base": "divisor",
+  "kind": "divisor",
+  "title": "4.5 O que aprendemos",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Recapitulando."
+ },
+ {
+  "video": "4.5",
+  "n": 21,
+  "base": "statement",
+  "kind": "statement",
+  "title": "Quatro falhas reais. Nenhuma gritou.",
+  "sub": "",
+  "table": [],
+  "bullets": [],
+  "notes": "Quatro falhas reais, e nenhuma delas gritou. Três eu fui atrás olhando; a quarta apareceu sozinha, usando o próprio produto. Eu quero que você repare no como: em nenhum momento eu li código pra descobrir o problema. Eu observei, juntei a evidência e perguntei. A inteligência acertou nos quatro casos — inclusive no mais difícil, quatro vezes seguidas — e ainda assim o resultado falhou. Quem errou, ou quem nunca chegou a existir, foi o produto em volta do modelo. Cuidar disso é trabalho de quem constrói o produto. Corrigir antes do usuário perceber é possível, mas só quando o dado de produção está visível para você."
+ },
+ {
+  "video": "4.5",
+  "n": 22,
+  "base": "hero",
+  "kind": "hero, fechamento",
+  "title": "Nenhuma falha gritou sozinha.",
+  "sub": "Todas foram encontradas olhando.",
+  "table": [],
+  "bullets": [],
+  "notes": "Nenhuma falha gritou sozinha. Todas foram encontradas olhando. Na próxima aula a gente fecha o curso com o terceiro pilar: guardrails, transparência e LGPD — e o checklist onde esses riscos que eu escolhi aceitar viram registro, não segredo. Até lá."
+ }
+]

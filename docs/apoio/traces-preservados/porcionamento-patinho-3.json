@@ -1,0 +1,241 @@
+{
+  "id": "4878012867e0d51fbd0bd1258ab7eca0",
+  "projectId": "cms3l9cmk049pad0dmurlfwck",
+  "name": "ingerir-relato",
+  "timestamp": "2026-09-14T21:18:27.343Z",
+  "environment": "default",
+  "tags": [],
+  "bookmarked": false,
+  "release": null,
+  "version": null,
+  "userId": null,
+  "sessionId": null,
+  "public": false,
+  "input": {
+    "texto": "Porcionei em 2 unidades de 220g e 2 unidades de 160g",
+    "canal": "telegram",
+    "model": "claude-haiku-4-5"
+  },
+  "output": {
+    "tipo": "porcionamento",
+    "descricao": "Porcionei em 2 unidades de 220g e 2 unidades de 160g"
+  },
+  "metadata": {
+    "resourceAttributes": {
+      "host.name": "5d3c4718b1a8",
+      "host.arch": "amd64",
+      "process.pid": 25,
+      "process.executable.name": "node",
+      "process.executable.path": "/mise/installs/node/24.20.0/bin/node",
+      "process.command_args": [
+        "/mise/installs/node/24.20.0/bin/node",
+        "/app/server.js"
+      ],
+      "process.runtime.version": "24.20.0",
+      "process.runtime.name": "nodejs",
+      "process.runtime.description": "Node.js",
+      "process.command": "/app/server.js",
+      "process.owner": "root",
+      "service.name": "unknown_service:node",
+      "telemetry.sdk.language": "nodejs",
+      "telemetry.sdk.name": "opentelemetry",
+      "telemetry.sdk.version": "2.10.0"
+    },
+    "scope": {
+      "name": "langfuse-sdk",
+      "version": "5.9.1",
+      "attributes": {}
+    }
+  },
+  "createdAt": "2026-09-14T21:18:34.000Z",
+  "updatedAt": "2026-09-14T21:18:33.488Z",
+  "externalId": null,
+  "scores": [],
+  "latency": 0.973,
+  "observations": [
+    {
+      "id": "7c3fffeba02d5502",
+      "traceId": "4878012867e0d51fbd0bd1258ab7eca0",
+      "startTime": "2026-09-14T21:18:27.343Z",
+      "endTime": "2026-09-14T21:18:28.316Z",
+      "projectId": "cms3l9cmk049pad0dmurlfwck",
+      "parentObservationId": null,
+      "type": "AGENT",
+      "environment": "default",
+      "name": "ingerir-relato",
+      "level": "DEFAULT",
+      "statusMessage": null,
+      "version": null,
+      "createdAt": "2026-09-14T21:18:33.398Z",
+      "updatedAt": "2026-09-14T21:18:33.399Z",
+      "input": {
+        "texto": "Porcionei em 2 unidades de 220g e 2 unidades de 160g",
+        "canal": "telegram",
+        "model": "claude-haiku-4-5"
+      },
+      "output": {
+        "tipo": "porcionamento",
+        "descricao": "Porcionei em 2 unidades de 220g e 2 unidades de 160g"
+      },
+      "metadata": {
+        "resourceAttributes": {
+          "host.name": "5d3c4718b1a8",
+          "host.arch": "amd64",
+          "process.pid": 25,
+          "process.executable.name": "node",
+          "process.executable.path": "/mise/installs/node/24.20.0/bin/node",
+          "process.command_args": [
+            "/mise/installs/node/24.20.0/bin/node",
+            "/app/server.js"
+          ],
+          "process.runtime.version": "24.20.0",
+          "process.runtime.name": "nodejs",
+          "process.runtime.description": "Node.js",
+          "process.command": "/app/server.js",
+          "process.owner": "root",
+          "service.name": "unknown_service:node",
+          "telemetry.sdk.language": "nodejs",
+          "telemetry.sdk.name": "opentelemetry",
+          "telemetry.sdk.version": "2.10.0"
+        },
+        "scope": {
+          "name": "langfuse-sdk",
+          "version": "5.9.1",
+          "attributes": {}
+        }
+      },
+      "model": null,
+      "modelParameters": {},
+      "completionStartTime": null,
+      "promptId": null,
+      "promptName": null,
+      "promptVersion": null,
+      "latency": 0.973,
+      "timeToFirstToken": null,
+      "usageDetails": {},
+      "costDetails": {},
+      "usagePricingTierId": null,
+      "usagePricingTierName": null,
+      "inputPrice": 0,
+      "outputPrice": 0,
+      "totalPrice": 0,
+      "calculatedInputCost": null,
+      "calculatedOutputCost": null,
+      "calculatedTotalCost": null,
+      "unit": "TOKENS",
+      "promptTokens": 0,
+      "completionTokens": 0,
+      "totalTokens": 0,
+      "modelId": null,
+      "usage": {
+        "unit": "TOKENS",
+        "input": 0,
+        "output": 0,
+        "total": 0
+      }
+    },
+    {
+      "id": "669bd2a2e386c01f",
+      "traceId": "4878012867e0d51fbd0bd1258ab7eca0",
+      "startTime": "2026-09-14T21:18:27.343Z",
+      "endTime": "2026-09-14T21:18:28.315Z",
+      "projectId": "cms3l9cmk049pad0dmurlfwck",
+      "parentObservationId": "7c3fffeba02d5502",
+      "type": "GENERATION",
+      "environment": "default",
+      "name": "classificar-intencao",
+      "level": "DEFAULT",
+      "statusMessage": null,
+      "version": null,
+      "createdAt": "2026-09-14T21:18:33.398Z",
+      "updatedAt": "2026-09-14T21:18:33.399Z",
+      "input": "Porcionei em 2 unidades de 220g e 2 unidades de 160g",
+      "output": [
+        {
+          "type": "tool_use",
+          "id": "toolu_01RMQYH8u8gnhtsoH6ksHVZw",
+          "name": "registrar_intencao",
+          "input": {
+            "tipo": "porcionamento",
+            "descricao": "Porcionei em 2 unidades de 220g e 2 unidades de 160g"
+          },
+          "caller": {
+            "type": "direct"
+          }
+        }
+      ],
+      "metadata": {
+        "resourceAttributes": {
+          "host.name": "5d3c4718b1a8",
+          "host.arch": "amd64",
+          "process.pid": 25,
+          "process.executable.name": "node",
+          "process.executable.path": "/mise/installs/node/24.20.0/bin/node",
+          "process.command_args": [
+            "/mise/installs/node/24.20.0/bin/node",
+            "/app/server.js"
+          ],
+          "process.runtime.version": "24.20.0",
+          "process.runtime.name": "nodejs",
+          "process.runtime.description": "Node.js",
+          "process.command": "/app/server.js",
+          "process.owner": "root",
+          "service.name": "unknown_service:node",
+          "telemetry.sdk.language": "nodejs",
+          "telemetry.sdk.name": "opentelemetry",
+          "telemetry.sdk.version": "2.10.0"
+        },
+        "scope": {
+          "name": "langfuse-sdk",
+          "version": "5.9.1",
+          "attributes": {}
+        }
+      },
+      "model": "claude-haiku-4-5",
+      "modelParameters": {},
+      "completionStartTime": null,
+      "promptId": null,
+      "promptName": null,
+      "promptVersion": null,
+      "latency": 0.972,
+      "timeToFirstToken": null,
+      "usageDetails": {
+        "input": 2491,
+        "output": 77,
+        "total": 2568
+      },
+      "costDetails": {
+        "input": 0.002491,
+        "output": 0.000385,
+        "total": 0.002876
+      },
+      "usagePricingTierId": "cmgt5gnkv000104jx171tbq4e_tier_default",
+      "usagePricingTierName": "Standard",
+      "inputPrice": 0.000001,
+      "outputPrice": 0.000005,
+      "totalPrice": 0,
+      "calculatedInputCost": 0.002491,
+      "calculatedOutputCost": 0.000385,
+      "calculatedTotalCost": 0.002876,
+      "unit": "TOKENS",
+      "promptTokens": 2491,
+      "completionTokens": 77,
+      "totalTokens": 2568,
+      "modelId": "cmgt5gnkv000104jx171tbq4e",
+      "usage": {
+        "unit": "TOKENS",
+        "input": 2491,
+        "output": 77,
+        "total": 2568
+      }
+    }
+  ],
+  "htmlPath": "/project/cms3l9cmk049pad0dmurlfwck/traces/4878012867e0d51fbd0bd1258ab7eca0",
+  "totalCost": 0.002876,
+  "_deprecation": {
+    "message": "On Langfuse Cloud, Langfuse v3 is deprecated and this endpoint will be removed on November 16, 2026. Data on this API is delayed by about 10 minutes. Real-time is only OpenTelemetry writes plus v2 observations and v2 metrics reads. In Langfuse v4, read span and trace data via GET /api/public/v2/observations?fromStartTime=<from>&toStartTime=<to>.",
+    "replacement": "GET /api/public/v2/observations?fromStartTime=<from>&toStartTime=<to>",
+    "docsUrl": "https://langfuse.com/docs/api-and-data-platform/features/observations-api",
+    "sunsetAt": "2026-11-16"
+  }
+}

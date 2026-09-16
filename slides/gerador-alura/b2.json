@@ -1,0 +1,482 @@
+[
+ {
+  "text": "Na aula passada eu fechei o relatório de riscos e vimos os três pilares que sustentam o run de um produto com IA.",
+  "bold": false
+ },
+ {
+  "text": "O primeiro pilar responde: \"a IA está fazendo o que deveria?\" — foco em qualidade, precisão e aderência ao esperado.",
+  "bold": false
+ },
+ {
+  "text": "Esta aula inteira é essa pergunta. Evals é o instrumento que responde ela sem depender da minha impressão.",
+  "bold": true
+ },
+ {
+  "text": "Se eu mudar o produto amanhã, como vou saber se ele continua fazendo o que deveria?",
+  "bold": false
+ },
+ {
+  "text": "Se eu mudar o produto amanhã, como vou saber se ele continua fazendo o que deveria?",
+  "bold": false
+ },
+ {
+  "text": "Uma mudança pode melhorar uma resposta e piorar outra.",
+  "bold": false
+ },
+ {
+  "text": "Se eu mudar o produto amanhã, como vou saber se ele continua fazendo o que deveria?",
+  "bold": false
+ },
+ {
+  "text": "Uma mudança pode melhorar uma resposta e piorar outra.",
+  "bold": false
+ },
+ {
+  "text": "Um comportamento que eu já tinha como garantido pode simplesmente deixar de acontecer.",
+  "bold": false
+ },
+ {
+  "text": "Se eu mudar o produto amanhã, como vou saber se ele continua fazendo o que deveria?",
+  "bold": false
+ },
+ {
+  "text": "Uma mudança pode melhorar uma resposta e piorar outra.",
+  "bold": false
+ },
+ {
+  "text": "Um comportamento que eu já tinha como garantido pode simplesmente deixar de acontecer.",
+  "bold": false
+ },
+ {
+  "text": "Um erro que aconteceu hoje pode voltar amanhã. E voltar pior.",
+  "bold": false
+ },
+ {
+  "text": "Se eu mudar o produto amanhã, como vou saber se ele continua fazendo o que deveria?",
+  "bold": false
+ },
+ {
+  "text": "Uma mudança pode melhorar uma resposta e piorar outra.",
+  "bold": false
+ },
+ {
+  "text": "Um comportamento que eu já tinha como garantido pode simplesmente deixar de acontecer.",
+  "bold": false
+ },
+ {
+  "text": "Um erro que aconteceu hoje pode voltar amanhã. E voltar pior.",
+  "bold": false
+ },
+ {
+  "text": "Testar uma vez responde sobre aquele momento. Produto é o que acontece nos outros dias.",
+  "bold": true
+ },
+ {
+  "text": "Eval é um processo sistemático pra verificar se o produto está se comportando como eu espero.",
+  "bold": false
+ },
+ {
+  "text": "Não é QA e não é teste de software: teste pergunta \"é igual ao esperado?\", e eval pergunta \"é bom?\".",
+  "bold": false
+ },
+ {
+  "text": "É critério que pode ser reproduzido e aprimorado de forma repetível.",
+  "bold": true
+ },
+ {
+  "text": "1. Cenário — o que eu estou tentando avaliar? Ex.: o casal pede uma mediação de cardápio pra semana.",
+  "bold": false
+ },
+ {
+  "text": "1. Cenário — o que eu estou tentando avaliar? Ex.: o casal pede uma mediação de cardápio pra semana.",
+  "bold": false
+ },
+ {
+  "text": "2. Critério — o que eu espero que ele faça? Ex.: identificar o trade-off e explicar o impacto com o número que a ferramenta devolveu.",
+  "bold": false
+ },
+ {
+  "text": "1. Cenário — o que eu estou tentando avaliar? Ex.: o casal pede uma mediação de cardápio pra semana.",
+  "bold": false
+ },
+ {
+  "text": "2. Critério — o que eu espero que ele faça? Ex.: identificar o trade-off e explicar o impacto com o número que a ferramenta devolveu.",
+  "bold": false
+ },
+ {
+  "text": "3. Resposta — o que o produto fez de verdade naquela execução?",
+  "bold": false
+ },
+ {
+  "text": "1. Cenário — o que eu estou tentando avaliar? Ex.: o casal pede uma mediação de cardápio pra semana.",
+  "bold": false
+ },
+ {
+  "text": "2. Critério — o que eu espero que ele faça? Ex.: identificar o trade-off e explicar o impacto com o número que a ferramenta devolveu.",
+  "bold": false
+ },
+ {
+  "text": "3. Resposta — o que o produto fez de verdade naquela execução?",
+  "bold": false
+ },
+ {
+  "text": "4. Evidência — atendeu ou não atendeu, com justificativa apontável.",
+  "bold": true
+ },
+ {
+  "text": "O modelo é um componente. Ele é o mesmo modelo que atende milhões de outros produtos, e ele não sabe o que a minha casa combinou.",
+  "bold": false
+ },
+ {
+  "text": "O que eu avalio é o comportamento esperado do meu produto: o que o Mediador prometeu fazer pra este casal.",
+  "bold": false
+ },
+ {
+  "text": "Não estamos avaliando o modelo, e sim o comportamento esperado do produto.",
+  "bold": true
+ },
+ {
+  "text": "É tentador comemorar quando 100% das respostas passam. Eu já comemorei, e estava errado.",
+  "bold": false
+ },
+ {
+  "text": "100% de aprovação é sinal de alerta, não de sucesso: o critério provavelmente não está pegando nada.",
+  "bold": true
+ },
+ {
+  "text": "E quanto de falha eu aceito é decisão minha, de produto. Não existe \"zero erro\" de graça.",
+  "bold": false
+ },
+ {
+  "text": "No funil, hoje a gente para exatamente no Critério — é o passo mais fácil de fazer errado.",
+  "bold": false
+ },
+ {
+  "text": "E é o único dos quatro que não precisa de código nenhum: é escrito em português, por gente de produto.",
+  "bold": false
+ },
+ {
+  "text": "Critérios claros transformam julgamento subjetivo em algo que eu consigo checar.",
+  "bold": true
+ },
+ {
+  "text": "A casa quer pedir entrega. E tem porção caseira parada na geladeira, feita no fim de semana.",
+  "bold": false
+ },
+ {
+  "text": "O chef pensa em desperdício e orçamento. A musa quer comer o que dá vontade. Os dois têm razão.",
+  "bold": false
+ },
+ {
+  "text": "É pra esse conflito que o Mediador existe. Então é dele que os critérios têm que nascer.",
+  "bold": true
+ },
+ {
+  "text": "Menciona explicitamente que existem porções caseiras não consumidas?",
+  "bold": false
+ },
+ {
+  "text": "Menciona explicitamente que existem porções caseiras não consumidas?",
+  "bold": false
+ },
+ {
+  "text": "Cita o relato de delivery ou restaurante recente como parte do motivo?",
+  "bold": false
+ },
+ {
+  "text": "Menciona explicitamente que existem porções caseiras não consumidas?",
+  "bold": false
+ },
+ {
+  "text": "Cita o relato de delivery ou restaurante recente como parte do motivo?",
+  "bold": false
+ },
+ {
+  "text": "Não decide sozinho o que a casa deve fazer — expõe e deixa a escolha em aberto?",
+  "bold": false
+ },
+ {
+  "text": "Menciona explicitamente que existem porções caseiras não consumidas?",
+  "bold": false
+ },
+ {
+  "text": "Cita o relato de delivery ou restaurante recente como parte do motivo?",
+  "bold": false
+ },
+ {
+  "text": "Não decide sozinho o que a casa deve fazer — expõe e deixa a escolha em aberto?",
+  "bold": false
+ },
+ {
+  "text": "Usa números reais (porções restantes, dias desde o preparo) em vez de estimativa vaga?",
+  "bold": false
+ },
+ {
+  "text": "Menciona explicitamente que existem porções caseiras não consumidas?",
+  "bold": false
+ },
+ {
+  "text": "Cita o relato de delivery ou restaurante recente como parte do motivo?",
+  "bold": false
+ },
+ {
+  "text": "Não decide sozinho o que a casa deve fazer — expõe e deixa a escolha em aberto?",
+  "bold": false
+ },
+ {
+  "text": "Usa números reais (porções restantes, dias desde o preparo) em vez de estimativa vaga?",
+  "bold": false
+ },
+ {
+  "text": "Não inventa prazo de validade que não veio de cálculo em código?",
+  "bold": true
+ },
+ {
+  "text": "Nome — é o que vai ser gravado toda vez. Sem nome estável, não dá pra comparar esta semana com a próxima.",
+  "bold": false
+ },
+ {
+  "text": "Pergunta — respondível por uma pessoa olhando a interação, sem abrir o repositório.",
+  "bold": false
+ },
+ {
+  "text": "Escala — binário quando a falha é categórica; de 0 a 1 quando \"meio certo\" existe de verdade.",
+  "bold": false
+ },
+ {
+  "text": "Por que erra caro — o custo real quando ele falha. É a parte que todo mundo pula.",
+  "bold": true
+ },
+ {
+  "text": "Binário é pra falha categórica: ou ele deixou a escolha em aberto, ou decidiu sozinho. Não tem meio-termo.",
+  "bold": false
+ },
+ {
+  "text": "A escala de 0 a 1 é pra quando \"meio certo\" existe: citou números, mas soltos, sem ligar à escolha.",
+  "bold": false
+ },
+ {
+  "text": "Na dúvida, binário. Escala contínua vira opinião disfarçada de número — o meu 0,7 é o 0,8 seu.",
+  "bold": true
+ },
+ {
+  "text": "Escreve o custo em uma frase concreta. Se você não conseguir escrever, o critério provavelmente não deveria existir.",
+  "bold": false
+ },
+ {
+  "text": "Um critério que não custa nada quando falha rouba atenção dos que custam.",
+  "bold": true
+ },
+ {
+  "text": "Ele não é neutro: toda rodada ele gasta tempo, gasta dinheiro, e ocupa uma linha que alguém tem que ler.",
+  "bold": false
+ },
+ {
+  "text": "Antes eu lia a mediação e achava razoável. \"Razoável\" era eu, lendo uma vez, no meu humor daquele dia.",
+  "bold": false
+ },
+ {
+  "text": "Agora eu tenho critério: qualquer pessoa da casa aplica e chega no mesmo sim ou no mesmo não que eu.",
+  "bold": true
+ },
+ {
+  "text": "E com isso eu consigo decidir o que fazer a seguir — que é pra isso que medir serve.",
+  "bold": false
+ },
+ {
+  "text": "Com três mediações, ler uma por uma é o melhor investimento que existe. É lendo que eu descobri o que medir.",
+  "bold": false
+ },
+ {
+  "text": "Com trezentas eu não leio. E o caso que mata é o do meio: com trinta por semana, eu leio na segunda e paro na quarta.",
+  "bold": false
+ },
+ {
+  "text": "O critério que eu escrevi não escala sozinho. Ele precisa de alguém que aplique sempre do mesmo jeito.",
+  "bold": true
+ },
+ {
+  "text": "Trace — uma execução real do produto: o pedido, a resposta final, e cada ferramenta que ele chamou no meio.",
+  "bold": false
+ },
+ {
+  "text": "Trace — uma execução real do produto: o pedido, a resposta final, e cada ferramenta que ele chamou no meio.",
+  "bold": false
+ },
+ {
+  "text": "Julgamento — o critério foi atendido naquela execução?",
+  "bold": false
+ },
+ {
+  "text": "Trace — uma execução real do produto: o pedido, a resposta final, e cada ferramenta que ele chamou no meio.",
+  "bold": false
+ },
+ {
+  "text": "Julgamento — o critério foi atendido naquela execução?",
+  "bold": false
+ },
+ {
+  "text": "LLM as a judge — o Claude atua como árbitro e automatiza esse julgamento, sempre do mesmo jeito.",
+  "bold": true
+ },
+ {
+  "text": "Julgue só com base no material — não suponha nada que não esteja ali.",
+  "bold": false
+ },
+ {
+  "text": "Toda nota precisa de evidência citável. Justificativa genérica é justificativa inválida.",
+  "bold": false
+ },
+ {
+  "text": "Seja severo com falha silenciosa: um estado que ficou errado sem ninguém perceber é pior que um erro barulhento.",
+  "bold": true
+ },
+ {
+  "text": "Cada critério devolve dois campos obrigatórios: o valor e a justificativa, citando o material.",
+  "bold": false
+ },
+ {
+  "text": "É isso que me deixa discordar do juiz. Um avaliador que eu não consigo auditar me dá confiança falsa.",
+  "bold": true
+ },
+ {
+  "text": "\"Nota 0,3\" eu tenho que aceitar na fé. \"0,3 porque a resposta não cita as porções da geladeira\" eu confiro em cinco segundos.",
+  "bold": false
+ },
+ {
+  "text": "Antes de chamar o Claude, o código apura os fatos: quais ferramentas rodaram, quantos tokens saíram, se houve erro.",
+  "bold": false
+ },
+ {
+  "text": "Isso entra no material já pronto, marcado como fato. O juiz usa e não recalcula nada.",
+  "bold": false
+ },
+ {
+  "text": "Aritmética é trabalho de código. Julgamento é trabalho do modelo. Misturar os dois estraga o eval em silêncio.",
+  "bold": true
+ },
+ {
+  "text": "Pra somar as notas eu preciso da resposta estruturada. A tentação é escrever \"responda em JSON\" e torcer.",
+  "bold": false
+ },
+ {
+  "text": "Funciona quase sempre. E quando ele resolve responder em prosa, não sobra nota nenhuma e a rodada inteira se perde.",
+  "bold": false
+ },
+ {
+  "text": "A garantia é estrutural: a chamada da ferramenta é forçada pela API, não pedida no texto.",
+  "bold": true
+ },
+ {
+  "text": "A tentação é escrever vinte critérios pra cobrir todo cenário imaginável. Dá uma sensação ótima de rigor.",
+  "bold": false
+ },
+ {
+  "text": "E um eval que cobre tudo não é rodado por ninguém: fica lento, fica caro, e vira relatório que ninguém abre.",
+  "bold": true
+ },
+ {
+  "text": "A ordem que eu uso é a do próprio objetivo: os cenários mais críticos, e os erros mais custosos.",
+  "bold": false
+ },
+ {
+  "text": "A execução chegou ao fim inteira — sem erro, sem saída vazia, sem resposta cortada no meio?",
+  "bold": false
+ },
+ {
+  "text": "Não adianta perguntar se ele expôs o trade-off se a resposta parou no meio da palavra.",
+  "bold": false
+ },
+ {
+  "text": "É o único que o código quase resolve sozinho: token de saída igual ao teto é assinatura de truncamento.",
+  "bold": true
+ },
+ {
+  "text": "Trade-off com números — expôs o custo real de cada opção, ou deu conselho genérico?",
+  "bold": false
+ },
+ {
+  "text": "Trade-off com números — expôs o custo real de cada opção, ou deu conselho genérico?",
+  "bold": false
+ },
+ {
+  "text": "Números vieram de ferramenta — todo número saiu de uma consulta, ou o modelo estimou?",
+  "bold": false
+ },
+ {
+  "text": "Trade-off com números — expôs o custo real de cada opção, ou deu conselho genérico?",
+  "bold": false
+ },
+ {
+  "text": "Números vieram de ferramenta — todo número saiu de uma consulta, ou o modelo estimou?",
+  "bold": false
+ },
+ {
+  "text": "Mediou sem decidir — apresentou o conflito e deixou a escolha com o casal?",
+  "bold": false
+ },
+ {
+  "text": "Trade-off com números — expôs o custo real de cada opção, ou deu conselho genérico?",
+  "bold": false
+ },
+ {
+  "text": "Números vieram de ferramenta — todo número saiu de uma consulta, ou o modelo estimou?",
+  "bold": false
+ },
+ {
+  "text": "Mediou sem decidir — apresentou o conflito e deixou a escolha com o casal?",
+  "bold": false
+ },
+ {
+  "text": "Falta virou trade-off — faltou item e ele ofereceu substituição, em vez de cancelar a proposta?",
+  "bold": true
+ },
+ {
+  "text": "A casa também fala com o produto o dia inteiro: \"comprei dois quilos de arroz\", \"comemos a lasanha\".",
+  "bold": false
+ },
+ {
+  "text": "Esse caminho de entrada tem os critérios dele: entendeu o tipo certo? preencheu número que ninguém disse?",
+  "bold": false
+ },
+ {
+  "text": "Cada operação promete uma coisa diferente. Por isso cada uma falha de um jeito diferente.",
+  "bold": true
+ },
+ {
+  "text": "\"A mediação foi agradável\" — não é julgável de forma repetível, e o produto não promete isso.",
+  "bold": false
+ },
+ {
+  "text": "Tom e simpatia — barato quando erra. Pode entrar na terceira rodada, não na primeira.",
+  "bold": false
+ },
+ {
+  "text": "Latência e custo — são métricas, não critérios de qualidade. Já são coletados sozinhos; medir de novo só polui.",
+  "bold": true
+ },
+ {
+  "text": "Lembra do começo da aula: se 100% passasse, eu ia desconfiar do critério. Ele existe pra reprovar.",
+  "bold": false
+ },
+ {
+  "text": "Leia sempre a justificativa junto da nota. A nota diz que tem problema; a justificativa diz o que fazer.",
+  "bold": false
+ },
+ {
+  "text": "E repara em quais critérios reprovaram juntos — dois ou três padrões respondem pela maioria.",
+  "bold": true
+ },
+ {
+  "text": "Ele julga as execuções que eu escolhi, quando eu mando rodar. Ninguém está sendo avisado de nada.",
+  "bold": false
+ },
+ {
+  "text": "Se a qualidade cair numa terça de madrugada, eu descubro quando lembrar de rodar de novo.",
+  "bold": false
+ },
+ {
+  "text": "O primeiro pilar está de pé. O segundo pergunta outra coisa: o que está acontecendo com meu produto?",
+  "bold": true
+ }
+]

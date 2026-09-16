@@ -1,65 +1,69 @@
-# Chef Caseiro — produto fictício de referência
+# Musa Balance — produto fictício de referência
 
-> ## 📹 Estado do curso — atualizado 12/09/2026
+> **Sessão nova? Comece por `docs/RETOMADA-16-09.md`.**
 >
-> **Formato decidido: gravação LINEAR.** O produto vai para a gravação no
-> **estado final** e permanece assim do primeiro ao último vídeo — nenhum
-> checkout, nenhum deploy, nenhuma troca de branch durante a gravação. As
-> quatro tentativas anteriores travaram justamente no método não-linear.
+> **Estado em 16/09:** a **Aula bônus 2.5 (evals na prática) está gravada** —
+> construção ao vivo de um eval do zero pra `receita-premium-semanal`
+> (critério `repeticao_justificada_pelo_estoque`), incluindo o debate sobre o
+> que fica de fora por contradizer a regra de ouro do projeto (ver
+> `evals/criterios.md`, seção "O que deliberadamente não virou critério", e
+> `evals/draft-repeticao-justificada-pelo-estoque.md`). Commit pronto na
+> branch `aula-bonus/eval-receita-premium-repeticao` (`de847e9`), **ainda sem
+> push** — sem credenciais Git na sessão que gravou; ver "Pendências" em
+> `docs/RETOMADA-16-09.md` pro comando exato de push+PR. Próximo passo:
+> **Aula 3 (observabilidade)**.
 >
-> **Comece por [`docs/RETOMADA-ESCRITORIO.md`](docs/RETOMADA-ESCRITORIO.md)** —
-> tem o estado verificado, o que falta e o prompt pronto para colar.
+> **Aula 3, 16/09 (sessão seguinte à gravação da 2.5):** script mestre novo
+> **em debate**, [`docs/aula3-script.md`](docs/aula3-script.md) (45 slides,
+> formato Slide · Script da Aula 2), com decisões em aberto em
+> `docs/aula3-avaliacao-e-plano.md` e números congelados em
+> `docs/apoio/aula3-dados-congelados.md` (revalidar com
+> `node scripts/aula3-retrato-langfuse.js`, só leitura). **Deck só depois do
+> debate.** Atenção: a retenção de 30 dias do Langfuse apaga metade da janela
+> em **21/09**. O `aula3-ensaio-falas.md` de 14/09 está em revisão.
+> Persona de referência da formação:
+> [`docs/persona-ai-product-builder.md`](docs/persona-ai-product-builder.md).
 >
-> O roteiro de gravação é [`docs/SCRIPT-LINEAR-CURSO.md`](docs/SCRIPT-LINEAR-CURSO.md):
-> documento único, do vídeo 1.1 ao 5.6, com TELA / FALA / COMANDOS / CORTE
-> por vídeo. Os roteiros por aula (`docs/aula{1,2,3,5}-roteiro.md`) e o
-> `RUNBOOK-gravacao-29-08.md` continuam válidos como referência de detalhe,
-> **mas o runbook descreve o método antigo** (deploys ao vivo) e foi
-> superado pelo script linear.
+> **Estado em 14/09 (Aula 4 ainda válido; Aula 3 superado pela linha acima):** roteiro e deck prontos
+> (revisados em 14/09, ver abaixo). A branch de gravação das Aulas 3/4 é
+> `gravacao/aulas-3-e-4-material` — não foi tocada na sessão de 16/09.
+> `master` foi reconciliado a partir dela
+> ([PR #9](https://github.com/Djegao/alura-produto-ficticio/pull/9)).
+> Produção está no ar (401), com os PRs #4 e #6 já mergeados.
 >
-> ### ⚠️ Pendências antes de gravar
+> **O nome canônico do produto é "Musa Balance"** (decidido em 12/09). O repo
+> ainda está majoritariamente com os nomes antigos — "Chef Caseiro" (~69
+> ocorrências) e "Chef Ops" (~10) — em `SDD.md`, `prompts.js`, `agent.js`,
+> `server.js` e nos geradores de slide. Já uniformizados: `evals/criterios.md`
+> e a saída do terminal do pipeline de evals. O `SYSTEM_JUIZ` em
+> `evals/run-evals.js` ficou de fora **de propósito**: trocar altera o material
+> que o modelo recebe e invalidaria as demos de aula já congeladas.
 >
-> 1. **[PR #6](https://github.com/Djegao/alura-produto-ficticio/pull/6)
->    precisa ser mergeado** (só o Diego pode). Está `MERGEABLE` — o conflito
->    com master foi resolvido em 09/09. O [PR #4](https://github.com/Djegao/alura-produto-ficticio/pull/4)
->    já entrou.
-> 2. **Produção está desatualizada**: o último deploy é de **29/08**, anterior
->    ao merge do #4. Depois do #6, rodar
->    `railway up --service chef-caseiro --detach` para produção refletir o
->    estado final.
+> **A Aula 2 não usa o Langfuse.** Todas as demos rodam em `--dry-run`, no
+> terminal. A ferramenta só é apresentada na Aula 3.
 >
-> ### Evidência preservada (não depende mais do Langfuse)
+> **Aulas 3 e 4 usam o método de evidência congelada** (o mesmo validado na
+> Aula 2): sem checkout, sem deploy ao vivo, sem reprodução de bug em tempo
+> real. A Aula 4 foi reescrita em 14/09 pra remover as últimas dependências
+> de deploy que ainda restavam do rascunho de 29/08.
 >
-> O Langfuse Cloud retém ~30 dias. Os traces que sustentam as Aulas 3 e 4
-> foram extraídos em 09/09 e versionados — **e o do truncamento expirou do
-> painel em 11/09**, dois dias depois da captura:
+> **Achado novo em 14/09, ao vivo, sem ensaio: "o hambúrguer que sumiu"**
+> (episódio D). Quatro mensagens reais no Telegram, cada uma classificada
+> corretamente pelo modelo — e mesmo assim o item preparado nunca entrou no
+> estoque, porque o classificador não guarda memória de conversa entre
+> mensagens. Quebra o framework "prompt, dados ou modelo?" usado nos
+> episódios A/B/C: nenhuma das três categorias explica a falha. Virou o
+> quinto padrão de falha da Aula 3 e o centro do diagnóstico da Aula 4.
+> Evidência completa em
+> [`docs/apoio/evidencia-porcionamento-patinho.md`](docs/apoio/evidencia-porcionamento-patinho.md).
+> **Ainda sem decisão de correção** — mesma convenção dos outros achados.
 >
-> - [`docs/apoio/evidencia-preservada.md`](docs/apoio/evidencia-preservada.md) —
->   leitura pronta para slide dos dois casos
-> - [`docs/apoio/traces-preservados/`](docs/apoio/traces-preservados/) — JSONs completos
-> - [`docs/apoio/antes-depois-codigo.md`](docs/apoio/antes-depois-codigo.md) —
->   o `return` mudo antes do PR #4 (removido de `master` pelo merge)
->
-> O trace do **episódio C** (lasagna, 22/08) ainda está no painel, mas sai
-> por volta de **21/09**.
->
-> ### Credenciais
->
-> A `ANTHROPIC_API_KEY` é *identity-linked*, então o produto exige também
-> `ANTHROPIC_WORKSPACE_ID` (presente no `.env` e no Railway; nenhuma linha
-> de código mudou por causa disso). Verificada funcionando em 12/09. Se
-> precisar trocar, **não use `--stdin`** no PowerShell — anexa quebra de
-> linha e corrompe o segredo em silêncio. Detalhes em
-> `docs/SETUP-MAQUINA-ESCOLA.md` §0.
->
-> ### Achados preservados — continuam intactos
->
-> Os quatro achados seguem sem correção, por decisão explícita e reafirmada
-> em 09/09. No formato linear eles são **contados por slide**, não
-> reproduzidos ao vivo. O truncamento aparece em três vídeos (3.4, 4.2 e o
-> fechamento do 4.4) e o match de nome em dois (3.4 e 4.4) — corrigir
-> qualquer um exige refazer esses trechos.
-
+> ⚠️ **Os avisos antigos sobre a gravação de 29/08 estão superados** — aquele
+> formato (não-linear, com deploy ao vivo e ordem de PRs) foi abandonado em
+> 09/09, e o formato linear que o sucedeu também foi superado em 12/09 pela
+> evidência congelada. `docs/RETOMADA-MAQUINA-ESCOLA.md`,
+> `docs/RUNBOOK-gravacao-29-08.md` e `docs/SCRIPT-LINEAR-CURSO.md` valem
+> como registro histórico, não como instrução.
 
 Produto fictício construído para o curso Alura **"Evals, observabilidade e
 conformidade"** (parte da formação AI Product Builder). Não é um produto real

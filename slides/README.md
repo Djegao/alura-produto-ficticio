@@ -1,9 +1,15 @@
-# Slides do curso — Evals, observabilidade e conformidade
+# Slides do curso — Evals, observabilidade e conformidade (SUPERADO)
+
+> ⛔ **Esta pasta descreve o pipeline do formato linear (09/09–12/09),
+> superado pela evidência congelada.** Os decks em uso hoje são os de
+> [`gerador-alura/`](./gerador-alura/) — `aula{1,3,4}-alura.pptx` e o deck
+> final da Aula 2. Os arquivos abaixo (`aula{1..5}.pptx`,
+> `generate-slides-curso.js`) ficam como registro histórico.
 
 5 decks `.pptx` das 5 aulas, gerados a partir da **especificação de slides**
-no fim de [`../docs/SCRIPT-LINEAR-CURSO.md`](../docs/SCRIPT-LINEAR-CURSO.md).
-Paleta e layout são os oficiais da Alura, reaproveitados de
-`../generate-slides.js` (não alterado).
+no fim de [`../docs/SCRIPT-LINEAR-CURSO.md`](../docs/SCRIPT-LINEAR-CURSO.md)
+(também histórico). Paleta e layout são os oficiais da Alura, reaproveitados
+de `../generate-slides.js` (não alterado).
 
 > **Estado em 12/09:** os cinco decks estão gerados e atualizados para o
 > formato de gravação linear. O da **Aula 4 foi refeito por completo** (26
