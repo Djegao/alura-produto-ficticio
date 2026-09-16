@@ -1,11 +1,34 @@
 # Musa Balance — produto fictício de referência
 
-> **Sessão nova? Comece por `docs/RETOMADA-15-09.md`.**
+> **Sessão nova? Comece por `docs/RETOMADA-16-09.md`.**
 >
-> **Estado em 14/09:** a **Aula 2 está gravada**. Aulas 3 e 4 têm script e
-> deck prontos (revisados em 14/09, ver abaixo). A branch de trabalho é
-> `gravacao/aulas-3-e-4-material` — é a única em uso; o `master` foi
-> reconciliado a partir dela ([PR #9](https://github.com/Djegao/alura-produto-ficticio/pull/9)).
+> **Estado em 16/09:** a **Aula bônus 2.5 (evals na prática) está gravada** —
+> construção ao vivo de um eval do zero pra `receita-premium-semanal`
+> (critério `repeticao_justificada_pelo_estoque`), incluindo o debate sobre o
+> que fica de fora por contradizer a regra de ouro do projeto (ver
+> `evals/criterios.md`, seção "O que deliberadamente não virou critério", e
+> `evals/draft-repeticao-justificada-pelo-estoque.md`). Commit pronto na
+> branch `aula-bonus/eval-receita-premium-repeticao` (`de847e9`), **ainda sem
+> push** — sem credenciais Git na sessão que gravou; ver "Pendências" em
+> `docs/RETOMADA-16-09.md` pro comando exato de push+PR. Próximo passo:
+> **Aula 3 (observabilidade)**.
+>
+> **Aula 3, 16/09 (sessão seguinte à gravação da 2.5):** script mestre novo
+> **em debate**, [`docs/aula3-script.md`](docs/aula3-script.md) (45 slides,
+> formato Slide · Script da Aula 2), com decisões em aberto em
+> `docs/aula3-avaliacao-e-plano.md` e números congelados em
+> `docs/apoio/aula3-dados-congelados.md` (revalidar com
+> `node scripts/aula3-retrato-langfuse.js`, só leitura). **Deck só depois do
+> debate.** Atenção: a retenção de 30 dias do Langfuse apaga metade da janela
+> em **21/09**. O `aula3-ensaio-falas.md` de 14/09 está em revisão.
+> Persona de referência da formação:
+> [`docs/persona-ai-product-builder.md`](docs/persona-ai-product-builder.md).
+>
+> **Estado em 14/09 (Aula 4 ainda válido; Aula 3 superado pela linha acima):** roteiro e deck prontos
+> (revisados em 14/09, ver abaixo). A branch de gravação das Aulas 3/4 é
+> `gravacao/aulas-3-e-4-material` — não foi tocada na sessão de 16/09.
+> `master` foi reconciliado a partir dela
+> ([PR #9](https://github.com/Djegao/alura-produto-ficticio/pull/9)).
 > Produção está no ar (401), com os PRs #4 e #6 já mergeados.
 >
 > **O nome canônico do produto é "Musa Balance"** (decidido em 12/09). O repo

@@ -1,5 +1,12 @@
 # Aula 3 — script de ensaio: o que fazer e o que dizer, slide a slide
 
+> ⚠️ **16/09: em revisão, não gravar a partir deste documento.** O novo
+> mestre em debate é [`aula3-script.md`](./aula3-script.md). Os números
+> abaixo (38 interações, "26% / 90%") estão vencidos, a frase "nada avisa" da
+> demo não se sustenta (o SDK avisa na subida), e a troca de modelo ao vivo e a
+> promessa do slide 16 foram questionadas. Detalhes em
+> [`aula3-avaliacao-e-plano.md`](./aula3-avaliacao-e-plano.md) §2.
+
 Documento de ensaio casado com [`slides/aula3-alura.pptx`](../slides/aula3-alura.pptx)
 (21 slides — o 5º padrão de falha, achado em 14/09, entrou como slide 17).
 Mesma estrutura do ensaio da Aula 4: **Tela** (o que está à

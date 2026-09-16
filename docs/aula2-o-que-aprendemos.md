@@ -1,4 +1,7 @@
-# 2.5 — O que aprendemos?
+# 2.6 — O que aprendemos?
+
+> **Renumerado de 2.5 para 2.6 em 16/09** — o slot 2.5 passou a ser a aula
+> bônus "Evals do zero, ao vivo" (`docs/aula-bonus-evals-do-zero-roteiro.md`).
 
 > **Tipo de conteúdo: Explicação (texto).** Segundo o espelho do curso, este
 > item não é vídeo — é o texto que fecha a Aula 2 na plataforma. Escrito pra
