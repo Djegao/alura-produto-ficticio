@@ -78,8 +78,12 @@ sozinho porque são decisões de produto, não só de código:
    `descricao`). Column nova é mais explícito; reusar `descricao` é zero
    migração. Recomendo coluna nova, é uma linha de SQL e fica mais honesto
    pro eval consultar depois.
-3. ~~**Janela de expiração.**~~ **Resolvido em 17/09:** 10 minutos (folga
-   generosa sobre o ~1 min real do incidente). Passou a ser mais que um
+3. ~~**Janela de expiração.**~~ **Resolvido em 17/09 (revisto à tarde):
+   20 minutos** — mas o debate fica **aberto na apresentação**, de
+   propósito. Diego considerou ir até 120 min; o que segurou foi o risco de
+   criar problema novo no produto: com janela longa, o mesmo ator acumula
+   mais de um prato pendente e o número de porções cai no prato errado, em
+   silêncio. (A primeira versão desta decisão era 10 min.) Passou a ser mais que um
    parâmetro do eval — vira comportamento real do produto: um job (mesmo
    molde de `lembrete.js`) marca a pendência como `expirada` e avisa a
    casa explicitamente ("Ingestão não concluída por falta de porções: X"),

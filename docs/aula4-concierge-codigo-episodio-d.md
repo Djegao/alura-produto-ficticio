@@ -18,6 +18,37 @@
 > Telegram, merge no `master`. Cada capítulo abaixo marca explicitamente
 > onde isso acontece.
 
+> **Atualização 17/09 (tarde): o código é implementado ANTES da gravação.**
+> Decisão do Diego: produto o mais pronto possível pra gravar com fluidez.
+> O fix está na branch `aula4/fix-episodio-d-porcionamento` (commit
+> `49fb770`). Em câmera, os capítulos 4.4.2–4.4.5 e 4.4.7 viram **leitura do
+> que foi feito de verdade** (migração, diff, deploy e PR reais), não
+> execução. O que continua ao vivo: 4.4.1 (as decisões) e 4.4.6 (smoke test
+> no Telegram). Os prompts abaixo ficam como registro de como o código foi
+> pedido. Fala de transparência sugerida: "Esse código eu subi antes de
+> gravar. Vou mostrar o diff real e testar ao vivo, contra produção."
+>
+> **Achado novo em 17/09, ao testar o classificador com as mensagens reais
+> do Episódio D (Haiku, 2 rodadas cada):**
+> - A **mensagem 3 real** ("Porcionei em 2 unidades de 220g e 2 unidades de
+>   160g") **nunca traz `item_quantidade`**: chegar a 4 exige somar, e a
+>   regra de ouro proíbe a LLM de fazer conta. O desenho original (resolver
+>   quando a resposta traz o número) passaria no smoke test ("em 3
+>   unidades") e **continuaria falhando na conversa real**.
+> - A **mensagem 2**, hoje, às vezes vem com `item_quantidade: 4`: o modelo
+>   somou "dois de cada" sozinho, violando a mesma regra. É não
+>   determinístico, e em 14/09 não somou.
+> - "4" sozinho vira `desejo`.
+>
+> **O que o código faz com isso:** com uma pendência aberta, resposta sem
+> número **pergunta de novo já ancorada no prato** ("Ainda falta o total de
+> porções de hambúrguer de patinho. Me manda só 'porcionei em N'"), e a
+> pendência continua viva. A referência ao prato não se perde, mas a soma
+> 2+2 **não** foi resolvida. Isso fica como decisão em aberto (porções
+> parciais extraídas pela LLM e somadas em código?), e é um bom material de
+> aula: o fix passa no teste feliz e o caso real ainda pede uma segunda
+> volta.
+
 ---
 
 ## Mapa dos 7 capítulos (leia isto primeiro)
@@ -70,8 +101,25 @@ etapa deste episódio é registrar isso na SDD do produto pra sempre.
 1. **Nome do status:** `aguardando_porcoes` (simetria com o que já existe).
 2. **Onde guardar o item pendente:** coluna nova `item_pendente` (não
    reusar `descricao` — mais explícito pro eval do episódio 5 consultar).
-3. **Janela de expiração:** 10 minutos (folga generosa sobre o ~1 min real
-   do incidente — evita falso negativo por demora normal de resposta).
+3. **Janela de expiração:** **20 minutos** — apresente como decisão, mas
+   **deixe o debate aberto em câmera.**
+
+   > **🔔 LEMBRETE PRA VOCÊ (não é fala literal):** esse debate aconteceu
+   > de verdade em 17/09. Você considerou ir **até 120 minutos** — janela
+   > longa não custa API (o job não chama LLM) e frustra menos quem demora
+   > pra responder. O que segurou foi o risco de **criar problema novo no
+   > produto**: com a janela longa, o mesmo ator acumula mais de um prato
+   > pendente e o número de porções cai no **prato errado, em silêncio** —
+   > o mesmo tipo de falha que este episódio está corrigindo. Não é risco
+   > de confundir pessoas (a pendência é filtrada por `actor_id`) nem tipo
+   > de mensagem (só `porcionamento` sem nome de prato entra).
+   > Primeira versão da decisão foi 10 min; 20 é o meio-termo.
+
+   **FALA sugerida:** "Coloquei 20 minutos. Cheguei a pensar em duas horas
+   — não custa nada a mais — mas aí eu abro espaço pra um bug novo: eu
+   cozinho dois pratos, não respondo nenhum, e a próxima resposta vai pro
+   prato errado sem ninguém perceber. Essa régua não está fechada; é uma
+   aposta que o dado de uso vai confirmar ou derrubar."
 4. **Escopo:** só porcionamento hoje — generalizar pra qualquer guardrail
    (P2 do backlog) fica pra quando houver um segundo caso real.
 
@@ -159,7 +207,7 @@ seta `pergunta` e retorna sem persistir nada (o insert do fim so' acontece
    resposta a uma pendencia anterior): antes de cair no "else" generico,
    buscar no Supabase o pensamento mais recente com
    status='aguardando_porcoes' para este actor.id, dentro de uma janela de
-   10 minutos (created_at). Se achar, usar o item_pendente dele como
+   20 minutos (created_at). Se achar, usar o item_pendente dele como
    item_nome e seguir o fluxo normal de porcionar (baixa estoque, grava
    pensamento completo) — e marcar aquele pensamento pendente como
    'completo' no final.
@@ -214,7 +262,7 @@ depender de HORA_LEMBRETE (essa janela nao tem hora do dia, e' relativa ao
 created_at da pendencia).
 
 Logica: busca em `pensamentos` toda linha com status='aguardando_porcoes'
-e created_at mais antigo que 10 minutos atras. Para cada uma: atualiza
+e created_at mais antigo que 20 minutos atras. Para cada uma: atualiza
 status='expirada', e manda via avisar() a mensagem exata "Ingestao nao
 concluida por falta de porcoes: {item_pendente}." pro telegram_chat_id do
 household.
@@ -290,8 +338,8 @@ nova.
 
 **AÇÃO 2 — caminho expirado (novo, por causa do capítulo 4.4.4):** mande
 uma segunda mensagem de porcionamento incompleta com **outro prato** (ex.:
-"Preparei sopa de abóbora") e **não responda a pergunta**. Espere ~10-12
-min (ajuste o roteiro pra deixar isso rodando enquanto grava outra coisa —
+"Preparei sopa de abóbora") e **não responda a pergunta**. Espere ~20-22
+min (janela de 20 + até 2 min do ciclo do job) (ajuste o roteiro pra deixar isso rodando enquanto grava outra coisa —
 não precisa ficar parado esperando em cena) e confirme que chega
 espontaneamente a mensagem "Ingestão não concluída por falta de porções:
 sopa de abóbora." — sem você ter feito nada.

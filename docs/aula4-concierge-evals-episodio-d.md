@@ -117,7 +117,7 @@ quando falta o número; a resposta pode chegar numa mensagem separada, sem
 repetir o nome do prato. Corrigimos isso persistindo a pendência
 (pensamentos.status = 'aguardando_porcoes', item_pendente = nome do prato,
 trace_id = o trace que perguntou) até uma mensagem posterior resolver — e
-se ninguém responder dentro de 10 min, um job marca status='expirada' e
+se ninguém responder dentro de 20 min, um job marca status='expirada' e
 avisa a casa explicitamente, em vez de deixar a pendência muda.
 
 Regra de ouro do projeto: a LLM nunca decide algo 100% verificável em
