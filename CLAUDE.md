@@ -1,8 +1,23 @@
 # Musa Balance — produto fictício de referência
 
-> **Sessão nova? Comece por `docs/RETOMADA-16-09.md`.**
+> **Sessão nova? Comece por `docs/RETOMADA-17-09.md`.**
 >
-> **Estado em 16/09:** a **Aula bônus 2.5 (evals na prática) está gravada** —
+> **Estado em 17/09:** sessão de planejamento (sem gravação) que redesenhou
+> o **Módulo 4 inteiro** — 4.2–4.4 do script antigo saem, entra uma aula
+> única e orgânica de ciclo completo real (diagnóstico→SDD→código→evals→
+> observabilidade→fechamento), centrada no Episódio D ("o hambúrguer que
+> sumiu"). Quatro documentos novos escritos
+> (`docs/aula4-redesign-ciclo-completo.md`,
+> `docs/aula4-sdd-pre-manufaturado-episodio-d.md`,
+> `docs/aula4-concierge-codigo-episodio-d.md`,
+> `docs/aula4-concierge-evals-episodio-d.md`) — **nenhuma implementação
+> real foi feita ainda**, ficou tudo em plano/roteiro. Decisões pendentes
+> (janela de expiração, onde implementar) e o que precisa ser recriado na
+> próxima máquina (`.env`, Railway/gh login) estão em
+> `docs/RETOMADA-17-09.md`.
+>
+> **Estado em 16/09 (Aulas 2.5/3, ainda válido — Aula 4 superado pela linha
+> acima):** a **Aula bônus 2.5 (evals na prática) está gravada** —
 > construção ao vivo de um eval do zero pra `receita-premium-semanal`
 > (critério `repeticao_justificada_pelo_estoque`), incluindo o debate sobre o
 > que fica de fora por contradizer a regra de ouro do projeto (ver
@@ -24,7 +39,8 @@
 > Persona de referência da formação:
 > [`docs/persona-ai-product-builder.md`](docs/persona-ai-product-builder.md).
 >
-> **Estado em 14/09 (Aula 4 ainda válido; Aula 3 superado pela linha acima):** roteiro e deck prontos
+> **Estado em 14/09 (Aula 4 superado pelo bloco de 17/09 acima; Aula 3
+> superado pela linha 16/09 acima):** roteiro e deck prontos
 > (revisados em 14/09, ver abaixo). A branch de gravação das Aulas 3/4 é
 > `gravacao/aulas-3-e-4-material` — não foi tocada na sessão de 16/09.
 > `master` foi reconciliado a partir dela
