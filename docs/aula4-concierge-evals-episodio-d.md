@@ -161,7 +161,7 @@ Supabase).
 **FALA**
 
 Antes de fechar o critério, bato contra o que realmente aconteceu em
-produção, 14 de setembro. Quatro mensagens, 21h17 às 21h18, cada
+produção, 14 de setembro. Quatro mensagens, 18h17 às 18h18, cada
 classificação individual correta — e ainda assim o prato nunca entrou no
 estoque. **[aponta a tabela]** Mensagem 2 cria a pendência. Mensagem 3
 tenta responder, mas sem repetir o nome do prato — perde a referência.
@@ -249,15 +249,17 @@ Ao inves de operar sobre um trace so, este script:
 1. Busca traces da operacao 'ingerir-relato' no Langfuse (mesmo helper
    buscarTraces do outro arquivo).
 2. Para cada trace, consulta a tabela `pensamentos` no Supabase filtrando
-   por trace_id = trace.id E status = 'aguardando_porcoes' (a pendencia
-   que ESSE trace, se algum, criou).
-3. Se achou pendencia, busca depois um pensamento tipo='porcionamento',
-   status='aguardando_porcoes' (a pendencia que ESSE trace, se algum,
-   criou), e le o campo `status` direto do resultado — sem calcular
-   nenhuma janela, o produto ja decidiu isso (aguardando_porcoes /
-   completo / expirada, ver capitulo 4.4.4 do fix). Isso vira o sinal
-   `status_da_pendencia` (um desses tres valores, ou `null` se o trace nao
-   criou pendencia nenhuma).
+   por trace_id = trace.id, tipo = 'porcionamento' E item_pendente nao
+   nulo (a pendencia que ESSE trace, se algum, criou). NAO filtre por
+   status: o produto atualiza essa mesma linha pra 'completo' ou
+   'expirada', entao filtrar por 'aguardando_porcoes' esconderia justamente
+   os destinos finais.
+3. Se achou a pendencia, le o campo `status` ATUAL dessa linha direto do
+   resultado — sem
+   calcular nenhuma janela, o produto ja decidiu o destino final
+   (aguardando_porcoes / completo / expirada, ver capitulo 4.4.4 do fix).
+   Isso vira o sinal `status_da_pendencia` (um desses tres valores, ou
+   `null` se o trace nao criou pendencia nenhuma).
 4. O criterio unico e' `ciclo_pergunta_resposta_resolvido`, formato de
    evals/criterios.md ja escrito la (binario: 1 se status_da_pendencia e'
    null OU 'completo'; 0 se for 'expirada'; se for 'aguardando_porcoes',

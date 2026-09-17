@@ -31,3 +31,45 @@ base. `-SemNotas` gera sem notas de apresentador (padrão da Aula 1).
   `Placeholders.Item(2)`; o placeholder de corpo é achado por tipo.
 - Título de hero (A1·5) com mais de 20 caracteres quebra em duas linhas e
   cobre o subtítulo; o gerador desce o subtítulo nesses casos.
+
+---
+
+# Meio novo da Aula 4 (Episódio D, ciclo completo) — 17/09
+
+Gerador próprio, diferente dos acima: usa o deck da Aula 2 **só como fundo**
+(azul, círculo, escuro, claro, coluna com imagem, capa) e desenha cada layout
+em formas nativas — conversa, tabela, cards, ramos, citação, decisões, régua,
+código, padrão, contraste, caminhos, timeline, critério, números, ciclo,
+lista. Sai `slides/Aula 4 6498 - meio episodio D.pptx` (4.2.1–4.2.6 + 4.5).
+
+```
+node aula4-meio-spec-build.js
+powershell -NoProfile -ExecutionPolicy Bypass -File .\gerar-aula4-meio.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\qa-deck.ps1
+```
+
+- **Conteúdo e notas de apresentador:** `aula4-meio-spec-build.js`.
+- **Animação forçada (último passo do gerador):** cada forma tem tag `FRAME`;
+  o slide completo é duplicado e cada cópia perde as formas de frame maior.
+  O que já estava fica idêntico e na mesma posição. Notas no primeiro frame.
+- **Centralização:** a composição de cada slide é escalada até a área segura
+  e centralizada H e V. Títulos são calibrados pela **tinta renderizada**:
+  o `qa-deck.ps1` exporta PNG, o `qa-tinta.py` mede o desvio real de cada
+  título e grava `aula4-meio-calibracao.json`. Mudou texto de título? Rode
+  gerador + QA **duas vezes** (a segunda já sai calibrada).
+- **O QA falha** se: título fora do eixo na tinta (> 6 pt), texto vazando a
+  caixa ou a área segura, texto abaixo de 24 pt, composição fora do centro,
+  frame de animação que não está contido no seguinte, ou slide sem tag.
+- **Imagens:** placeholders cinza com legenda "IMAGEM — …" nos slides de
+  coluna; a imagem final entra à mão no ensaio.
+
+Armadilhas encontradas em 17/09:
+- PowerShell não diferencia maiúscula de minúscula em variável: `$c` num
+  `foreach` sobrescreve `$C` global dentro das funções chamadas. Globais com
+  nomes que não colidem (`$PAL`, `$FONTES`, `$SLIDE_W`, `$SLIDE_H`).
+- COM do PowerPoint recusa `double` em `Left/Top/Width/Height/Font.Size`:
+  sempre `[single]`.
+- `TextRange.BoundLeft` desloca ~8 pt e a caixa de linha não é onde a letra
+  está — por isso a medição de centralização é no PNG, não no PowerPoint.
+- Roboto não está instalada nesta máquina: a renderização local substitui.
+  No Google Slides ela existe; revisar quebras de linha lá.
