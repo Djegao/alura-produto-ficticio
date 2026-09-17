@@ -154,7 +154,7 @@ add('4.2.4', { layout: 'imagem', title: 'Fechado,\nnão só narrado',
     'PR com a SDD §11.7 junto do código.',
   ],
   placeholder: 'IMAGEM — print do PR real no GitHub',
-  notes: 'TELA: terminal (git log da branch aula4/fix-episodio-d-porcionamento) e o PR real.\n\nAqui é onde este episódio se separa da 2.5: lá o PR era simulado. Aqui teve push, deploy no Railway, e esse código vale pra minha casa de verdade. Título, corpo, diff, merge — o mesmo destino de qualquer mudança de produto.' });
+  notes: 'TELA: o PR #13 no GitHub, "Fix: pendencia de porcionamento persistida e expirada (Episodio D)", já mergeado no master antes da gravação.\n\nFIQUE NA ABA "Conversation": a aba "Files changed" mostra os documentos de produção do curso, inclusive o ensaio com as falas.\n\nSubi e mergeei antes de gravar; o código roda em produção desde o deploy, e o merge traz a mudança de volta pra linha principal. O merge não publica nada — quem publica é o deploy, no Railway, feito à parte.\n\nAqui é onde este episódio se separa da 2.5: lá o PR era simulado. Título, corpo, diff, merge — o mesmo destino de qualquer mudança de produto.' });
 
 // ------------------------------------------------------------ 4.2.5 ------
 add('4.2.5', { layout: 'divisor', title: '4.2.5 Smoke test contra produção',
@@ -162,10 +162,12 @@ add('4.2.5', { layout: 'divisor', title: '4.2.5 Smoke test contra produção',
 
 add('4.2.5', { layout: 'caminhos', title: 'Dois caminhos, ao vivo',
   cols: [
-    { tipo: 'ok', head: 'Frango desfiado', passos: ['“Preparei frango desfiado, 300g”', 'bot pergunta quantas porções', '“Porcionei em 3 unidades”'], resultado: 'Resolvido, citando o prato' },
+    // SEM peso: com "300g" na frase o classificador entende COMPRA (3 de 3 no
+    // Haiku, 17/09) e o bot pergunta o orcamento em vez das porcoes.
+    { tipo: 'ok', head: 'Frango desfiado', passos: ['“Preparei frango desfiado”', 'bot pergunta quantas porções', '“Porcionei em 3 unidades”'], resultado: 'Resolvido, citando o prato' },
     { tipo: 'alerta', head: 'Sopa de abóbora', passos: ['“Preparei sopa de abóbora”', 'bot pergunta quantas porções', 'ninguém responde'], resultado: 'Aviso de expiração no grupo' },
   ],
-  notes: 'AÇÃO 1 (ao vivo): "Preparei frango desfiado, 300g" → esperar a pergunta → "Porcionei em 3 unidades" (sem repetir o prato, número único — nunca "dois de cada"). Confirmar que a resposta do bot menciona frango desfiado.\n\nAÇÃO 2: mostrar no grupo o aviso da sopa, já expirado.\n\nFALA: Mandei essa antes de começar, de propósito, pra não fazer vocês esperarem vinte minutos.\n\nSE o bot não reconhecer a continuação ou não houver aviso: parar aqui, não seguir pro eval fingindo que funcionou.' });
+  notes: 'AÇÃO 1 (ao vivo): "Preparei frango desfiado" (SEM peso — com "300g" vira compra) → esperar a pergunta → "Porcionei em 3 unidades" (sem repetir o prato, número único — nunca "dois de cada"). Confirmar que a resposta do bot menciona frango desfiado.\n\nAÇÃO 2: mostrar no grupo o aviso da sopa, já expirado.\n\nFALA: Mandei essa antes de começar, de propósito, pra não fazer vocês esperarem vinte minutos.\n\nSE o bot não reconhecer a continuação ou não houver aviso: parar aqui, não seguir pro eval fingindo que funcionou.' });
 
 add('4.2.5', { layout: 'conversa', title: 'O teste feliz passa. A conversa real ainda não.',
   msgs: [
@@ -229,5 +231,143 @@ add('4.5', { layout: 'hero', title: 'Consertar não é o fim.', sub: 'É o come�
   meta: 'Próxima aula: guardrails, transparência e LGPD',
   notes: 'Consertar não é o fim — é o começo do que observar. E quando o produto passa a perguntar, a avisar e a decidir coisas pela casa, a pergunta seguinte é inevitável: o que ele pode fazer sozinho, o que ele precisa me contar, e o que ele não deveria nem guardar. Isso é a Aula 5: guardrails, transparência e LGPD — começando justamente pelo episódio que eu deixei de propósito sem corrigir, o da lasanha. Até lá.' });
 
+// ---------------------------------------------------- notas por quadro ----
+// Uma fala por QUADRO da animacao forcada (no estudio o Diego avanca quadro a
+// quadro e precisa da fala daquele avanco na tela de notas). Texto de
+// docs/aula4-ensaio-meio-episodio-d.md, ja fatiado em "Quadro N", com as
+// acoes (Fazer) no quadro a que pertencem. Chave = n do item; a lista segue a
+// ordem dos frames. Sem entrada, o gerador cai no `notes` do slide inteiro.
+const notasPorQuadro = {
+  // 4.2.1 -------------------------------------------------------------------
+  1: ['Na aula passada eu mostrei esse achado. Agora ele vira o fio de um ciclo inteiro: decidir, corrigir e provar.'],
+  2: [
+    'Essa é uma conversa real, no Telegram, 14 de setembro. Começa comigo perguntando o que a gente vai comer na sexta.',
+    'Aí eu cozinho e conto pro produto: hambúrguer de patinho, 220 gramas pra mim, 160 pra minha esposa, dois de cada, no congelador.',
+    'E ele pergunta quantas porções rendeu — exatamente como eu desenhei: quando falta o número, perguntar, nunca chutar.',
+    'Eu respondo. Do jeito que qualquer um responderia: sem repetir o nome do prato, porque ele acabou de perguntar sobre ele.',
+    'E ele pergunta de novo. Mais genérico ainda — agora nem sabe mais de que prato a gente está falando.',
+    'Eu tento pela terceira vez, só o nome do prato.',
+    'E acabou num emoji. Nada deu erro: nenhum log, nenhum alarme, nenhuma linha vermelha. O hambúrguer simplesmente não existe no sistema.',
+  ],
+  3: [
+    'Eu fui olhar trace por trace, no Langfuse. Mensagem 1, "o que vamos comer na sexta": desejo. Certo. E não gravou nada, porque não tem nada pra gravar.',
+    'Mensagem 2: porcionamento, prato certo, sem número. Certo também — eu realmente não disse quantas porções. Gravado: nada. Só a pergunta, que ninguém guardou.',
+    'Mensagem 3: porcionamento, com o número, sem o prato. Também está certo — eu não disse o prato. E de novo: nada gravado, outra pergunta.',
+    'Mensagem 4: desejo. Uma frase solta, sem verbo, parece mesmo um desejo. Quatro classificações, quatro acertos. E olha a última coluna inteira: nada, nada, nada, nada.',
+  ],
+  4: [
+    'Então eu rodo o mesmo diagnóstico dos outros episódios. O prompt? Correto. Pediu exatamente o que devia, nas quatro chamadas.',
+    'Os dados? Corretos. O texto que chegou era claro — qualquer pessoa entenderia.',
+    'O modelo? Acertou quatro de quatro. Nenhuma classificação errada na sequência inteira.',
+    'Nenhum dos três explica. A causa é uma quarta categoria: arquitetura. A pergunta foi feita e ninguém guardou que ela foi feita. Eu já sei o que quebrou — antes de abrir código, eu preciso decidir o caminho.',
+  ],
+  // 4.2.2 -------------------------------------------------------------------
+  5: ['Antes de escrever qualquer linha, a decisão.\n\nFAZER (fora de cena, antes deste vídeo): mandar "Preparei sopa de abóbora" no grupo e NÃO responder. É o caminho expirado do 4.2.5.'],
+  6: [
+    'Eu já tenho um backlog desse episódio, com três caminhos. P1: guardar a pergunta. É o mesmo padrão que o fluxo de orçamento já usa aqui dentro, aplicado só no porcionamento. Esforço baixo, risco baixo.',
+    'P2: generalizar isso pra qualquer guardrail que pergunta. Mais esforço — e eu não tenho um segundo caso real pra justificar.',
+    'P3: memória de conversa. O classificador passa a receber as últimas mensagens. É o que parece mais inteligente, e é o de risco mais alto. Eu tenho opinião sobre qual é o certo, mas eu não quero que o Claude só concorde comigo.',
+  ],
+  7: [
+    'Então eu levo três coisas pra essa conversa. Primeiro, o código real dos dois arquivos que tratam disso — não um resumo meu.',
+    'Segundo, a regra de ouro do projeto: a inteligência não decide o que dá pra verificar em código.',
+    'E terceiro, a pergunta que importa: quanto custa o P3 de verdade? Vamos perguntar.\n\nFAZER: tela cheia no chat do Claude; colar o prompt do §2.1 de docs/aula4-concierge-debate-e-fechamento.md, com os dois arquivos anexados. Deixar terminar e ler em voz alta a parte do P3.\n\nRAMIFICAÇÃO A (ele recomenda P1): Bateu com o meu backlog. Mas repara no motivo: o P3 devolve pro modelo uma decisão que hoje é do código — o que é resposta a quê. Cada conversa longa vira uma chance nova de ligar a resposta no prato errado, e isso não aparece em lugar nenhum.\n\nRAMIFICAÇÃO B (ele recomenda P2 ou P3): Olha que interessante, ele foi pro caminho mais geral. Não está errado em tese, mas eu tenho um caso real, um só. Generalizar sem um segundo caso é especular. E memória de conversa tira do código uma decisão que hoje é verificável. Eu fico com o P1 e anoto o resto.\n\nNão corrigir o Claude no ar.',
+  ],
+  8: ['Essa é a frase do P1. O guardrail de perguntar em vez de chutar estava certo. O que faltava era guardar a pergunta em algum lugar que a próxima mensagem consulta antes de começar do zero.'],
+  9: [
+    'Só que o P1, do jeito que estava escrito, tem um furo. Guardar a pergunta resolve o caminho feliz: a resposta chega, o prato entra no estoque.',
+    'E se ninguém nunca responder? A pendência fica aberta pra sempre, e ninguém fica sabendo que o prato não entrou. Então ela precisa de um fim que alguém veja: ou resolve, ou expira com um aviso claro.',
+    'Sem esse fim visível, eu recriaria o mesmo bug um passo adiante: silêncio de novo. Não é bonito receber "não consegui concluir". Mas é visível — e visível é o requisito. Agora sim eu tenho um caminho. Antes de pedir código, quatro decisões pequenas.',
+  ],
+  // 4.2.3 -------------------------------------------------------------------
+  10: ['Toda decisão de produto que vira restrição permanente mora num lugar só: a spec.'],
+  11: ['FAZER: abrir docs/aula4-sdd-pre-manufaturado-episodio-d.md no editor.\n\nEsse é o rascunho da seção 11.7 da spec do produto — mesmo formato dos outros achados: observação, diagnóstico, restrição, onde mexer. A restrição tem duas partes: guardar a pergunta antes de perguntar, e garantir que ela termina em algo que alguém vê.'],
+  12: [
+    'Quatro decisões pequenas que fazem diferença depois. Vou decidir as quatro agora, em voz alta.',
+    'Nome do status: aguardando porções. Não inventei nada — é simetria com o "aguardando categoria" que já existe no fluxo de orçamento.',
+    'Onde guardar o prato que está esperando: uma coluna nova, item pendente. Eu poderia reaproveitar um campo de texto que já existe, mas coluna explícita é mais honesta pro eval consultar depois.',
+    'Janela de expiração: vinte minutos. E essa eu não considero fechada — é o próximo slide.',
+    'Escopo: só porcionamento. Generalizar pra qualquer guardrail fica pra quando houver um segundo caso real.\n\nFAZER: fechar essas quatro no texto da SDD, em cena.',
+  ],
+  13: [
+    'Vinte minutos. Por que vinte?',
+    'A primeira versão desse desenho tinha dez. O incidente real inteiro durou cerca de um minuto, então dez já era folga generosa.',
+    'E eu cheguei a considerar duas horas. Porque janela longa não custa nada: esse trabalho roda sozinho, não chama modelo nenhum, não tem custo de API.',
+    'Janela curta demais frustra: a pessoa demora vinte e cinco minutos pra responder e perde a pendência.',
+    'Mas janela longa demais abre um bug novo: eu cozinho dois pratos, não respondo nenhum, e a próxima resposta vai pro prato errado sem ninguém perceber. Trocar um silêncio por outro. Fiquei no meio: vinte. É uma aposta, e o dado de uso vai confirmar ou derrubar.',
+  ],
+  // 4.2.4 -------------------------------------------------------------------
+  14: ['Esse código eu subi antes de gravar. Vou mostrar a migração, o diff e o deploy reais — e testar ao vivo, contra produção, no próximo vídeo.'],
+  15: [
+    'Essa é a única parte que eu não pedi pro Claude escrever. É schema, é barato, e é convenção deste projeto rodar migração na mão e documentar depois. Uma coluna nova, pra guardar o prato que está esperando.',
+    'E aqui entra um terceiro status: expirada. Não é só pendente ou resolvida. Uma pendência que nunca resolve precisa de um destino final que alguém vê.',
+  ],
+  16: [
+    'O produto já resolvia esse problema pra outro caso. Quando você registra uma compra e não diz de qual orçamento saiu, ele pergunta — e guarda a pendência antes de perguntar.',
+    'Então o pedido pro Claude foi: aplica essa mesma forma no porcionamento, com as quatro decisões que eu acabei de fechar.',
+    'FAZER: mostrar o diff de intencao-efeitos.js.\n\nPergunta, guarda, resolve. E repara que a mudança inteira mora dentro de uma função que já existia — não precisou de arquitetura nova, só de um pedaço de estado que faltava.',
+  ],
+  17: [
+    'Com isso, o caminho feliz fecha: a resposta chega dentro da janela e o prato entra no estoque.',
+    'FAZER: mostrar expiracao-porcionamento.js ao lado de lembrete.js.\n\nE o caminho esquecido também. O produto já tinha um trabalho que cobra relato de hora em hora; esse aqui é a mesma ideia, só que rápido: de dois em dois minutos, porque a conversa real se resolve ou morre em minutos. Ele fecha a pendência e avisa o grupo. A frase é literal de propósito — vira o padrão pra qualquer guardrail que expirar.',
+  ],
+  18: [
+    'Então: a migração rodou no banco de produção e eu conferi que pegou.',
+    'O deploy é real. Aqui é onde este episódio se separa da aula bônus: lá o PR era simulado. Esse código vale pra minha casa de verdade, agora.',
+    'FAZER: mostrar no GitHub o PR #13, "Fix: pendencia de porcionamento persistida e expirada (Episodio D)", já mergeado no master. FIQUE NA ABA "Conversation" — a aba "Files changed" mostra os documentos de produção do curso, inclusive o ensaio com as falas.\n\nEu subi e mergeei antes de gravar. O código roda em produção desde o deploy, e o merge traz a mudança de volta pra linha principal — o merge em si não publica nada, quem publica é o deploy, no Railway. E a spec vai junto do código, no mesmo lugar. Título, corpo, diff — o mesmo destino de qualquer mudança de produto de verdade.',
+  ],
+  // 4.2.5 -------------------------------------------------------------------
+  19: ['Isso aqui não é o teste formal — o formal, com nota, é o próximo vídeo. É só: o código está no ar e faz as duas coisas que eu descrevi.'],
+  20: [
+    'FAZER (ao vivo, no Telegram): mandar "Preparei frango desfiado" (SEM peso — com peso na frase o classificador entende compra e o bot pergunta o orçamento). Esperar a pergunta. Responder "Porcionei em 3 unidades", sem repetir o prato.\n\nVamos fazer ao vivo. Eu conto que preparei frango desfiado. Ele pergunta quantas porções. E eu respondo só o número — sem repetir o nome do prato, exatamente o que quebrava em 14 de setembro. Olha a resposta: ele menciona o frango desfiado. A referência não se perdeu.',
+    'FAZER: mostrar no grupo o aviso de expiração da sopa.\n\nE o outro caminho: antes de começar a gravar, eu mandei que tinha preparado uma sopa de abóbora e não respondi a pergunta — de propósito, pra não fazer vocês esperarem vinte minutos comigo. Olha o que chegou sozinho: ingestão não concluída por falta de porções, sopa de abóbora. Ninguém precisou ir conferir o estoque pra descobrir.\n\nSE o bot não reconhecer a continuação, ou o aviso não estiver lá: pare aqui. Não siga pro eval fingindo que funcionou.',
+  ],
+  21: [
+    'Só que tem uma coisa que eu preciso contar, porque senão esse teste parece melhor do que ele é. A mensagem real daquele dia não era "em 3 unidades". Era essa: duas de 220 e duas de 160.',
+    'E ela não traz número nenhum — porque chegar a quatro é somar. O que o produto faz hoje é isso: pergunta de novo, já citando o prato. A referência não se perde mais, a pendência continua viva. Mas o Diego de 14 de setembro ainda teria que mandar "porcionei em 4".',
+    'E eu não vou pedir pro modelo somar. Essa é a regra de ouro do projeto: conta é do código. A saída certa é o modelo separar as parcelas e o código somar — e isso é a segunda volta, não esta. Fica no backlog, dito em voz alta.',
+  ],
+  // 4.2.6 -------------------------------------------------------------------
+  22: ['Corrigir sem provar é narrativa. Falta a prova.'],
+  23: ['Na aula bônus a gente criou um eval do zero pra uma operação que não tinha nenhum. Hoje é diferente: essa operação já tem três critérios. Só que nenhum deles pega esse episódio, porque todos julgam uma mensagem por vez — e essa falha só existe entre mensagens.\n\nFAZER: colar o prompt do passo 5.1 de docs/aula4-concierge-evals-episodio-d.md.\n\nRAMIFICAÇÃO A (o Claude quer que o juiz avalie qualidade): Se resolveu ou não é fato, é banco de dados; isso não entra pro juiz decidir. Se a pergunta foi clara é outro critério, não este.\n\nRAMIFICAÇÃO B (ele propõe binário, com cálculo em código): Isso. Ele já separou o que é fato do que seria opinião — nem tentou fazer o modelo comparar horário.'],
+  24: [
+    'Antes de fechar o critério, eu bato contra o que aconteceu de verdade. Trace 1: desejo, certo.',
+    'Trace 2: porcionamento. É o que cria a pendência.',
+    'Trace 3: porcionamento de novo — a tentativa de resposta, sem o nome do prato.',
+    'Trace 4: desejo. Nem é reconhecido como resposta a nada.',
+    'Por isso este eval não pode ser "olhe o trace 3 e julgue". O trace 3, isolado, está perfeito. O problema só existe quando você olha o par: a pergunta que ficou aberta e a resposta que não achou o caminho de volta.',
+  ],
+  25: [
+    'FAZER: colar o bloco do passo 5.3 em evals/criterios.md; depois pedir o script (passo 5.4), no molde do eval da receita premium.\n\nO critério é binário e o juiz só lê um status que o produto já decidiu. Se o trace não criou pendência nenhuma, ou se ela foi resolvida: vale 1.',
+    'Se expirou, vale zero. E aqui é o ponto fino: o produto avisou, o que é melhor que silêncio — mas avisar que falhou não é a mesma coisa que o prato estar no estoque. O resultado de produto continua sendo falha.',
+    'E se a pendência ainda estiver aberta na hora da avaliação, o eval pula: ainda é cedo pra julgar. Repara que nem o eval decide o que é "resolvido" — o produto já decidiu isso sozinho.',
+  ],
+  26: [
+    'FAZER: node evals/run-eval-ciclo-pergunta-resposta.js --limit 20 --dry-run\n\nAli está o trace de 14 de setembro: nota zero. E uma nota de transparência, porque ela importa: a linha que guarda essa pendência no banco eu inseri à mão antes de gravar, com o horário real do incidente. Naquele dia o produto não persistia nada — esse era exatamente o bug. Não é dado fabricado: é o mesmo achado documentado, entrando na estrutura que não existia na época.',
+    'FAZER: node evals/run-eval-ciclo-pergunta-resposta.js --limit 5 --dry-run\n\nMesmo critério, mesmo script, trace novo — o frango desfiado que a gente acabou de mandar. Nota 1: o ciclo se fechou.',
+    'E a sopa aparece com zero. Isso não é o eval errando — é exatamente o que ele tem que dizer. O produto avisou, e a sopa continua fora do estoque.\n\nOpcional (passo 5.6): rodar sem --dry-run pra gravar o Score real no Langfuse.',
+  ],
+  // 4.5 ---------------------------------------------------------------------
+  27: ['Recapitulando.'],
+  28: [
+    'Eu não li código pra descobrir o problema. Eu observei: quatro mensagens, quatro classificações certas, e um prato que nunca existiu no sistema.',
+    'Diagnostiquei com a evidência na mão, e a resposta não era prompt, nem dado, nem modelo — era o produto em volta do modelo.',
+    'Decidi o caminho antes de escrever código, e escrevi a restrição na spec.',
+    'Corrigi de verdade: migração, código, deploy, produção.',
+    'E provei, com um eval que enxerga o que nenhum dos anteriores enxergava: o ciclo, não a mensagem.',
+  ],
+  29: [
+    'E agora o ponto que eu mais quero que fique. Essa correção não terminou o trabalho — ela trocou um problema invisível por três coisas visíveis. A janela de vinte minutos é uma aposta: se o dado mostrar muita pendência expirando, a régua estava errada.',
+    'O aviso de ingestão não concluída é honesto, mas agora alguém precisa ler. Eu troquei um silêncio por uma mensagem — e mensagem que ninguém lê vira silêncio de novo.',
+    'E a mensagem real daquele dia ainda não fecha sozinha. O produto pergunta de novo citando o prato, o que é melhor que silêncio. Mas mesmo quando resolve, ele registra três porções sem saber quanto pesa cada uma — e numa casa que conta caloria, isso ainda é um buraco.',
+  ],
+  30: ['Consertar não é o fim — é o começo do que observar. E quando o produto passa a perguntar, a avisar e a decidir coisas pela casa, a pergunta seguinte é inevitável: o que ele pode fazer sozinho, o que ele precisa me contar, e o que ele não deveria nem guardar. Isso é a Aula 5: guardrails, transparência e LGPD — começando pelo episódio que eu deixei de propósito sem corrigir, o da lasanha. Até lá.'],
+};
+
+for (const it of S) {
+  if (notasPorQuadro[it.n]) it.notesFrames = notasPorQuadro[it.n];
+}
+
 fs.writeFileSync(path.join(__dirname, 'aula4-meio-spec.json'), JSON.stringify(S, null, 2), 'utf8');
-console.log(`aula4-meio-spec.json: ${S.length} slides`);
+const semQuadro = S.filter((it) => !it.notesFrames).map((it) => it.n);
+console.log(`aula4-meio-spec.json: ${S.length} slides` + (semQuadro.length ? `; sem notas por quadro: ${semQuadro}` : '; todos com notas por quadro'));

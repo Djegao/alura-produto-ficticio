@@ -580,6 +580,17 @@ function Novo-Fundo([string]$nome) {
   return $sl
 }
 
+# Nota do quadro `q` (1..total) de um conjunto de animacao forcada: no estudio
+# o Diego avanca quadro a quadro e precisa da fala DAQUELE avanco. Vem de
+# notesFrames (uma entrada por quadro, ordem dos frames). Sem notesFrames — ou
+# sem entrada pra este quadro — repete a nota do slide, nunca inventa fala.
+function Nota-Do-Quadro($it, [int]$q, [int]$total) {
+  $quadros = @($it.notesFrames)
+  $txt = $(if ($quadros.Count -ge $q -and $quadros[$q - 1]) { $quadros[$q - 1] } else { $it.notes })
+  if ($total -gt 1) { return "[quadro $q/$total] $txt" }
+  return $txt
+}
+
 function Notas($sl, [string]$txt) {
   if ($SemNotas -or -not $txt) { return }
   foreach ($ns in $sl.NotesPage.Shapes) {
@@ -613,10 +624,10 @@ foreach ($it in $itens) {
     foreach ($s in $d.Shapes) { $fr = $s.Tags.Item('FRAME'); if ($fr -ne '' -and [int]$fr -gt $k) { $apagar += $s } }
     foreach ($s in $apagar) { $s.Delete() }
     $d.Tags.Add('BUILD', "$($k - $inicio + 1)/$totalFrames")
-    if ($k -eq $inicio) { Notas $d $it.notes } else { Notas $d "(animação forçada $($k - $inicio + 1)/$totalFrames — notas no primeiro frame)" }
+    Notas $d (Nota-Do-Quadro $it ($k - $inicio + 1) $totalFrames)
     $frames++
   }
-  if ($maxK -le $inicio) { Notas $sl $it.notes } else { Notas $sl "(animação forçada $totalFrames/$totalFrames — notas no primeiro frame)" }
+  Notas $sl (Nota-Do-Quadro $it $totalFrames $totalFrames)
   $frames++
 }
 
