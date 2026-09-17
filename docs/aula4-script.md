@@ -22,11 +22,25 @@ registrada, citada no checklist da Aula 5, sem investigação dedicada aqui.
 
 | Vídeo | Título (espelho) | Estado |
 |---|---|---|
-| 4.1 | Detectando degradação | 🟡 rascunho para debate |
-| 4.2 | Diagnosticando a causa | 🟡 rascunho para debate |
-| 4.3 | Corrigindo antes do usuário | 🟡 rascunho para debate |
-| 4.4 | Simulando o ciclo completo | 🟡 rascunho para debate |
-| 4.5 | O que aprendemos | 🟡 rascunho para debate |
+| 4.1 | Detectando degradação | 🟡 rascunho para debate — mantido |
+| 4.2 | Diagnosticando a causa | 🔴 **superado (17/09)** — ver aviso abaixo |
+| 4.3 | Corrigindo antes do usuário | 🔴 **superado (17/09)** — ver aviso abaixo |
+| 4.4 | Simulando o ciclo completo | 🔴 **superado (17/09)** — ver aviso abaixo |
+| 4.5 | O que aprendemos | 🟡 rascunho para debate — conteúdo a revisar após o novo 4.2-4.4 |
+
+> ⚠️ **Decisão de 17/09: 4.2–4.4 serão regravados como uma aula única e
+> orgânica, não linear ao espelho.** O diagnóstico do Episódio D (o
+> hambúrguer que sumiu) deixa de ser narrado/simulado e vira o fio condutor
+> de um ciclo completo real: diagnóstico → debate → SDD → código
+> implementado de verdade → novo eval multi-trace → Claude-as-judge
+> testado por observabilidade, com merge real durante a gravação. As
+> seções 4.2–4.4 abaixo ficam **como registro histórico**, não como
+> roteiro — ver `docs/aula4-redesign-ciclo-completo.md` (plano),
+> `docs/aula4-sdd-pre-manufaturado-episodio-d.md` (a SDD candidata) e
+> `docs/aula4-concierge-evals-episodio-d.md` (roteiro Tela·Fala·Ação do
+> segmento de evals) para o material novo. Falta ainda o roteiro do
+> segmento de código real (o fix do Episódio D) e a costura final com 4.1
+> e 4.5.
 
 **Fio condutor:** a Aula 3 fechou com *"Eu já enxergo. Agora falta agir."*
 A Aula 4 fecha o ciclo: detectar, diagnosticar, corrigir — e mostra que toda
@@ -152,6 +166,12 @@ aconteceu, a menos que alguém já tenha pensado nisso antes. Eu vou voltar
 nesse caso já já.
 
 ---
+
+> 🔴 **Superado em 17/09 — registro histórico, não roteiro.** 4.2, 4.3 e 4.4
+> (até a próxima linha `---` antes de "4.5 — O que aprendemos") foram
+> substituídos por uma aula única e orgânica que fecha o ciclo completo
+> (diagnóstico→debate→SDD→código real→eval novo→observabilidade→merge).
+> Ver aviso no topo deste arquivo. Não usar como roteiro de gravação.
 
 # 4.2 — Diagnosticando a causa
 
