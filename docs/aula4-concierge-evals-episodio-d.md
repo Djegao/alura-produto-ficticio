@@ -83,7 +83,7 @@
 3. **Planeje a réplica "depois".** Você vai mandar, ao vivo, no Telegram de
    produção, uma sequência equivalente às mensagens 2 e 3 do episódio real
    (pode usar outro prato pra não confundir com o dado histórico — ex.:
-   "Preparei frango desfiado, 300g" → esperar a pergunta → "Porcionei em 3
+   "Preparei frango desfiado" → esperar a pergunta → "Porcionei em 3
    unidades"). **Anote o nome do prato escolhido antes de gravar** — você
    vai precisar dele no comando do passo 6.
 4. **Abra três coisas, sem fechar durante o segmento:**
@@ -313,7 +313,7 @@ pendência.
 ### "Depois" — replicar ao vivo, contra produção
 
 **AÇÃO:** no Telegram do grupo real, mande a mensagem preparada no setup
-(ex.: "Preparei frango desfiado, 300g"). Espere o bot perguntar quantas
+(ex.: "Preparei frango desfiado"). Espere o bot perguntar quantas
 porções. Responda só o número ("Porcionei em 3 unidades"), sem repetir o
 nome do prato — **de propósito**, é o mesmo padrão da mensagem 3 real, que
 antes falhava.

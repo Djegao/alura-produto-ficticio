@@ -155,7 +155,14 @@ async function ingerirRelato({ texto, dataReferencia, model, canal }) {
     const block = response.content.find((b) => b.type === 'tool_use' && b.name === 'registrar_intencao');
     const intencao = block ? block.input : { tipo: 'desejo', descricao: texto };
 
-    agent.update({ output: intencao });
+    agent.update({ output: { ...intencao } });
+
+    // Achado 17/09: o modelo as vezes preenche campo ausente com o texto
+    // literal "<UNKNOWN>" em vez de omitir — e o codigo tratava como prato
+    // real. O trace guarda o bruto; o produto so recebe campo de verdade.
+    for (const campo of Object.keys(intencao)) {
+      if (campo !== 'tipo' && campo !== 'descricao' && intencao[campo] === '<UNKNOWN>') delete intencao[campo];
+    }
     return { intencao, traceId };
   } catch (err) {
     agent.update({ level: 'ERROR', statusMessage: err.message });

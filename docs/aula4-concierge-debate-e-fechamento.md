@@ -36,6 +36,11 @@ mensagem não se perde mais (o bot pergunta de novo, citando o prato), mas
 
 **Recomendação: A.** B é boa ideia, mas é a segunda volta, não esta.
 
+**✅ Decidido em 17/09: A.** Diego notou no smoke test que o peso também se
+perde ("porcionei em 3" não guarda gramas — o schema nunca guardou peso por
+porção, mesma observação da lasanha 4×250 g + 1×330 g no `CLAUDE.md`). O
+fechamento diz isso explicitamente.
+
 ### D2. Episódio 3 (SDD) e capítulo 4.4.1 (fechar o desenho) são a mesma cena
 
 Os dois fecham as mesmas quatro decisões (nome do status, coluna, janela,
@@ -54,6 +59,12 @@ pra não fazer vocês esperarem vinte minutos."
 **Atenção pra frase do teste:** não use "dois de cada" ou qualquer frase que
 peça soma — o Haiku às vezes soma sozinho (viola a regra de ouro e mascara o
 teste). Use número único e explícito: "Porcionei em 3 unidades".
+
+**E não ponha peso na primeira mensagem.** Testado em produção em 17/09:
+"Preparei frango desfiado, 300g" vira `aquisicao` (compra de 300 g,
+`state: ingrediente`) 3 de 3 vezes, e o bot pergunta o orçamento em vez das
+porções. Sem o peso ("Preparei frango desfiado") vira `porcionamento` 3 de 3.
+Pode até virar fala: o peso fez o modelo ler "comprei", não "cozinhei".
 
 ---
 
@@ -186,7 +197,7 @@ mensagem.
 Três linhas no slide:
 - uma janela de 20 minutos que é aposta, não verdade
 - um aviso de "não concluída" que agora alguém precisa ler
-- uma resposta real — "2 de 220 g e 2 de 160 g" — que o fix ainda não fecha sozinho
+- um prato que chega com o número de porções, mas sem saber quanto pesa cada uma
 
 **Script**
 
@@ -197,11 +208,9 @@ expirando, a régua estava errada. O aviso de "ingestão não concluída" é
 honesto, mas alguém precisa ler. E a mensagem real daquele dia, "dois de
 220 e dois de 160", ainda não resolve sozinha — somar é conta, e conta
 aqui é do código, não do modelo. O produto agora pergunta de novo, citando
-o prato. Melhor que silêncio. Não é o fim.
-
-**[se D1 = B, troque a terceira linha e este parágrafo por:]** e a mensagem
-real daquele dia agora resolve — o modelo separa as parcelas, o código
-soma. Mas repara que eu precisei de uma segunda volta pra isso.
+o prato. Melhor que silêncio. E mesmo quando resolve, o prato chega com o
+número certo de porções, mas não sabe quanto pesa cada uma — pra casa que
+conta caloria, isso ainda é um buraco. Não é o fim.
 
 ### Slide 7.4 (hero, fechamento)
 **Consertar não é o fim.**
