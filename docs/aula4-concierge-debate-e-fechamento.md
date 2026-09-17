@@ -55,6 +55,12 @@ pra não fazer vocês esperarem vinte minutos."
 peça soma — o Haiku às vezes soma sozinho (viola a regra de ouro e mascara o
 teste). Use número único e explícito: "Porcionei em 3 unidades".
 
+**E não ponha peso na primeira mensagem.** Testado em produção em 17/09:
+"Preparei frango desfiado, 300g" vira `aquisicao` (compra de 300 g,
+`state: ingrediente`) 3 de 3 vezes, e o bot pergunta o orçamento em vez das
+porções. Sem o peso ("Preparei frango desfiado") vira `porcionamento` 3 de 3.
+Pode até virar fala: o peso fez o modelo ler "comprei", não "cozinhei".
+
 ---
 
 ## Episódio 2 — Debate: qual caminho, antes de qualquer código (5–6 min)

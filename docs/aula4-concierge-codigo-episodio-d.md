@@ -330,7 +330,7 @@ código novo — os **dois caminhos**, não só o feliz. Sem isso, o
 **TELA:** app do Telegram, grupo real da casa.
 
 **AÇÃO 1 — caminho resolvido:** mande uma mensagem de porcionamento
-**incompleta** (ex.: "Preparei frango desfiado, 300g") e confirme que o
+**incompleta** (ex.: "Preparei frango desfiado") e confirme que o
 bot pergunta quantas porções. Responda só o número, sem repetir o nome do
 prato ("Porcionei em 3 unidades"). Confirme que a resposta do bot
 **menciona o prato certo** (frango desfiado), não uma pergunta genérica
