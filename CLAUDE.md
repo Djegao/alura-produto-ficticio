@@ -1,6 +1,9 @@
 # Musa Balance — produto fictício de referência
 
-> **Sessão nova? Comece por `docs/RETOMADA-17-09.md`.**
+> **Sessão nova? Comece por `docs/RETOMADA-17-09.md`, caixa "Atualização
+> 17/09, tarde"** — o fix do Episódio D foi implementado (branch
+> `aula4/fix-episodio-d-porcionamento`, migração Fase 7 já rodada) e o
+> bloco "Estado em 17/09" logo abaixo está parcialmente superado.
 >
 > **Estado em 17/09:** sessão de planejamento (sem gravação) que redesenhou
 > o **Módulo 4 inteiro** — 4.2–4.4 do script antigo saem, entra uma aula

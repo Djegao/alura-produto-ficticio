@@ -265,6 +265,8 @@ async function loadFeed() {
         if (p.fonte_refeicao) extras.push(`<span class="pill neutral">${p.fonte_refeicao}</span>`);
         if (p.dias_desde_preparo != null) extras.push(`<span class="pill bad">durou ${p.dias_desde_preparo}d</span>`);
         if (p.status === 'aguardando_categoria') extras.push(`<span class="pill warn">aguardando orçamento</span>`);
+        if (p.status === 'aguardando_porcoes') extras.push(`<span class="pill warn">aguardando porções</span>`);
+        if (p.status === 'expirada') extras.push(`<span class="pill bad">não concluída: faltaram porções</span>`);
         const mediar = p.tipo === 'desejo'
           ? `<div class="acao-linha"><button class="small" data-mediar="${escapeHtml(p.descricao)}">🍳 Mediar com a casa</button></div>`
           : '';
