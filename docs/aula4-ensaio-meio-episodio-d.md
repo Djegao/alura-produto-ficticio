@@ -394,12 +394,19 @@ agora.
 
 **Quadro 50** — Tela: "PR com a SDD §11.7 junto do código."
 
-**Fazer:** mostrar no GitHub a branch `aula4/fix-episodio-d-porcionamento`,
-os commits e o diff. (Se o PR ainda não existir, diga "branch e commits" em
-vez de "PR" — ver correções pendentes.)
+**Fazer:** mostrar o **PR #13** no GitHub — "Fix: pendencia de porcionamento
+persistida e expirada (Episodio D)", já **mergeado** no `master`. Fique na
+aba **Conversation**: a aba "Files changed" tem 13 arquivos e a maioria é
+material de produção do curso, inclusive este ensaio.
 
-**Dizer:** E a spec vai junto do código, no mesmo lugar. Título, corpo,
-diff — o mesmo destino de qualquer mudança de produto de verdade.
+**Dizer:** E a spec vai junto do código, no mesmo PR. Esse aqui eu abri e
+mergeei antes de gravar: o código já roda na minha casa desde o deploy, e o
+merge é o que traz a mudança de volta pra linha principal do projeto — que é
+onde a próxima pessoa vai pegar. Título, corpo, diff, merge: o mesmo destino
+de qualquer mudança de produto de verdade.
+
+> **Não diga que o merge "põe no ar".** Aqui a publicação é um passo à
+> parte, feita pelo Railway — e ela já aconteceu, no quadro anterior.
 
 ---
 
@@ -548,6 +555,11 @@ eval pula: ainda é cedo pra julgar. Repara que nem o eval decide o que é
 
 **Fazer:** `node evals/run-eval-ciclo-pergunta-resposta.js --limit 20 --dry-run`
 
+> **Conferido em 17/09 16h:** o trace de 14/09 é o 12º mais recente da
+> operação `ingerir-relato` — cabe no `--limit 20`, com folga de umas 8
+> mensagens. Cada teste novo no Telegram gasta uma dessas vagas; se você
+> ensaiar muito antes de gravar, suba o limite para 30.
+
 **Dizer:** Ali está o trace de 14 de setembro: nota zero. E uma nota de
 transparência, porque ela importa: a linha que guarda essa pendência no
 banco eu inseri à mão antes de gravar, com o horário real do incidente.
@@ -651,9 +663,11 @@ propósito sem corrigir, o da lasanha. Até lá.
    no primeiro teste real: o bot perguntou o orçamento, não as porções. Na
    tela e na fala, usar **"Preparei frango desfiado"**. A nota do mesmo
    slide no .pptx também precisa perder o `300g`.
-2. **Quadro 50 (slide 18)** fala em PR. O PR ainda não foi aberto (`gh` não
-   está instalado nesta máquina) — ou abrir antes de gravar, ou dizer
-   "branch e commits".
+2. ~~**Quadro 50 (slide 18)** fala em PR.~~ **Resolvido:** o
+   [PR #13](https://github.com/Djegao/alura-produto-ficticio/pull/13) foi
+   aberto e mergeado em 17/09, antes da gravação. O slide continua válido
+   como está; só a nota do .pptx precisa dizer "já mergeado" e não sugerir
+   que o merge publica.
 3. **Notas do .pptx:** em cada conjunto de animação forçada, os quadros
    2 a N trazem "(animação forçada N/7 — notas no primeiro frame)". As
    falas fatiadas deste documento é que valem; se quiser as notas do deck
