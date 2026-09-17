@@ -38,7 +38,18 @@
 > - A **mensagem 2**, hoje, às vezes vem com `item_quantidade: 4`: o modelo
 >   somou "dois de cada" sozinho, violando a mesma regra. É não
 >   determinístico, e em 14/09 não somou.
-> - "4" sozinho vira `desejo`.
+> - "4" sozinho vira `desejo` — e numa das rodadas o Haiku devolveu
+>   `tipo: "<UNKNOWN>"`.
+> - **Testado também no Sonnet 5 (3 rodadas cada), e ficou pior pra este
+>   fluxo:** soma 2+2 sozinho na mensagem 3 (3/3), classifica a mensagem 2
+>   como `aquisicao` (3/3), e em "Porcionei em 3 unidades" devolve
+>   `item_nome: "<UNKNOWN>"` (3/3) — texto literal de "não sei" no lugar de
+>   omitir o campo. O código acreditava: pulava a pendência e criaria um
+>   prato chamado "<UNKNOWN>". **Decisão do Diego:** manter o Haiku no eixo
+>   de ingestão e corrigir no código — `relato-ingestao.js` descarta campo
+>   com valor `"<UNKNOWN>"` antes de entregar ao produto (o trace no
+>   Langfuse continua mostrando o bruto do modelo). Material de aula: o
+>   modelo "mais forte" quebrou mais a regra de ouro que o barato.
 >
 > **O que o código faz com isso:** com uma pendência aberta, resposta sem
 > número **pergunta de novo já ancorada no prato** ("Ainda falta o total de
