@@ -428,8 +428,8 @@ alter table pensamentos add constraint pensamentos_tipo_check
   check (tipo in ('relato_refeicao', 'desejo', 'aquisicao', 'desperdicio', 'branqueamento', 'porcionamento'));
 
 -- ---------------------------------------------------------------------
--- Fase 7 (Episodio D, SDD §11.7) — 2026-09-17. PENDENTE de rodar no SQL
--- Editor; atualizar este cabecalho com "RODADO" depois de verificar.
+-- Fase 7 (Episodio D, SDD §11.7) — 2026-09-17. RODADO no SQL Editor em
+-- 17/09 (verificado: insert com aguardando_porcoes e expirada aceitos).
 -- ---------------------------------------------------------------------
 
 -- Pergunta de porcionamento persiste pendencia (aguardando_porcoes) com o
