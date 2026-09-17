@@ -23,10 +23,17 @@
 > |---|---|
 > | Migração Fase 7 (`schema.sql`) | ✅ rodada no Supabase e verificada |
 > | Fix (`intencao-efeitos.js`, `expiracao-porcionamento.js`, `server.js`, `public/app.js`) | ✅ commitado; resolvido, re-pergunta e expirado testados contra o banco real |
-> | Deploy Railway | 🟡 enviado 14:30 (deploy `051cb8e1`), aguardando confirmação |
-> | Smoke test no Telegram (resolvido + expirado) | 🔴 pendente |
-> | Backfill da linha histórica de 14/09 (disclosed) | 🔴 pendente |
-> | PR + merge | 🔴 pendente (`gh` não instalado nesta máquina) |
+> | Deploy Railway | ✅ no ar (deploy `118df82a`, 14:58, já com o filtro de `<UNKNOWN>`) |
+> | Smoke test no Telegram (resolvido + expirado) | ✅ os dois passaram: frango resolvido 14:59 (3 porções no estoque), sopa expirada 15:08 com aviso no grupo |
+> | Backfill da linha histórica de 14/09 (disclosed) | ✅ inserido (trace `240ad5bb32…`, status `expirada`) |
+> | Script do eval multi-trace | 🔴 não existe — o roteiro (passo 5.4) prevê escrever ao vivo; plano B é o banco já ter os dois casos |
+> | PR + merge | 🔴 pendente (`gh` não instalado; mostrar branch/commits no GitHub) |
+> | Lixo de teste no banco | 🟡 "frango desfiado 500 g" (compra) + pensamento dela seguem lá, aguardando ok do Diego |
+>
+> **Decisões da tarde:** D1 = **A** (não mexer na soma 2+2; o fechamento diz
+> que o prato chega com o número de porções, mas sem o peso de cada uma).
+> Eixo de ingestão **continua no Haiku** — o Sonnet 5 soma sozinho e devolve
+> `item_nome: "<UNKNOWN>"`, o que quebraria o fix.
 >
 > **Achado novo (17/09, tarde):** a mensagem 3 real ("2 unidades de 220g e
 > 2 de 160g") nunca traz número — somar é conta, a LLM não faz. O fix
