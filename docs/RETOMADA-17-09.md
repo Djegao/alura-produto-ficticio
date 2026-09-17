@@ -1,5 +1,66 @@
 # Retomada — 17/09
 
+> ## ⏩ Atualização 17/09, tarde — LEIA ESTA SEÇÃO PRIMEIRO
+>
+> O que está abaixo desta caixa é o estado da manhã (planejamento). À tarde,
+> as pendências foram decididas e o fix foi implementado.
+>
+> **Branch de trabalho:** `aula4/fix-episodio-d-porcionamento` (ainda
+> **não mergeada** — o PR sai depois do smoke test). Trabalhe a partir dela.
+>
+> **Decisões do Diego (17/09, tarde):**
+> 1. Janela de expiração: **20 min**, com o debate **deixado aberto** na
+>    apresentação. O concierge lembra que ele considerou até 120 min e
+>    recuou pelo risco de porção cair no prato errado (mesmo ator com mais
+>    de um prato pendente).
+> 2. Implementação real **antes** da gravação — em câmera, código/migração/
+>    deploy/PR viram leitura do que foi feito; smoke test fica ao vivo.
+> 3. Nome do status `aguardando_porcoes`, coluna `item_pendente`, escopo só
+>    porcionamento: **confirmados**.
+>
+> **Estado técnico:**
+> | Item | Estado |
+> |---|---|
+> | Migração Fase 7 (`schema.sql`) | ✅ rodada no Supabase e verificada |
+> | Fix (`intencao-efeitos.js`, `expiracao-porcionamento.js`, `server.js`, `public/app.js`) | ✅ commitado; resolvido, re-pergunta e expirado testados contra o banco real |
+> | Deploy Railway | 🟡 enviado 14:30 (deploy `051cb8e1`), aguardando confirmação |
+> | Smoke test no Telegram (resolvido + expirado) | 🔴 pendente |
+> | Backfill da linha histórica de 14/09 (disclosed) | 🔴 pendente |
+> | PR + merge | 🔴 pendente (`gh` não instalado nesta máquina) |
+>
+> **Achado novo (17/09, tarde):** a mensagem 3 real ("2 unidades de 220g e
+> 2 de 160g") nunca traz número — somar é conta, a LLM não faz. O fix
+> re-pergunta ancorado no prato, mas não resolve sozinho. E a mensagem 2,
+> hoje, às vezes vem com o 4 já somado pelo Haiku. Detalhes no topo de
+> `docs/aula4-concierge-codigo-episodio-d.md`.
+>
+> **Roteiro da aula — mapa completo e decisões ainda abertas:**
+> `docs/aula4-concierge-debate-e-fechamento.md` (episódios 2 e 7 novos,
+> tabela com todos os 7 episódios, ordem de gravação). Três decisões em
+> aberto lá: **D1** soma 2+2 (recomendado: não mexer, contar em câmera),
+> **D2** fundir episódio 3 com cap. 4.4.1 (recomendado: fundir), **D3**
+> disparar o caminho expirado antes de gravar (recomendado: sim).
+>
+> ### Prompt para a janela do slide deck
+>
+> ```text
+> Vou montar o slide deck do novo meio da Aula 4 (episódio D, ciclo completo)
+> do curso Alura "Evals, observabilidade e conformidade".
+>
+> 1. git fetch e checkout da branch aula4/fix-episodio-d-porcionamento.
+> 2. Leia docs/RETOMADA-17-09.md, só a caixa "Atualização 17/09, tarde".
+> 3. Leia, nesta ordem: docs/aula4-concierge-debate-e-fechamento.md (mapa e
+>    decisões D1-D3), docs/aula4-sdd-pre-manufaturado-episodio-d.md,
+>    docs/aula4-concierge-codigo-episodio-d.md,
+>    docs/aula4-concierge-evals-episodio-d.md. Cada um tem "Slide sugerido".
+> 4. Convenção: deck só depois do debate. Antes de gerar qualquer .pptx,
+>    confirme comigo D1, D2 e D3 e me mostre a lista de slides (título +
+>    tipo) em texto. Siga o formato e o gerador dos decks das Aulas 2/3
+>    (veja slides/ e generate-slides.js).
+> 5. Outra sessão está cuidando de deploy, smoke test e PR na mesma branch —
+>    não mexa em código do produto; commite só material de slide.
+> ```
+
 > Escrito em 17/09, sessão de planejamento antes da gravação (adiantada de
 > 18/09 para hoje). Substitui `RETOMADA-16-09.md` como ponto de partida.
 > Esta sessão não gravou nada — só planejou o redesign da Aula 4 e deixou
