@@ -9,14 +9,16 @@
 > **Como ler:** cada quadro tem **Tela** (o que aparece *agora*), **Dizer**
 > (a fala daquele trecho) e **Fazer** quando tem ação. Numa animação
 > forçada, cada avanço tem a sua própria fala: avance o slide **enquanto**
-> diz a frase, não antes. As notas do .pptx trazem tudo no primeiro quadro
-> do conjunto — este documento é a versão fatiada, que é a que vale no
-> estúdio.
+> diz a frase, não antes. **Desde 17/09 o .pptx traz a mesma fala fatiada
+> na nota de cada quadro** (prefixo `[quadro N/total]`), gerada a partir
+> deste documento — na tela de notas do estúdio você lê a fala daquele
+> avanço, não a do conjunto inteiro.
 >
 > **Voz:** product builder, não engenheiro. Você observa, junta evidência e
 > pergunta. Nomes de arquivo e função só aparecem quando estão na tela.
 >
-> ⚠️ **Antes de gravar, ver "Correções pendentes no deck" no fim.**
+> ✅ **Deck pronto pra gravar** — as três correções pendentes foram
+> aplicadas em 17/09; ver "Correções aplicadas no deck" no fim.
 
 ---
 
@@ -25,6 +27,8 @@
 | Item | Estado |
 |---|---|
 | Produção | fix no ar (deploy `118df82a`, 17/09 14:58) |
+| PR | **#13 mergeado no `master`** — mostrar na aba "Conversation" (a "Files changed" expõe os documentos do curso) |
+| Deck | `slides/Aula 4 6498 - meio episodio D.pptx`, 79 quadros, **nota por quadro** já no .pptx |
 | Banco | migração Fase 7 rodada; backfill de 14/09 inserido (`expirada`) |
 | Sopa de abóbora | **mandar no grupo antes de gravar o 4.2.2 e não responder** — expira em ~20 min, chega a tempo do 4.2.5 |
 | Frango do teste ao vivo | usar frase **sem peso**: "Preparei frango desfiado" |
@@ -394,12 +398,16 @@ agora.
 
 **Quadro 50** — Tela: "PR com a SDD §11.7 junto do código."
 
-**Fazer:** mostrar no GitHub a branch `aula4/fix-episodio-d-porcionamento`,
-os commits e o diff. (Se o PR ainda não existir, diga "branch e commits" em
-vez de "PR" — ver correções pendentes.)
+**Fazer:** mostrar no GitHub o **PR #13**, "Fix: pendencia de porcionamento
+persistida e expirada (Episodio D)", já mergeado no `master`. **Fique na aba
+"Conversation"** — a aba "Files changed" mostra os documentos de produção do
+curso, inclusive este ensaio com as falas.
 
-**Dizer:** E a spec vai junto do código, no mesmo lugar. Título, corpo,
-diff — o mesmo destino de qualquer mudança de produto de verdade.
+**Dizer:** Eu subi e mergeei antes de gravar. O código roda em produção
+desde o deploy, e o merge traz a mudança de volta pra linha principal — o
+merge em si não publica nada, quem publica é o deploy, no Railway. E a spec
+vai junto do código, no mesmo lugar. Título, corpo, diff — o mesmo destino
+de qualquer mudança de produto de verdade.
 
 ---
 
@@ -643,21 +651,29 @@ propósito sem corrigir, o da lasanha. Até lá.
 
 ---
 
-## Correções pendentes no deck (antes de gravar)
+## Correções aplicadas no deck (17/09, branch `aula4/deck-meio-episodio-d`)
 
-1. **Quadro 52 (slide 20, "Dois caminhos")** mostra a frase
-   `"Preparei frango desfiado, 300g"`. **Com o peso, o classificador
-   entende compra** — testado 3 de 3 vezes em 17/09, e foi o que aconteceu
-   no primeiro teste real: o bot perguntou o orçamento, não as porções. Na
-   tela e na fala, usar **"Preparei frango desfiado"**. A nota do mesmo
-   slide no .pptx também precisa perder o `300g`.
-2. **Quadro 50 (slide 18)** fala em PR. O PR ainda não foi aberto (`gh` não
-   está instalado nesta máquina) — ou abrir antes de gravar, ou dizer
-   "branch e commits".
-3. **Notas do .pptx:** em cada conjunto de animação forçada, os quadros
-   2 a N trazem "(animação forçada N/7 — notas no primeiro frame)". As
-   falas fatiadas deste documento é que valem; se quiser as notas do deck
-   iguais a estas, o conserto é na fonte
-   (`slides/gerador-musa/aula4-meio-spec.json`, campo `notes`, e a expansão
-   no `aula4-meio-spec-build.js`), regerando o .pptx — trabalho da janela do
-   deck.
+As três pendências desta seção foram resolvidas e o `.pptx` foi regerado.
+**Nada aqui é pendência — é registro.**
+
+1. ~~Peso na frase do teste ao vivo~~ — **feito.** O quadro 52 (slide 20,
+   "Dois caminhos") agora mostra `"Preparei frango desfiado"`, sem peso, na
+   coluna e na nota do .pptx. Com o peso, o classificador entende compra
+   (3 de 3 em 17/09, e foi o que aconteceu no primeiro teste real: o bot
+   perguntou o orçamento, não as porções).
+2. ~~PR ainda não aberto~~ — **feito.** O PR **#13** ("Fix: pendencia de
+   porcionamento persistida e expirada (Episodio D)") foi aberto e
+   **mergeado no `master`** antes da gravação. O quadro 50 mostra o PR real
+   e lembra de ficar na aba **"Conversation"**: a "Files changed" expõe os
+   documentos de produção do curso, inclusive este ensaio. Na fala, o merge
+   traz a mudança de volta pra linha principal — **quem publica é o deploy,
+   no Railway**, feito à parte.
+3. ~~Notas do .pptx só no primeiro quadro~~ — **feito.** Cada um dos 79
+   quadros recebe a fala deste documento, com o prefixo `[quadro N/total]`.
+   A fonte é o campo `notesFrames` de cada item em
+   `slides/gerador-musa/aula4-meio-spec-build.js`; o gerador usa a entrada
+   do quadro e, se faltar, repete a nota do slide.
+
+**Se alguma fala mudar aqui**, atualize o `notesFrames` correspondente e
+regere (`node aula4-meio-spec-build.js` + `gerar-aula4-meio.ps1`) — senão o
+documento e a tela de notas saem de sincronia.
