@@ -71,5 +71,9 @@ Armadilhas encontradas em 17/09:
   sempre `[single]`.
 - `TextRange.BoundLeft` desloca ~8 pt e a caixa de linha não é onde a letra
   está — por isso a medição de centralização é no PNG, não no PowerPoint.
-- Roboto não está instalada nesta máquina: a renderização local substitui.
-  No Google Slides ela existe; revisar quebras de linha lá.
+- Roboto precisa estar instalada: sem ela o PowerPoint substitui por outra
+  fonte e a quebra de linha do corpo muda (e a calibração de título junto).
+  Instalada nesta máquina em 17/09, por usuário, a partir de Downloads/Roboto.zip
+  (%LOCALAPPDATA%\Microsoft\Windows\Fonts + HKCU\...\Fonts).
+- `-replace` do PowerShell é case-insensitive: `[a-z]` casa com maiúscula
+  também. Para separar CamelCase, use `-creplace`.
