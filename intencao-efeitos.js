@@ -46,6 +46,26 @@ async function acharPreparadoVivo(householdId, nome) {
   return (data && data[0]) || null;
 }
 
+// Episodio D (SDD §11.7): pergunta de porcionamento persiste pendencia antes
+// de perguntar. 20 min foi decidido em 17/09 (considerado ate 120) — janela
+// longa deixa o mesmo ator acumular pratos pendentes e o numero cair no
+// prato errado, em silencio.
+const JANELA_PENDENCIA_MIN = 20;
+
+async function acharPendenciaPorcionamento(actorId) {
+  const desde = new Date(Date.now() - JANELA_PENDENCIA_MIN * 60 * 1000).toISOString();
+  const { data, error } = await supabase
+    .from('pensamentos')
+    .select('*')
+    .eq('actor_id', actorId)
+    .eq('status', 'aguardando_porcoes')
+    .gte('created_at', desde)
+    .order('created_at', { ascending: false })
+    .limit(1);
+  if (error) throw new Error(error.message);
+  return data[0] || null;
+}
+
 async function aplicarIntencao({ intencao, actor, canal, traceId }) {
   const householdId = await getHouseholdId();
   const hoje = new Date().toISOString().slice(0, 10);
@@ -54,6 +74,7 @@ async function aplicarIntencao({ intencao, actor, canal, traceId }) {
   let pergunta = null;
   let diasDesdePreparo = null;
   let statusPensamento = 'completo';
+  let itemPendenteNovo = null;
 
   if (intencao.tipo === 'relato_refeicao') {
     await runTool('registrar_relato_refeicao', {
@@ -147,11 +168,15 @@ async function aplicarIntencao({ intencao, actor, canal, traceId }) {
   } else if (intencao.tipo === 'porcionamento') {
     // Substitui a acao 'porcionar' do Kanban morto. Sempre manual: o numero
     // de porcoes vem da pessoa que cozinhou, nunca de estimativa.
-    if (intencao.item_nome && intencao.item_quantidade) {
+    let itemNome = intencao.item_nome;
+    const pendencia = itemNome ? null : await acharPendenciaPorcionamento(actor.id);
+    if (pendencia) itemNome = pendencia.item_pendente;
+
+    if (itemNome && intencao.item_quantidade) {
       const porcoes = Number(intencao.item_quantidade);
-      await supabase.from('pantry_items').insert({
+      const { error: insertError } = await supabase.from('pantry_items').insert({
         household_id: householdId,
-        name: intencao.item_nome,
+        name: itemNome,
         quantity: porcoes,
         unit: intencao.item_unidade || 'porção',
         state: 'preparado',
@@ -161,9 +186,24 @@ async function aplicarIntencao({ intencao, actor, canal, traceId }) {
         portions_total: porcoes,
         portions_remaining: porcoes,
       });
-      efeitos.push(`"${intencao.item_nome}" pronto e porcionado: ${porcoes} porção(ões) na geladeira`);
-    } else if (intencao.item_nome) {
-      pergunta = `Quantas porções rendeu a ${intencao.item_nome}? Só quem cozinhou sabe — me manda "porcionei ${intencao.item_nome} em N".`;
+      if (insertError) throw new Error(insertError.message);
+      efeitos.push(`"${itemNome}" pronto e porcionado: ${porcoes} porção(ões) na geladeira`);
+      if (pendencia) {
+        const { error: updError } = await supabase
+          .from('pensamentos')
+          .update({ status: 'completo' })
+          .eq('id', pendencia.id);
+        if (updError) throw new Error(updError.message);
+      }
+    } else if (pendencia) {
+      // Resposta sem numero (ex.: "2 unidades de 220g e 2 de 160g" — somar e'
+      // aritmetica, a LLM nao faz): pergunta de novo JA ancorada no prato, e a
+      // pendencia continua viva ate resolver ou expirar.
+      pergunta = `Ainda falta o total de porções de ${itemNome}. Me manda só "porcionei em N", com o número total.`;
+    } else if (itemNome) {
+      pergunta = `Quantas porções rendeu a ${itemNome}? Só quem cozinhou sabe — me manda "porcionei ${itemNome} em N".`;
+      statusPensamento = 'aguardando_porcoes';
+      itemPendenteNovo = itemNome;
     } else {
       pergunta = 'Porcionou o quê, e em quantas porções?';
     }
@@ -173,10 +213,10 @@ async function aplicarIntencao({ intencao, actor, canal, traceId }) {
   }
 
   // Todo evento classificado vira pensamento — a tabela E' o feed. Quando o
-  // sistema precisou perguntar (pergunta != null), nada de estado mudou e o
-  // pensamento nao e' gravado: o evento so existe quando esta completo.
+  // sistema precisou perguntar, so grava se a pergunta deixa pendencia
+  // (aguardando_porcoes): pergunta sem registro foi a causa do Episodio D.
   let pensamento = null;
-  if (!pergunta) {
+  if (!pergunta || itemPendenteNovo) {
     const { data, error } = await supabase
       .from('pensamentos')
       .insert({
@@ -190,6 +230,7 @@ async function aplicarIntencao({ intencao, actor, canal, traceId }) {
         status: statusPensamento,
         fonte_refeicao: intencao.fonte_refeicao || null,
         dias_desde_preparo: diasDesdePreparo,
+        item_pendente: itemPendenteNovo,
         trace_id: traceId,
       })
       .select()
@@ -201,4 +242,4 @@ async function aplicarIntencao({ intencao, actor, canal, traceId }) {
   return { pensamento, efeitos, pergunta };
 }
 
-module.exports = { aplicarIntencao };
+module.exports = { aplicarIntencao, JANELA_PENDENCIA_MIN };

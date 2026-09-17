@@ -11,6 +11,7 @@ const { ingerirRelato } = require('./relato-ingestao');
 const { aplicarIntencao } = require('./intencao-efeitos');
 const { processarUpdate } = require('./telegram');
 const { iniciarLembretes } = require('./lembrete');
+const { iniciarExpiracaoPorcionamento } = require('./expiracao-porcionamento');
 const { sugerirReceitaPremium, iniciarReceitaPremium } = require('./receita-premium');
 
 const app = express();
@@ -655,6 +656,7 @@ const PORT = process.env.PORT || 3300;
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
   iniciarLembretes();
+  iniciarExpiracaoPorcionamento();
   // O job le o modelo na hora de rodar (getter), pra respeitar troca de eixo
   // ao vivo feita no painel entre uma sexta e outra.
   iniciarReceitaPremium(() => currentConfig.model);

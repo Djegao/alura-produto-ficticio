@@ -426,3 +426,18 @@ create table if not exists premium_suggestions (
 alter table pensamentos drop constraint if exists pensamentos_tipo_check;
 alter table pensamentos add constraint pensamentos_tipo_check
   check (tipo in ('relato_refeicao', 'desejo', 'aquisicao', 'desperdicio', 'branqueamento', 'porcionamento'));
+
+-- ---------------------------------------------------------------------
+-- Fase 7 (Episodio D, SDD §11.7) — 2026-09-17. PENDENTE de rodar no SQL
+-- Editor; atualizar este cabecalho com "RODADO" depois de verificar.
+-- ---------------------------------------------------------------------
+
+-- Pergunta de porcionamento persiste pendencia (aguardando_porcoes) com o
+-- prato em item_pendente; job de expiracao fecha em 'expirada' com aviso.
+
+alter table pensamentos
+  add column if not exists item_pendente text;
+
+alter table pensamentos drop constraint if exists pensamentos_status_check;
+alter table pensamentos add constraint pensamentos_status_check
+  check (status in ('completo', 'aguardando_categoria', 'aguardando_porcoes', 'expirada'));
