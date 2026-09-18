@@ -9,3 +9,10 @@ server.log
 # backups temporarios de deck (gerados durante edicao de notas)
 *BACKUP-*.pptx
 ~$*.pptx
+
+# gerador de deck em Python
+__pycache__/
+
+# referencia de chrome do QA da Aula 6 (derivada: sai do gerar-aula6.py)
+slides/gerador-musa/aula6-referencia.pptx
+slides/gerador-musa/aula6-referencia.json

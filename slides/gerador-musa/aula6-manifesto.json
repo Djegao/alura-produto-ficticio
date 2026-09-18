@@ -1,0 +1,527 @@
+[
+ {
+  "slide": 1,
+  "item": "6.1 O que são guardrails?",
+  "layout": "divisor",
+  "base": "divisor",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 2,
+  "item": "Conformidade",
+  "layout": "capa",
+  "base": "capa",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 3,
+  "item": "Guardrail é limite em código. Não é inte",
+  "layout": "statement",
+  "base": "statement",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 4,
+  "item": "Guardrail é operacional",
+  "layout": "cards3",
+  "base": "claro",
+  "quadro": "1/3"
+ },
+ {
+  "slide": 5,
+  "item": "Guardrail é operacional",
+  "layout": "cards3",
+  "base": "claro",
+  "quadro": "2/3"
+ },
+ {
+  "slide": 6,
+  "item": "Guardrail é operacional",
+  "layout": "cards3",
+  "base": "claro",
+  "quadro": "3/3"
+ },
+ {
+  "slide": 7,
+  "item": "Os guardrails do produto atual",
+  "layout": "linhas5",
+  "base": "escuro",
+  "quadro": "1/5"
+ },
+ {
+  "slide": 8,
+  "item": "Os guardrails do produto atual",
+  "layout": "linhas5",
+  "base": "escuro",
+  "quadro": "2/5"
+ },
+ {
+  "slide": 9,
+  "item": "Os guardrails do produto atual",
+  "layout": "linhas5",
+  "base": "escuro",
+  "quadro": "3/5"
+ },
+ {
+  "slide": 10,
+  "item": "Os guardrails do produto atual",
+  "layout": "linhas5",
+  "base": "escuro",
+  "quadro": "4/5"
+ },
+ {
+  "slide": 11,
+  "item": "Os guardrails do produto atual",
+  "layout": "linhas5",
+  "base": "escuro",
+  "quadro": "5/5"
+ },
+ {
+  "slide": 12,
+  "item": "Nenhum confia em \"pedir\" quando a saída ",
+  "layout": "statement",
+  "base": "statement",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 13,
+  "item": "O freio e o motorista",
+  "layout": "contraste",
+  "base": "claro",
+  "quadro": "1/2"
+ },
+ {
+  "slide": 14,
+  "item": "O freio e o motorista",
+  "layout": "contraste",
+  "base": "claro",
+  "quadro": "2/2"
+ },
+ {
+  "slide": 15,
+  "item": "6.2 Transparência com o usuário",
+  "layout": "divisor",
+  "base": "divisor",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 16,
+  "item": "Transparência",
+  "layout": "capa",
+  "base": "capa",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 17,
+  "item": "Transparência não é aviso legal genérico",
+  "layout": "statement",
+  "base": "statement",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 18,
+  "item": "Estático × dinâmico",
+  "layout": "contraste",
+  "base": "claro",
+  "quadro": "1/2"
+ },
+ {
+  "slide": 19,
+  "item": "Estático × dinâmico",
+  "layout": "contraste",
+  "base": "claro",
+  "quadro": "2/2"
+ },
+ {
+  "slide": 20,
+  "item": "A foto do cupom, antes e depois",
+  "layout": "chat",
+  "base": "claro",
+  "quadro": "1/3"
+ },
+ {
+  "slide": 21,
+  "item": "A foto do cupom, antes e depois",
+  "layout": "chat",
+  "base": "claro",
+  "quadro": "2/3"
+ },
+ {
+  "slide": 22,
+  "item": "A foto do cupom, antes e depois",
+  "layout": "chat",
+  "base": "claro",
+  "quadro": "3/3"
+ },
+ {
+  "slide": 23,
+  "item": "O que mudou — e o que não mudou",
+  "layout": "linhas3",
+  "base": "escuro",
+  "quadro": "1/3"
+ },
+ {
+  "slide": 24,
+  "item": "O que mudou — e o que não mudou",
+  "layout": "linhas3",
+  "base": "escuro",
+  "quadro": "2/3"
+ },
+ {
+  "slide": 25,
+  "item": "O que mudou — e o que não mudou",
+  "layout": "linhas3",
+  "base": "escuro",
+  "quadro": "3/3"
+ },
+ {
+  "slide": 26,
+  "item": "Admitir a limitação já é uma correção.",
+  "layout": "statement",
+  "base": "statement",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 27,
+  "item": "Por que a correção barata vem primeiro",
+  "layout": "cards3",
+  "base": "claro",
+  "quadro": "1/3"
+ },
+ {
+  "slide": 28,
+  "item": "Por que a correção barata vem primeiro",
+  "layout": "cards3",
+  "base": "claro",
+  "quadro": "2/3"
+ },
+ {
+  "slide": 29,
+  "item": "Por que a correção barata vem primeiro",
+  "layout": "cards3",
+  "base": "claro",
+  "quadro": "3/3"
+ },
+ {
+  "slide": 30,
+  "item": "6.3 LGPD na prática",
+  "layout": "divisor",
+  "base": "divisor",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 31,
+  "item": "LGPD na prática",
+  "layout": "capa",
+  "base": "capa",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 32,
+  "item": "Dado sensível não é só CPF.",
+  "layout": "statement",
+  "base": "statement",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 33,
+  "item": "O que a lei chama de dado pessoal",
+  "layout": "citacao",
+  "base": "claro",
+  "quadro": "1/4"
+ },
+ {
+  "slide": 34,
+  "item": "O que a lei chama de dado pessoal",
+  "layout": "citacao",
+  "base": "claro",
+  "quadro": "2/4"
+ },
+ {
+  "slide": 35,
+  "item": "O que a lei chama de dado pessoal",
+  "layout": "citacao",
+  "base": "claro",
+  "quadro": "3/4"
+ },
+ {
+  "slide": 36,
+  "item": "O que a lei chama de dado pessoal",
+  "layout": "citacao",
+  "base": "claro",
+  "quadro": "4/4"
+ },
+ {
+  "slide": 37,
+  "item": "O que o Musa Balance coleta",
+  "layout": "linhas3",
+  "base": "escuro",
+  "quadro": "1/3"
+ },
+ {
+  "slide": 38,
+  "item": "O que o Musa Balance coleta",
+  "layout": "linhas3",
+  "base": "escuro",
+  "quadro": "2/3"
+ },
+ {
+  "slide": 39,
+  "item": "O que o Musa Balance coleta",
+  "layout": "linhas3",
+  "base": "escuro",
+  "quadro": "3/3"
+ },
+ {
+  "slide": 40,
+  "item": "Dado funcional × telemetria escondida",
+  "layout": "contraste",
+  "base": "claro",
+  "quadro": "1/2"
+ },
+ {
+  "slide": 41,
+  "item": "Dado funcional × telemetria escondida",
+  "layout": "contraste",
+  "base": "claro",
+  "quadro": "2/2"
+ },
+ {
+  "slide": 42,
+  "item": "Onde a proteção está — e onde não está",
+  "layout": "cards3",
+  "base": "claro",
+  "quadro": "1/3"
+ },
+ {
+  "slide": 43,
+  "item": "Onde a proteção está — e onde não está",
+  "layout": "cards3",
+  "base": "claro",
+  "quadro": "2/3"
+ },
+ {
+  "slide": 44,
+  "item": "Onde a proteção está — e onde não está",
+  "layout": "cards3",
+  "base": "claro",
+  "quadro": "3/3"
+ },
+ {
+  "slide": 45,
+  "item": "Quem tem direito de pedir a exclusão? O ",
+  "layout": "statement",
+  "base": "statement",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 46,
+  "item": "6.4 Checklist de conformidade",
+  "layout": "divisor",
+  "base": "divisor",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 47,
+  "item": "Checklist",
+  "layout": "capa",
+  "base": "capa",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 48,
+  "item": "Não é uma lista de \"está tudo certo\".",
+  "layout": "statement",
+  "base": "statement",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 49,
+  "item": "O checklist, resumido",
+  "layout": "semaforo",
+  "base": "escuro",
+  "quadro": "1/4"
+ },
+ {
+  "slide": 50,
+  "item": "O checklist, resumido",
+  "layout": "semaforo",
+  "base": "escuro",
+  "quadro": "2/4"
+ },
+ {
+  "slide": 51,
+  "item": "O checklist, resumido",
+  "layout": "semaforo",
+  "base": "escuro",
+  "quadro": "3/4"
+ },
+ {
+  "slide": 52,
+  "item": "O checklist, resumido",
+  "layout": "semaforo",
+  "base": "escuro",
+  "quadro": "4/4"
+ },
+ {
+  "slide": 53,
+  "item": "O que está em falta, sem rodeio",
+  "layout": "linhas3",
+  "base": "claro",
+  "quadro": "1/3"
+ },
+ {
+  "slide": 54,
+  "item": "O que está em falta, sem rodeio",
+  "layout": "linhas3",
+  "base": "claro",
+  "quadro": "2/3"
+ },
+ {
+  "slide": 55,
+  "item": "O que está em falta, sem rodeio",
+  "layout": "linhas3",
+  "base": "claro",
+  "quadro": "3/3"
+ },
+ {
+  "slide": 56,
+  "item": "O problema não é ter pendência. É pendên",
+  "layout": "statement",
+  "base": "statement",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 57,
+  "item": "6.5 O que aprendemos?",
+  "layout": "divisor",
+  "base": "divisor",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 58,
+  "item": "O que aprendemos",
+  "layout": "capa",
+  "base": "capa",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 59,
+  "item": "Três lições, uma por pilar",
+  "layout": "cards3",
+  "base": "claro",
+  "quadro": "1/3"
+ },
+ {
+  "slide": 60,
+  "item": "Três lições, uma por pilar",
+  "layout": "cards3",
+  "base": "claro",
+  "quadro": "2/3"
+ },
+ {
+  "slide": 61,
+  "item": "Três lições, uma por pilar",
+  "layout": "cards3",
+  "base": "claro",
+  "quadro": "3/3"
+ },
+ {
+  "slide": 62,
+  "item": "Eu construo pra que dar errado seja visí",
+  "layout": "statement",
+  "base": "statement",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 63,
+  "item": "6.6 Conclusão",
+  "layout": "divisor",
+  "base": "divisor",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 64,
+  "item": "Conclusão",
+  "layout": "capa",
+  "base": "capa",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 65,
+  "item": "Os três pilares, com conteúdo real",
+  "layout": "pilares",
+  "base": "escuro",
+  "quadro": "1/4"
+ },
+ {
+  "slide": 66,
+  "item": "Os três pilares, com conteúdo real",
+  "layout": "pilares",
+  "base": "escuro",
+  "quadro": "2/4"
+ },
+ {
+  "slide": 67,
+  "item": "Os três pilares, com conteúdo real",
+  "layout": "pilares",
+  "base": "escuro",
+  "quadro": "3/4"
+ },
+ {
+  "slide": 68,
+  "item": "Os três pilares, com conteúdo real",
+  "layout": "pilares",
+  "base": "escuro",
+  "quadro": "4/4"
+ },
+ {
+  "slide": 69,
+  "item": "Nenhum dos três funciona sozinho.",
+  "layout": "statement",
+  "base": "statement",
+  "quadro": "1/1"
+ },
+ {
+  "slide": 70,
+  "item": "Tira uma perna, a mesa cai",
+  "layout": "linhas3",
+  "base": "claro",
+  "quadro": "1/3"
+ },
+ {
+  "slide": 71,
+  "item": "Tira uma perna, a mesa cai",
+  "layout": "linhas3",
+  "base": "claro",
+  "quadro": "2/3"
+ },
+ {
+  "slide": 72,
+  "item": "Tira uma perna, a mesa cai",
+  "layout": "linhas3",
+  "base": "claro",
+  "quadro": "3/3"
+ },
+ {
+  "slide": 73,
+  "item": "Lançar é o começo.",
+  "layout": "hero",
+  "base": "divisor",
+  "quadro": "1/3"
+ },
+ {
+  "slide": 74,
+  "item": "Lançar é o começo.",
+  "layout": "hero",
+  "base": "divisor",
+  "quadro": "2/3"
+ },
+ {
+  "slide": 75,
+  "item": "Lançar é o começo.",
+  "layout": "hero",
+  "base": "divisor",
+  "quadro": "3/3"
+ }
+]
