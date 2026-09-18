@@ -77,3 +77,54 @@ Armadilhas encontradas em 17/09:
   (%LOCALAPPDATA%\Microsoft\Windows\Fonts + HKCU\...\Fonts).
 - `-replace` do PowerShell é case-insensitive: `[a-z]` casa com maiúscula
   também. Para separar CamelCase, use `-creplace`.
+
+---
+
+# Aula 6 — Conformidade (ex-Aula 5) — 17/09
+
+Gerador próprio, em Python. Usa o `Downloads/Aula 5.pptx` que o **Diego
+montou à mão** como fonte do visual: o "chrome" de cada base (fundo, logo,
+imagem decorativa, círculo preto do statement, capa) é **copiado slide a
+slide**, e só o conteúdo é desenhado por código. Sai
+`slides/Aula 6 6498 - conformidade.pptx` — 75 slides, 39 composições.
+
+```
+python gerar-aula6.py
+powershell -NoProfile -ExecutionPolicy Bypass -File .\qa-aula6.ps1
+```
+
+- **Conteúdo e notas de apresentador:** `gerar-aula6.py` (fonte:
+  `docs/aula5-script.md` e `docs/aula5-roteiro.md`).
+- **Motor:** `aula6_engine.py` (cópia de chrome, quadros, texto, salvar).
+- **Layouts:** `aula6_layouts.py` — 11 tipos: capa, divisor, statement,
+  hero, cards (2–4), linhas, contraste, chat, semáforo, pilares, citação.
+- **Animação forçada:** cada forma nasce com um número de quadro; a
+  composição de N quadros vira N slides, e o quadro k tem exatamente as
+  formas de quadro ≤ k, na mesma posição. Nenhum recurso de animação do
+  PowerPoint. O QA confere a inclusão quadro a quadro pela assinatura
+  `Left|Top|Width|Height|Texto`.
+- **Notas quadro a quadro:** cada quadro recebe o parágrafo que o Diego fala
+  enquanto aquele quadro está na tela, prefixado com `[quadro k/n]`. Marcas
+  `⏺` indicam o arquivo a abrir em câmera; `⚠` indica cuidado de gravação.
+- **Ajuste automático:** todo layout mede a composição antes de desenhar e
+  encolhe o corpo (nunca abaixo de 10 pt) até caber na faixa útil. Se não
+  couber nem no menor corpo, o QA acusa — o texto é que encurta, não o
+  slide que cresce.
+- **Centralização de título:** o `qa-aula6.ps1` exporta um PNG por slide e
+  um PNG **só com o chrome** por base (`aula6-referencia.pptx`);
+  `qa-aula6-tinta.py` subtrai um do outro e mede o centro da tinta que
+  sobrou. Sem essa subtração, a imagem decorativa da base clara entra na
+  medição e desloca o resultado em mais de 100 pt.
+- **O QA falha** se: texto mais alto que a caixa, texto fora da área segura
+  (14 pt de borda), texto abaixo de 10 pt (a capa é exceção: o kicker de
+  8 pt é do desenho original do Diego), título fora do eixo da tinta (> 6 pt)
+  ou sem alinhamento central, ou quadro que perde uma forma do anterior.
+
+Métricas calibradas contra PNG do PowerPoint (`aula6_engine.py`): largura
+média de caractere 0,575 (Encode Sans SemiBold) / 0,560 (Encode Sans) /
+0,530 (Roboto) do corpo, e altura natural de linha **1,19×** — o PowerPoint
+multiplica *esse* valor pelo percentual de entrelinha do parágrafo, e foi
+por não modelar isso que a primeira rodada estourou a base do slide.
+
+O Diego finaliza no Google Slides. Este gerador é a **primeira** versão, não
+a última: depois de finalizar à mão, não regerar por cima.
